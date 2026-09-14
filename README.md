@@ -21,9 +21,13 @@ pnpm run build
 pnpm run lint:js
 pnpm run lint:css
 pnpm run test:php
+pnpm run test:unit
+pnpm run test:wordpress
 ```
 
-Built assets are committed so a checkout of a release can be installed directly as a WordPress plugin.
+`test:unit` runs the browser submission tests and Gutenberg's complete form-block serialization fixture corpus. `test:wordpress` creates a disposable SQLite database alongside the local WordPress checkout and covers block registration, rendering, email, custom actions, comments, privacy requests, KSES, and rejected submissions. It never uses the development site's database.
+
+Built assets are committed so a checkout of a release can be installed directly as a WordPress plugin. See [docs/port-audit.md](docs/port-audit.md) for the file-by-file upstream audit and intentional standalone changes.
 
 ## Security
 

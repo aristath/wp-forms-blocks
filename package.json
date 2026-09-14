@@ -17,7 +17,6 @@
 	},
 	"bugs": "https://github.com/aristath/wp-forms-blocks/issues",
 	"private": true,
-	"packageManager": "pnpm@12.4.1",
 	"dependencies": {
 		"@wordpress/block-editor": "^17.1.0",
 		"@wordpress/blocks": "^16.0.0",
@@ -34,14 +33,23 @@
 		"remove-accents": "^0.5.0"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^35.0.0"
+		"@wordpress/babel-preset-default": "^8.55.0",
+		"@wordpress/block-library": "^11.0.0",
+		"@wordpress/block-serialization-default-parser": "^5.55.0",
+		"@wordpress/jest-preset-default": "^14.2.0",
+		"@wordpress/scripts": "^35.0.0",
+		"react": "^19.3.0",
+		"react-dom": "^19.3.0"
 	},
 	"scripts": {
 		"build": "wp-scripts build --webpack-copy-php",
 		"start": "wp-scripts start --webpack-copy-php",
-		"lint:js": "wp-scripts lint-js src webpack.config.js",
+		"lint:js": "wp-scripts lint-js src tests/js webpack.config.js jest-unit.config.js",
 		"lint:css": "wp-scripts lint-style 'src/**/*.scss'",
 		"format": "wp-scripts format",
-		"test:php": "php tests/php/smoke.php"
+		"test:fixtures": "wp-scripts test-unit-js tests/js/serialization.test.js --runInBand",
+		"test:php": "php tests/php/smoke.php",
+		"test:wordpress": "tests/run-wordpress-tests.sh",
+		"test:unit": "wp-scripts test-unit-js --runInBand"
 	}
 }

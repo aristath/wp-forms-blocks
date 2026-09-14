@@ -80,10 +80,12 @@ function wp_forms_blocks_get_email_fields( $attributes ) {
 		'<input type="hidden" name="wp_forms_blocks_token" value="%1$s">' .
 		'<input type="hidden" name="wp_forms_blocks_signature" value="%2$s">' .
 		'<input type="hidden" name="_ajax_nonce" value="%3$s">' .
-		'<label class="wp-forms-blocks-honeypot" aria-hidden="true">%4$s<input type="text" name="wp_forms_blocks_website" value="" tabindex="-1" autocomplete="off"></label>',
+		'%4$s' .
+		'<label class="wp-forms-blocks-honeypot" aria-hidden="true">%5$s<input type="text" name="wp_forms_blocks_website" value="" tabindex="-1" autocomplete="off"></label>',
 		esc_attr( $token ),
 		esc_attr( $signature ),
 		esc_attr( $nonce ),
+		wp_referer_field( false ),
 		esc_html__( 'Leave this field empty', 'wp-forms-blocks' )
 	);
 }
@@ -153,7 +155,7 @@ function wp_forms_blocks_send_email() {
 		wp_send_json_error( array( 'message' => __( 'The form security check failed.', 'wp-forms-blocks' ) ), 403 );
 	}
 
-	$skip  = array(
+	$skip   = array(
 		'action',
 		'_ajax_nonce',
 		'_wp_http_referer',
@@ -161,12 +163,25 @@ function wp_forms_blocks_send_email() {
 		'wp_forms_blocks_token',
 		'wp_forms_blocks_website',
 	);
+	$source = '';
+	if ( isset( $params['_wp_http_referer'] ) && is_string( $params['_wp_http_referer'] ) ) {
+		$referer = sanitize_text_field( $params['_wp_http_referer'] );
+		if ( 0 === strpos( $referer, '/' ) && 0 !== strpos( $referer, '//' ) ) {
+			$source = esc_url_raw( site_url( $referer ) );
+		}
+	}
+
+	$heading = sprintf(
+		/* translators: %s: Website name. */
+		__( 'Form submission from %s', 'wp-forms-blocks' ),
+		wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
+	);
+	if ( '' !== $source ) {
+		$heading .= ' (' . $source . ')';
+	}
+
 	$lines = array(
-		sprintf(
-			/* translators: %s: Website name. */
-			__( 'Form submission from %s', 'wp-forms-blocks' ),
-			wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES )
-		),
+		$heading,
 		'',
 	);
 

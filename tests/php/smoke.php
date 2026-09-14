@@ -31,6 +31,10 @@ function wp_create_nonce( $action ) {
 	return substr( hash( 'sha256', $action ), 0, 10 );
 }
 
+function wp_referer_field() {
+	return '<input type="hidden" name="_wp_http_referer" value="/contact/">';
+}
+
 function esc_attr( $value ) {
 	return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8' );
 }
@@ -78,6 +82,10 @@ $fields = wp_forms_blocks_get_email_fields( array( 'email' => 'recipient@example
 preg_match( '/name="wp_forms_blocks_token" value="([^"]+)"/', $fields, $token_match );
 preg_match( '/name="wp_forms_blocks_signature" value="([^"]+)"/', $fields, $signature_match );
 wp_forms_blocks_assert( isset( $token_match[1], $signature_match[1] ), 'Signed fields must be rendered.' );
+wp_forms_blocks_assert(
+	false !== strpos( $fields, 'name="_wp_http_referer"' ),
+	'The submission source field must be rendered.'
+);
 
 $verified = wp_forms_blocks_verify_recipients( $token_match[1], $signature_match[1] );
 wp_forms_blocks_assert(
@@ -91,6 +99,10 @@ wp_forms_blocks_assert(
 wp_forms_blocks_assert(
 	false === wp_forms_blocks_verify_recipients( $token_match[1], str_repeat( '0', 64 ) ),
 	'A modified recipient signature must be rejected.'
+);
+wp_forms_blocks_assert(
+	false === wp_forms_blocks_verify_recipients( '!', hash_hmac( 'sha256', '!', wp_salt( 'auth' ) ) ),
+	'Invalid base64 recipient data must be rejected.'
 );
 
 wp_forms_blocks_assert(
