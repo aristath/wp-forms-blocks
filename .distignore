@@ -1,0 +1,12 @@
+/.git
+/.github
+/.gitignore
+/.distignore
+/eslint.config.cjs
+/node_modules
+/package.json
+/pnpm-lock.yaml
+/src
+/tests
+/webpack.config.js
+/README.md

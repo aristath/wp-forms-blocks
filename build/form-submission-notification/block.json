@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "core/form-submission-notification",
+  "title": "Form Submission Notification",
+  "category": "widgets",
+  "ancestor": [
+    "core/form"
+  ],
+  "description": "Provide a notification message after the form has been submitted.",
+  "keywords": [
+    "form",
+    "feedback",
+    "notification",
+    "message"
+  ],
+  "textdomain": "wp-forms-blocks",
+  "editorScript": "wp-forms-blocks-editor",
+  "editorStyle": "wp-forms-blocks-editor",
+  "icon": "feedback",
+  "attributes": {
+    "type": {
+      "type": "string",
+      "default": "success"
+    }
+  }
+}

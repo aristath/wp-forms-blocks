@@ -1,0 +1,10 @@
+@use "form-input/style" as form-input-style;
+@use "form-submit-button/style" as submit-button-style;
+
+.wp-forms-blocks-honeypot {
+	position: absolute !important;
+	inset-inline-start: -10000px !important;
+	width: 1px !important;
+	height: 1px !important;
+	overflow: hidden !important;
+}

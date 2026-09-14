@@ -1,0 +1,47 @@
+{
+	"name": "wp-forms-blocks",
+	"version": "0.1.0",
+	"description": "Block-editor forms with email, custom actions, comments, and privacy requests.",
+	"author": "Aristeidis Stathopoulos",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"blocks",
+		"forms",
+		"gutenberg"
+	],
+	"homepage": "https://github.com/aristath/wp-forms-blocks",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/aristath/wp-forms-blocks.git"
+	},
+	"bugs": "https://github.com/aristath/wp-forms-blocks/issues",
+	"private": true,
+	"packageManager": "pnpm@12.4.1",
+	"dependencies": {
+		"@wordpress/block-editor": "^17.1.0",
+		"@wordpress/blocks": "^16.0.0",
+		"@wordpress/components": "^40.1.0",
+		"@wordpress/compose": "^8.8.0",
+		"@wordpress/data": "^10.55.0",
+		"@wordpress/dom": "^4.55.0",
+		"@wordpress/element": "^8.7.0",
+		"@wordpress/hooks": "^4.55.0",
+		"@wordpress/i18n": "^6.28.0",
+		"@wordpress/icons": "^16.0.0",
+		"@wordpress/primitives": "^4.55.0",
+		"clsx": "^2.1.1",
+		"remove-accents": "^0.5.0"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^35.0.0"
+	},
+	"scripts": {
+		"build": "wp-scripts build --webpack-copy-php",
+		"start": "wp-scripts start --webpack-copy-php",
+		"lint:js": "wp-scripts lint-js src webpack.config.js",
+		"lint:css": "wp-scripts lint-style 'src/**/*.scss'",
+		"format": "wp-scripts format",
+		"test:php": "php tests/php/smoke.php"
+	}
+}
