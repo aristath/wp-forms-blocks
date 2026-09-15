@@ -1,6 +1,6 @@
 <?php
 /**
- * Privacy-request processing checks. Run with `wp eval-file` after activation.
+ * Gutenberg-compatible privacy-request checks. Run with `wp eval-file`.
  *
  * @package WPFormsBlocks
  */
@@ -30,38 +30,29 @@ $count_requests = static function () {
 	);
 };
 
-$_SERVER['REQUEST_METHOD'] = 'POST';
-$_POST                     = array(
-	'wp-action'                         => 'wp_privacy_send_request',
-	'wp-privacy-request'                => '1',
-	'wp_forms_blocks_privacy_nonce'     => 'invalid',
-	'email'                             => 'privacy@example.com',
-	'export_personal_data'              => '1',
-);
-
-$before = $count_requests();
-wp_forms_blocks_process_privacy_request();
-wp_forms_blocks_privacy_assert(
-	$before === $count_requests(),
-	'An invalid privacy nonce created a user request.'
+$_POST = array(
+	'wp-action'            => 'wp_privacy_send_request',
+	'wp-privacy-request'   => '1',
+	'email'                => 'privacy@example.com',
+	'export_personal_data' => '1',
+	'remove_personal_data' => '1',
 );
 
 add_filter( 'pre_wp_mail', '__return_true' );
-$_POST['wp_forms_blocks_privacy_nonce'] = wp_create_nonce( 'wp_forms_blocks_privacy_request' );
-$_POST['remove_personal_data']          = '1';
-wp_forms_blocks_process_privacy_request();
+$before = $count_requests();
+\WPFormsBlocks\block_core_form_privacy_form();
 
 wp_forms_blocks_privacy_assert(
 	$before + 2 === $count_requests(),
 	'The privacy form did not create both requested actions.'
 );
 wp_forms_blocks_privacy_assert(
-	'<p>Success</p>' === wp_forms_blocks_render_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
-	'The privacy success notification was not enabled.'
+	'<p>Success</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
+	'The Gutenberg privacy success notification was not enabled.'
 );
 wp_forms_blocks_privacy_assert(
-	'' === wp_forms_blocks_render_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
-	'The privacy error notification was enabled after successful requests.'
+	'' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
+	'The Gutenberg privacy error notification was enabled after successful requests.'
 );
 
-echo "WordPress privacy-request smoke tests passed.\n";
+echo "WordPress privacy-request tests passed for the faithful port.\n";

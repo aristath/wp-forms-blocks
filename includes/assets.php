@@ -40,6 +40,7 @@ function wp_forms_blocks_get_asset( $name ) {
  */
 function wp_forms_blocks_register_assets() {
 	$editor_asset = wp_forms_blocks_get_asset( 'index' );
+	$style_asset  = wp_forms_blocks_get_asset( 'style' );
 	$view_asset   = wp_forms_blocks_get_asset( 'view' );
 
 	wp_register_script(
@@ -50,12 +51,6 @@ function wp_forms_blocks_register_assets() {
 		true
 	);
 
-	wp_set_script_translations(
-		'wp-forms-blocks-editor',
-		'wp-forms-blocks',
-		WP_FORMS_BLOCKS_DIR . 'languages'
-	);
-
 	wp_register_style(
 		'wp-forms-blocks-editor',
 		WP_FORMS_BLOCKS_URL . 'build/index.css',
@@ -64,18 +59,36 @@ function wp_forms_blocks_register_assets() {
 	);
 
 	wp_register_style(
-		'wp-forms-blocks',
+		'wp-block-form-input',
 		WP_FORMS_BLOCKS_URL . 'build/style.css',
 		array(),
-		$editor_asset['version']
+		$style_asset['version']
 	);
 
-	if ( function_exists( 'wp_register_script_module' ) ) {
+	wp_register_style(
+		'wp-block-form-submit-button',
+		WP_FORMS_BLOCKS_URL . 'build/style.css',
+		array(),
+		$style_asset['version']
+	);
+
+	if (
+		function_exists( 'wp_register_script_module' ) &&
+		null === wp_script_modules()->get_registered( '@wordpress/block-library/form/view' )
+	) {
 		wp_register_script_module(
-			'wp-forms-blocks-view',
+			'@wordpress/block-library/form/view',
 			WP_FORMS_BLOCKS_URL . 'build/view.js',
 			$view_asset['dependencies'],
 			$view_asset['version']
 		);
 	}
+}
+
+/**
+ * Enqueue the consolidated equivalents of Gutenberg's block-library editor assets.
+ */
+function wp_forms_blocks_enqueue_editor_assets() {
+	wp_enqueue_script( 'wp-forms-blocks-editor' );
+	wp_enqueue_style( 'wp-forms-blocks-editor' );
 }

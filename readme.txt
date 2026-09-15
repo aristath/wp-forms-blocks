@@ -1,7 +1,7 @@
 === WP Forms Blocks ===
 Contributors: aristath
 Tags: blocks, forms, contact form, block editor
-Requires at least: 6.7
+Requires at least: 7.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 0.1.0
@@ -26,5 +26,4 @@ It retains the historical core/form block names for compatibility with content c
 
 = 0.1.0 =
 * Initial standalone release, based on the implementation from Gutenberg 23.9.1.
-* Protect email recipients with a server-verified signature.
 * Retain contact, comment, and privacy-request form behavior.

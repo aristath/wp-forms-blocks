@@ -1,96 +1,78 @@
-import {
-	attachEmailForm,
-	getNotificationUrl,
-	submitEmailForm,
-} from '../../src/form/view';
-
-const createForm = () => {
-	document.body.innerHTML = `
-		<form class="wp-block-form" action="https://example.com/wp-admin/admin-ajax.php">
-			<input type="hidden" name="wp_forms_blocks_token" value="signed-token">
-			<input name="choice" value="one">
-			<input name="choice" value="two">
-			<button type="submit">Send</button>
-		</form>
-	`;
-	return document.querySelector( 'form' );
+const settings = {
+	nonce: 'test-nonce',
+	ajaxUrl: 'https://example.com/wp-admin/admin-ajax.php',
+	action: 'wp_block_form_email_submit',
 };
 
-describe( 'form front-end submission adapter', () => {
-	test( 'sets rather than duplicates the notification query parameter', () => {
-		expect(
-			getNotificationUrl(
-				'success',
-				'https://example.com/contact/?source=footer&wp-form-result=error#form'
-			)
-		).toBe(
-			'https://example.com/contact/?source=footer&wp-form-result=success#form'
-		);
+const renderDocument = ( action, includeSettings = true ) => {
+	document.body.innerHTML = `
+		${
+			includeSettings
+				? `<script id="wp-script-module-data-@wordpress/block-library/form/view" type="application/json">${ JSON.stringify(
+						settings
+				  ) }</script>`
+				: ''
+		}
+		<form class="wp-block-form" action="${ action }">
+			<input name="message" value="Hello">
+		</form>
+	`;
+};
+
+const loadViewModule = () => {
+	jest.isolateModules( () => {
+		require( '../../src/form/view' );
+	} );
+};
+
+describe( 'Gutenberg form view module', () => {
+	beforeEach( () => {
+		global.fetch = jest.fn( () => new Promise( () => {} ) );
 	} );
 
-	test( 'leaves custom forms to the browser', () => {
-		document.body.innerHTML =
-			'<form class="wp-block-form" action="https://example.com/custom"></form>';
-		expect( attachEmailForm( document.querySelector( 'form' ) ) ).toBe(
-			false
-		);
-	} );
+	test( 'submits mailto forms with the original module-data contract', async () => {
+		renderDocument( 'mailto:recipient@example.com' );
+		loadViewModule();
 
-	test( 'submits all values and restores buttons after success', async () => {
-		const form = createForm();
-		const navigate = jest.fn();
-		const fetchRequest = jest.fn( async ( url, request ) => {
-			expect( url ).toBe( 'https://example.com/wp-admin/admin-ajax.php' );
-			expect( request.method ).toBe( 'POST' );
-			expect( request.body.getAll( 'choice' ) ).toEqual( [
-				'one',
-				'two',
-			] );
-			expect( form.querySelector( 'button' ).disabled ).toBe( true );
-			return { ok: true, json: async () => ( { success: true } ) };
+		const form = document.querySelector( 'form' );
+		const event = new Event( 'submit', {
+			bubbles: true,
+			cancelable: true,
 		} );
+		form.dispatchEvent( event );
+		await Promise.resolve();
 
-		await expect(
-			submitEmailForm( form, { fetch: fetchRequest, navigate } )
-		).resolves.toBe( 'success' );
-		expect( form.querySelector( 'button' ).disabled ).toBe( false );
-		expect( navigate ).toHaveBeenCalledWith(
-			'http://localhost/?wp-form-result=success'
+		expect( event.defaultPrevented ).toBe( true );
+		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+		const [ url, request ] = global.fetch.mock.calls[ 0 ];
+		expect( url ).toBe( settings.ajaxUrl );
+		expect( request.method ).toBe( 'POST' );
+		expect( request.headers ).toEqual( {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		} );
+		const body = new URLSearchParams( request.body );
+		expect( body.get( 'action' ) ).toBe( settings.action );
+		expect( body.get( '_ajax_nonce' ) ).toBe( settings.nonce );
+		expect( body.get( 'formAction' ) ).toBe(
+			'mailto:recipient@example.com'
 		);
+		expect( body.get( 'message' ) ).toBe( 'Hello' );
 	} );
 
 	test.each( [
-		[
-			'an application error',
-			async () => ( {
-				ok: true,
-				json: async () => ( { success: false } ),
-			} ),
-		],
-		[
-			'an HTTP error',
-			async () => ( {
-				ok: false,
-				json: async () => ( { success: true } ),
-			} ),
-		],
-		[
-			'a network error',
-			async () => Promise.reject( new Error( 'offline' ) ),
-		],
-	] )(
-		'shows the error notification for %s',
-		async ( label, fetchRequest ) => {
-			const navigate = jest.fn();
-			await expect(
-				submitEmailForm( createForm(), {
-					fetch: fetchRequest,
-					navigate,
-				} )
-			).resolves.toBe( 'error' );
-			expect( navigate ).toHaveBeenCalledWith(
-				'http://localhost/?wp-form-result=error'
-			);
-		}
-	);
+		[ 'custom actions', 'https://example.com/custom', true ],
+		[ 'missing module data', 'mailto:recipient@example.com', false ],
+	] )( 'leaves %s to normal browser submission', ( label, action, data ) => {
+		renderDocument( action, data );
+		loadViewModule();
+
+		const event = new Event( 'submit', {
+			bubbles: true,
+			cancelable: true,
+		} );
+		document.querySelector( 'form' ).dispatchEvent( event );
+
+		expect( event.defaultPrevented ).toBe( false );
+		expect( global.fetch ).not.toHaveBeenCalled();
+	} );
 } );

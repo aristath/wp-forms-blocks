@@ -7,7 +7,7 @@ import {
 const variations = [
 	{
 		name: 'comment-form',
-		title: __( 'Comment form' ),
+		title: __( 'Experimental Comment form' ),
 		description: __( 'A comment form for posts and pages.' ),
 		attributes: {
 			submissionMethod: 'custom',
@@ -55,7 +55,7 @@ const variations = [
 	},
 	{
 		name: 'wp-privacy-form',
-		title: __( 'Privacy Request Form' ),
+		title: __( 'Experimental Privacy Request Form' ),
 		keywords: [ 'GDPR' ],
 		description: __( 'A form to request data exports and/or deletion.' ),
 		attributes: {

@@ -3,6 +3,7 @@
 /.gitignore
 /.distignore
 /eslint.config.cjs
+/.stylelintrc.json
 /node_modules
 /package.json
 /pnpm-lock.yaml

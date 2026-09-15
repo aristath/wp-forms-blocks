@@ -33,18 +33,4 @@ wp_test=(
 ajax_success=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-smoke.php")
 [[ "$ajax_success" == *'"success":true'* ]]
 
-ajax_honeypot=$(
-	WP_FORMS_BLOCKS_REJECTION_CASE=honeypot \
-		"${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-rejection-smoke.php"
-)
-[[ "$ajax_honeypot" == *'"success":false'* ]]
-[[ "$ajax_honeypot" == *'could not be processed'* ]]
-
-ajax_signature=$(
-	WP_FORMS_BLOCKS_REJECTION_CASE=signature \
-		"${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-rejection-smoke.php"
-)
-[[ "$ajax_signature" == *'"success":false'* ]]
-[[ "$ajax_signature" == *'security check failed'* ]]
-
 echo "All isolated WordPress integration tests passed."

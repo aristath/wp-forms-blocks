@@ -48,7 +48,6 @@
 		"lint:css": "wp-scripts lint-style 'src/**/*.scss'",
 		"format": "wp-scripts format",
 		"test:fixtures": "wp-scripts test-unit-js tests/js/serialization.test.js --runInBand",
-		"test:php": "php tests/php/smoke.php",
 		"test:wordpress": "tests/run-wordpress-tests.sh",
 		"test:unit": "wp-scripts test-unit-js --runInBand"
 	}

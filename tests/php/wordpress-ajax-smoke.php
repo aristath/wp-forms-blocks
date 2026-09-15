@@ -1,39 +1,34 @@
 <?php
 /**
- * Successful AJAX submission smoke check. Run with `wp eval-file` after activation.
+ * Gutenberg-compatible AJAX submission check. Run with `wp eval-file`.
  *
  * @package WPFormsBlocks
  */
 
-$fields = wp_forms_blocks_get_email_fields( array( 'email' => 'recipient@example.com' ) );
-preg_match( '/name="wp_forms_blocks_token" value="([^"]+)"/', $fields, $token_match );
-preg_match( '/name="wp_forms_blocks_signature" value="([^"]+)"/', $fields, $signature_match );
-
-$signature = $signature_match[1];
-$_POST     = array(
-	'action'                    => 'wp_forms_blocks_email_submit',
-	'wp_forms_blocks_token'     => $token_match[1],
-	'wp_forms_blocks_signature' => $signature,
-	'_ajax_nonce'               => wp_create_nonce( 'wp_forms_blocks_submit_' . $signature ),
-	'_wp_http_referer'          => '/contact/',
-	'name'                      => 'Ada Lovelace',
-	'message'                   => '<b>Hello</b>',
+$_POST = array(
+	'action'           => 'wp_block_form_email_submit',
+	'_ajax_nonce'      => wp_create_nonce( 'wp-block-form' ),
+	'_wp_http_referer' => '/contact/',
+	'formAction'       => 'mailto:recipient@example.com',
+	'name'             => 'Ada Lovelace',
+	'message'          => '<b>Hello</b>',
 );
+$_REQUEST = $_POST;
 
 add_filter(
 	'pre_wp_mail',
-	static function ( $return, $attributes ) {
-		if ( array( 'recipient@example.com' ) !== $attributes['to'] ) {
-			throw new RuntimeException( 'The AJAX handler changed the verified recipient.' );
+	static function ( $preempt, $attributes ) {
+		if ( 'recipient@example.com' !== $attributes['to'] ) {
+			throw new RuntimeException( 'The port changed the Gutenberg formAction recipient.' );
 		}
-		if ( false === strpos( $attributes['message'], 'name: Ada Lovelace' ) ) {
-			throw new RuntimeException( 'The AJAX handler omitted submitted fields.' );
+		if ( false === strpos( $attributes['message'], 'name: Ada Lovelace</br>' ) ) {
+			throw new RuntimeException( 'The port changed Gutenberg email field formatting.' );
 		}
-		if ( false !== strpos( $attributes['message'], '<b>' ) ) {
-			throw new RuntimeException( 'The AJAX handler did not sanitize submitted HTML.' );
+		if ( false === strpos( $attributes['message'], 'message: <b>Hello</b></br>' ) ) {
+			throw new RuntimeException( 'The port changed Gutenberg email HTML handling.' );
 		}
-		if ( false === strpos( $attributes['message'], site_url( '/contact/' ) ) ) {
-			throw new RuntimeException( 'The AJAX handler omitted the submission source URL.' );
+		if ( 'Form submission' !== $attributes['subject'] ) {
+			throw new RuntimeException( 'The port changed the Gutenberg email subject.' );
 		}
 
 		return true;
@@ -42,4 +37,4 @@ add_filter(
 	2
 );
 
-wp_forms_blocks_send_email();
+\WPFormsBlocks\block_core_form_send_email();

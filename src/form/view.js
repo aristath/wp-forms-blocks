@@ -1,77 +1,54 @@
-/**
- * Build the page URL that selects the matching notification block.
- *
- * @param {string} status Submission status.
- * @param {string} href   Current page URL.
- * @return {string} Notification URL.
- */
-export function getNotificationUrl( status, href = window.location.href ) {
-	const url = new URL( href );
-	url.searchParams.set( 'wp-form-result', status );
-	return url.href;
-}
+let formSettings;
+try {
+	formSettings = JSON.parse(
+		document.getElementById(
+			'wp-script-module-data-@wordpress/block-library/form/view'
+		)?.textContent
+	);
+} catch {}
 
-/**
- * Submit an email form and navigate to its success or error notification.
- *
- * @param {HTMLFormElement} form    Form element.
- * @param {Object}          options Testable browser dependencies.
- * @return {Promise<string>} Submission status.
- */
-export async function submitEmailForm( form, options = {} ) {
-	const fetchRequest = options.fetch || window.fetch.bind( window );
-	const navigate =
-		options.navigate || ( ( url ) => window.location.assign( url ) );
-	const formData = new FormData( form );
-	const submitButtons = form.querySelectorAll( '[type="submit"]' );
-	let status = 'error';
-
-	submitButtons.forEach( ( button ) => {
-		button.disabled = true;
-	} );
-
-	try {
-		const response = await fetchRequest( form.action, {
-			method: 'POST',
-			body: formData,
-		} );
-		const result = await response.json();
-		if ( response.ok && result.success ) {
-			status = 'success';
-		}
-	} catch {
-		status = 'error';
-	} finally {
-		submitButtons.forEach( ( button ) => {
-			button.disabled = false;
-		} );
+document.querySelectorAll( 'form.wp-block-form' ).forEach( function ( form ) {
+	// Bail If the form settings not provided or the form is not using the mailto: action.
+	if (
+		! formSettings ||
+		! form.action ||
+		! form.action.startsWith( 'mailto:' )
+	) {
+		return;
 	}
 
-	navigate( getNotificationUrl( status ) );
-	return status;
-}
+	const redirectNotification = ( status ) => {
+		const urlParams = new URLSearchParams( window.location.search );
+		urlParams.append( 'wp-form-result', status );
+		window.location.search = urlParams.toString();
+	};
 
-/**
- * Attach the AJAX handler to a server-configured email form.
- *
- * @param {HTMLFormElement} form    Form element.
- * @param {Object}          options Testable browser dependencies.
- * @return {boolean} Whether the handler was attached.
- */
-export function attachEmailForm( form, options = {} ) {
-	// Custom forms submit normally to their configured action.
-	if ( ! form.querySelector( '[name="wp_forms_blocks_token"]' ) ) {
-		return false;
-	}
-
-	form.addEventListener( 'submit', function ( event ) {
+	// Add an event listener for the form submission.
+	form.addEventListener( 'submit', async function ( event ) {
 		event.preventDefault();
-		submitEmailForm( form, options );
+		// Get the form data and merge it with the form action and nonce.
+		const formData = Object.fromEntries( new FormData( form ).entries() );
+		formData.formAction = form.action;
+		formData._ajax_nonce = formSettings.nonce;
+		formData.action = formSettings.action;
+		formData._wp_http_referer = window.location.href;
+		formData.formAction = form.action;
+
+		try {
+			const response = await fetch( formSettings.ajaxUrl, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams( formData ).toString(),
+			} );
+			if ( response.ok ) {
+				redirectNotification( 'success' );
+			} else {
+				redirectNotification( 'error' );
+			}
+		} catch {
+			redirectNotification( 'error' );
+		}
 	} );
-
-	return true;
-}
-
-document
-	.querySelectorAll( 'form.wp-block-form' )
-	.forEach( ( form ) => attachEmailForm( form ) );
+} );

@@ -1,0 +1,21 @@
+{
+	"extends": "./node_modules/@wordpress/scripts/config/.stylelintrc.json",
+	"overrides": [
+		{
+			"files": [
+				"src/form-input/editor.scss",
+				"src/form-submission-notification/editor.scss"
+			],
+			"rules": {
+				"rule-empty-line-before": null,
+				"value-keyword-case": null
+			}
+		},
+		{
+			"files": [ "src/form-input/style.scss" ],
+			"rules": {
+				"@stylistic/max-line-length": null
+			}
+		}
+	]
+}

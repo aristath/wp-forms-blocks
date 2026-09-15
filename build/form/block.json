@@ -1,6 +1,7 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
+  "__experimental": true,
   "name": "core/form",
   "title": "Form",
   "category": "widgets",
@@ -20,11 +21,7 @@
     "row",
     "section"
   ],
-  "textdomain": "wp-forms-blocks",
-  "editorScript": "wp-forms-blocks-editor",
-  "editorStyle": "wp-forms-blocks-editor",
-  "style": "wp-forms-blocks",
-  "viewScriptModule": "wp-forms-blocks-view",
+  "textdomain": "default",
   "attributes": {
     "submissionMethod": {
       "type": "string",

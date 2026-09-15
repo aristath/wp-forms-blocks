@@ -1,6 +1,7 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
+  "__experimental": true,
   "name": "core/form-submit-button",
   "title": "Form Submit Button",
   "category": "widgets",
@@ -18,7 +19,8 @@
     "button",
     "form"
   ],
-  "textdomain": "wp-forms-blocks",
-  "editorScript": "wp-forms-blocks-editor",
-  "style": "wp-forms-blocks"
+  "textdomain": "default",
+  "style": [
+    "wp-block-form-submit-button"
+  ]
 }
