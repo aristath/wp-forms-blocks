@@ -7,6 +7,12 @@ plugin_dir=$(cd "$test_dir/.." && pwd)
 wp_root=$(cd "$plugin_dir/../../.." && pwd)
 database_dir=$(mktemp -d /tmp/wp-forms-blocks-e2e.XXXXXX)
 server_pid=''
+e2e_port=${WP_FORMS_BLOCKS_E2E_PORT:-8889}
+
+if [[ ! "$e2e_port" =~ ^[0-9]+$ ]] || (( e2e_port < 1024 || e2e_port > 65535 )); then
+	echo 'WP_FORMS_BLOCKS_E2E_PORT must be a valid port.' >&2
+	exit 1
+fi
 
 cleanup() {
 	if [[ -n "$server_pid" ]] && kill -0 "$server_pid" 2>/dev/null; then
@@ -24,7 +30,7 @@ wp_test=(
 )
 
 "${wp_test[@]}" core install \
-	--url=http://localhost:8889 \
+	--url="http://localhost:$e2e_port" \
 	--title="WP Forms Blocks E2E" \
 	--admin_user=admin \
 	--admin_password=password \
@@ -38,7 +44,7 @@ wp_test=(
 
 WP_FORMS_BLOCKS_E2E_DB_DIR="$database_dir" \
 	php -d "auto_prepend_file=$test_dir/e2e/prepend.php" \
-	-S 127.0.0.1:8889 \
+	-S "127.0.0.1:$e2e_port" \
 	-t "$wp_root" &
 server_pid=$!
 wait "$server_pid"

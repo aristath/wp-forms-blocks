@@ -6,6 +6,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
+import { getBlockType } from '@wordpress/blocks';
 import clsx from 'clsx';
 
 const Edit = ( { attributes, clientId } ) => {
@@ -28,6 +29,7 @@ const Edit = ( { attributes, clientId } ) => {
 	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		template: getBlockType( 'core/form-submission-notification' )?.template,
 		renderAppender: hasInnerBlocks
 			? undefined
 			: InnerBlocks.ButtonBlockAppender,

@@ -51,7 +51,7 @@
 		"lint:css": "wp-scripts lint-style 'src/**/*.scss'",
 		"format": "wp-scripts format",
 		"test": "pnpm test:coverage && pnpm test:wordpress && pnpm test:e2e",
-		"test:e2e": "wp-scripts test-e2e",
+		"test:e2e": "tests/run-e2e-tests.sh",
 		"test:fixtures": "wp-scripts test-unit-js tests/js/serialization.test.js --runInBand",
 		"test:wordpress": "tests/run-wordpress-tests.sh",
 		"test:unit": "wp-scripts test-unit-js --runInBand",

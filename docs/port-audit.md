@@ -8,16 +8,17 @@ The original source audit covered all 40 files in the four `packages/block-libra
 
 ## Literal source files
 
-Of the 38 retained upstream source files, 33 are byte-identical to Gutenberg `v23.9.1`:
+Of the 38 retained upstream source files, 30 are byte-identical to Gutenberg `v23.9.1`:
 
-- all edit, save, icon, utility, and variation JavaScript;
+- all save, icon, utility, and variation JavaScript;
+- `form-input/edit.js`;
 - all four `init.js` files;
 - all component Sass files;
 - all four generated block README files;
 - `form/view.js`;
 - all 28 retained canonical serialization fixture files.
 
-The two retained block registration files, `form/index.js` and `form-input/index.js`, differ only by removal of their deprecation imports and settings. The three PHP block files are retained in their original block directories and preserve their original function bodies and hooks. The KSES and script-module-data functions are likewise retained as discrete ports of their Gutenberg counterparts.
+The two retained block registration files, `form/index.js` and `form-input/index.js`, differ only by removal of their deprecation imports and settings. The Form, Submit Button, and Submission Notification edit components differ only by explicitly passing their registered templates to `useInnerBlocksProps`, restoring the implicit behavior provided by Gutenberg's older block editor. The three PHP block files are retained in their original block directories and preserve their original function bodies and hooks. The KSES and script-module-data functions are likewise retained as discrete ports of their Gutenberg counterparts.
 
 The two historical JavaScript deprecation implementations (`form/deprecated.js` and `form-input/deprecated.js`) and their 32 migration-only fixture files were subsequently removed. The remaining 28 upstream fixture files are byte-identical. This standalone plugin now supports one canonical block schema and does not migrate markup saved by earlier experimental versions.
 
@@ -35,6 +36,7 @@ The maintained differences from Gutenberg are limited to:
 8. A minimal PHP registration file is added for `core/form-submit-button`, which Gutenberg registered through its shared block-library loader and therefore did not give a per-block PHP file.
 9. WordPress 7.0 is the minimum version because the unchanged Gutenberg `view.js` relies on WordPress's native script-module data API.
 10. Historical deprecation registrations and migration-only fixtures are omitted so the standalone plugin exposes only its canonical schema.
+11. Current WordPress no longer applies a block type's registered `template` setting implicitly. The three container edit components pass their unchanged registered templates to `useInnerBlocksProps`, preserving Gutenberg's original default fields and nested content.
 
 All four `block.json` files are byte-identical. The historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` names, `__experimental` metadata, text domain, variation labels, saved markup, render behavior, email transport, privacy processing, notification filtering, KSES allowlist, AJAX action, view-module data shape, and front-end JavaScript behavior remain unchanged.
 

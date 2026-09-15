@@ -20,6 +20,11 @@ const mockState = {
 	block: null,
 	ref: { current: null },
 };
+const mockTemplates = {
+	'core/form': [ [ 'core/form-input' ] ],
+	'core/form-submit-button': [ [ 'core/buttons' ] ],
+	'core/form-submission-notification': [ [ 'core/paragraph' ] ],
+};
 
 jest.mock( '../../src/utils/hooks', () => ( {
 	useToolsPanelDropdownMenuProps: () => ( {
@@ -37,6 +42,10 @@ jest.mock( '@wordpress/data', () => ( {
 		callback( () => ( {
 			getBlock: () => mockState.block,
 		} ) ),
+} ) );
+
+jest.mock( '@wordpress/blocks', () => ( {
+	getBlockType: ( name ) => ( { template: mockTemplates[ name ] } ),
 } ) );
 
 jest.mock( '@wordpress/block-editor', () => {
@@ -155,6 +164,9 @@ describe( 'block editor components', () => {
 		expect(
 			mockCaptured.innerBlockOptions[ 0 ].renderAppender
 		).toBeDefined();
+		expect( mockCaptured.innerBlockOptions[ 0 ].template ).toEqual(
+			mockTemplates[ 'core/form' ]
+		);
 		expect( mockCaptured.toolsPanels[ 0 ].dropdownMenuProps ).toEqual( {
 			popoverProps: { placement: 'left-start', offset: 259 },
 		} );
@@ -395,6 +407,9 @@ describe( 'block editor components', () => {
 		expect(
 			mockCaptured.innerBlockOptions[ 0 ].renderAppender
 		).toBeDefined();
+		expect( mockCaptured.innerBlockOptions[ 0 ].template ).toEqual(
+			mockTemplates[ 'core/form-submission-notification' ]
+		);
 	} );
 
 	test( 'notification and submit editors suppress or lock appenders correctly', () => {
@@ -418,6 +433,7 @@ describe( 'block editor components', () => {
 			root.render( <SubmitButtonEdit /> );
 		} );
 		expect( mockCaptured.innerBlockOptions.at( -1 ) ).toEqual( {
+			template: mockTemplates[ 'core/form-submit-button' ],
 			templateLock: 'all',
 		} );
 		expect(

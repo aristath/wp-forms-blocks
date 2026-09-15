@@ -110,13 +110,83 @@ test.describe( 'WP Forms Blocks', () => {
 		page,
 	} ) => {
 		await admin.createNewPost();
+		const registeredTemplates = await page.evaluate( () =>
+			Object.fromEntries(
+				[
+					'core/form',
+					'core/form-submit-button',
+					'core/form-submission-notification',
+				].map( ( name ) => [
+					name,
+					window.wp.blocks
+						.getBlockType( name )
+						.template?.map( ( block ) => block[ 0 ] ),
+				] )
+			)
+		);
+		expect( registeredTemplates ).toEqual( {
+			'core/form': [
+				'core/form-submission-notification',
+				'core/form-submission-notification',
+				'core/form-input',
+				'core/form-input',
+				'core/form-input',
+				'core/form-submit-button',
+			],
+			'core/form-submit-button': [ 'core/buttons' ],
+			'core/form-submission-notification': [ 'core/paragraph' ],
+		} );
 		await editor.insertBlock( { name: 'core/form' } );
 
 		await expect(
 			editor.canvas.locator( 'form.wp-block-form' )
 		).toBeVisible();
-		expect( ( await editor.getBlocks() )[ 0 ].name ).toBe( 'core/form' );
-
+		await expect(
+			editor.canvas.locator( '.wp-block-form-input' )
+		).toHaveCount( 3 );
+		await expect(
+			editor.canvas.locator( '.wp-block-form-submit-button' )
+		).toHaveCount( 1 );
+		const insertedForm = ( await editor.getBlocks() )[ 0 ];
+		expect( insertedForm.name ).toBe( 'core/form' );
+		expect(
+			insertedForm.innerBlocks.map( ( block ) => block.name )
+		).toEqual( [
+			'core/form-submission-notification',
+			'core/form-submission-notification',
+			'core/form-input',
+			'core/form-input',
+			'core/form-input',
+			'core/form-submit-button',
+		] );
+		expect(
+			insertedForm.innerBlocks
+				.slice( 0, 2 )
+				.map( ( notification ) =>
+					notification.innerBlocks.map( ( block ) => block.name )
+				)
+		).toEqual( [ [ 'core/paragraph' ], [ 'core/paragraph' ] ] );
+		expect(
+			insertedForm.innerBlocks.slice( 2, 5 ).map( ( input ) => ( {
+				type: input.attributes.type,
+				label: input.attributes.label,
+				required: input.attributes.required,
+			} ) )
+		).toEqual( [
+			{ type: 'text', label: 'Name', required: true },
+			{ type: 'email', label: 'Email', required: true },
+			{ type: 'textarea', label: 'Comment', required: true },
+		] );
+		const submitBlock = insertedForm.innerBlocks[ 5 ];
+		expect( submitBlock.innerBlocks[ 0 ].name ).toBe( 'core/buttons' );
+		expect( submitBlock.innerBlocks[ 0 ].innerBlocks[ 0 ] ).toMatchObject( {
+			name: 'core/button',
+			attributes: {
+				text: 'Submit',
+				tagName: 'button',
+				type: 'submit',
+			},
+		} );
 		await editor.setContent( formContent );
 		await expect(
 			editor.canvas.locator( '.wp-block-form-input' )
@@ -246,7 +316,7 @@ test.describe( 'WP Forms Blocks', () => {
 		const customContent = formContent
 			.replace(
 				'{"email":"recipient@example.com","action":"mailto:recipient@example.com"}',
-				'{"submissionMethod":"custom","method":"post","action":"http://localhost:8889/custom-endpoint"}'
+				'{"submissionMethod":"custom","method":"post","action":"/custom-endpoint"}'
 			)
 			.replace( 'enctype="text/plain"', '' );
 		const post = await requestUtils.createPost( {
@@ -267,10 +337,7 @@ test.describe( 'WP Forms Blocks', () => {
 		await page.goto( post.link );
 		const form = page.locator( 'form.wp-block-form' );
 		await expect( form ).toHaveAttribute( 'method', 'post' );
-		await expect( form ).toHaveAttribute(
-			'action',
-			'http://localhost:8889/custom-endpoint'
-		);
+		await expect( form ).toHaveAttribute( 'action', '/custom-endpoint' );
 		await form.locator( '[name="full-name"]' ).fill( 'Custom User' );
 		await form.locator( '[name="email"]' ).fill( 'custom@example.com' );
 		await form.locator( '[name="website"]' ).fill( 'https://example.com' );

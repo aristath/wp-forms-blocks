@@ -13,6 +13,7 @@ import {
 	__experimentalToolsPanelItem as ToolsPanelItem,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { getBlockType } from '@wordpress/blocks';
 import { useToolsPanelDropdownMenuProps } from '../utils/hooks';
 
 const Edit = ( { attributes, setAttributes, clientId } ) => {
@@ -42,6 +43,7 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		template: getBlockType( 'core/form' )?.template,
 		renderAppender: hasInnerBlocks
 			? undefined
 			: InnerBlocks.ButtonBlockAppender,
