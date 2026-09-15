@@ -19,15 +19,22 @@ function wp_forms_blocks_integration_assert( $condition, $message ) {
 
 $registry    = WP_Block_Type_Registry::get_instance();
 $block_names = array(
-	'core/form',
-	'core/form-input',
-	'core/form-submit-button',
-	'core/form-submission-notification',
+	'formblox/form',
+	'formblox/form-input',
+	'formblox/form-submit-button',
+	'formblox/form-submission-notification',
 );
 foreach ( $block_names as $block_name ) {
 	wp_forms_blocks_integration_assert(
 		$registry->is_registered( $block_name ),
 		"Block was not registered: {$block_name}"
+	);
+}
+
+foreach ( array( 'core/form', 'core/form-input', 'core/form-submit-button', 'core/form-submission-notification' ) as $former_core_block_name ) {
+	wp_forms_blocks_integration_assert(
+		! $registry->is_registered( $former_core_block_name ),
+		"Reserved Core block name was registered: {$former_core_block_name}"
 	);
 }
 
@@ -39,17 +46,17 @@ wp_forms_blocks_integration_assert(
 	'Asset manifest fallback changed.'
 );
 
-$form_block = $registry->get_registered( 'core/form' );
+$form_block = $registry->get_registered( 'formblox/form' );
 wp_forms_blocks_integration_assert(
-	'WPFormsBlocks\\render_block_core_form' === $form_block->render_callback,
+	'WPFormsBlocks\\render_block_formblox_form' === $form_block->render_callback,
 	'Form block is not using the ported Gutenberg render callback.'
 );
 wp_forms_blocks_integration_assert(
-	in_array( 'wp-block-form-input', $registry->get_registered( 'core/form-input' )->style_handles, true ),
+	in_array( 'wp-block-formblox-form-input', $registry->get_registered( 'formblox/form-input' )->style_handles, true ),
 	'Input block did not retain its Gutenberg style handle.'
 );
 wp_forms_blocks_integration_assert(
-	in_array( 'wp-block-form-submit-button', $registry->get_registered( 'core/form-submit-button' )->style_handles, true ),
+	in_array( 'wp-block-formblox-form-submit-button', $registry->get_registered( 'formblox/form-submit-button' )->style_handles, true ),
 	'Submit block did not retain its Gutenberg style handle.'
 );
 
@@ -67,21 +74,21 @@ wp_forms_blocks_integration_assert(
 	'Editor stylesheet was not enqueued through the standalone adapter.'
 );
 wp_forms_blocks_integration_assert(
-	(bool) wp_styles()->query( 'wp-block-form-input', 'registered' ),
+	(bool) wp_styles()->query( 'wp-block-formblox-form-input', 'registered' ),
 	'Input stylesheet was not registered.'
 );
 wp_forms_blocks_integration_assert(
-	(bool) wp_styles()->query( 'wp-block-form-submit-button', 'registered' ),
+	(bool) wp_styles()->query( 'wp-block-formblox-form-submit-button', 'registered' ),
 	'Submit stylesheet was not registered.'
 );
 wp_forms_blocks_integration_assert(
-	null !== wp_script_modules()->get_registered( '@wordpress/block-library/form/view' ),
+	null !== wp_script_modules()->get_registered( '@formblox/form/view' ),
 	'Gutenberg form view-module ID was not registered.'
 );
 
-$module_data = apply_filters( 'script_module_data_@wordpress/block-library/form/view', array() );
+$module_data = apply_filters( 'script_module_data_@formblox/form/view', array() );
 wp_forms_blocks_integration_assert(
-	'wp_block_form_email_submit' === $module_data['action'],
+	'formblox_form_email_submit' === $module_data['action'],
 	'View-module AJAX action differs from Gutenberg.'
 );
 wp_forms_blocks_integration_assert(
@@ -89,16 +96,16 @@ wp_forms_blocks_integration_assert(
 	'View-module AJAX URL differs from Gutenberg.'
 );
 wp_forms_blocks_integration_assert(
-	(bool) wp_verify_nonce( $module_data['nonce'], 'wp-block-form' ),
+	(bool) wp_verify_nonce( $module_data['nonce'], 'formblox-form' ),
 	'View-module nonce differs from Gutenberg.'
 );
 
-$email_form = \WPFormsBlocks\render_block_core_form(
+$email_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
 		'action' => 'mailto:recipient@example.com',
 		'method' => 'post',
 	),
-	'<form class="wp-block-form" enctype="text/plain"><input name="message"></form>'
+	'<form class="wp-block-formblox-form" enctype="text/plain"><input name="message"></form>'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $email_form, 'action="mailto:recipient@example.com"' ),
@@ -117,27 +124,27 @@ wp_forms_blocks_integration_assert(
 	'Plugin-specific hidden fields were injected into the Gutenberg markup.'
 );
 wp_forms_blocks_integration_assert(
-	in_array( '@wordpress/block-library/form/view', wp_script_modules()->get_queue(), true ),
+	in_array( '@formblox/form/view', wp_script_modules()->get_queue(), true ),
 	'Form rendering did not enqueue the original Gutenberg view-module ID.'
 );
 ob_start();
 wp_script_modules()->print_script_module_data();
 $module_data_html = ob_get_clean();
 wp_forms_blocks_integration_assert(
-	false !== strpos( $module_data_html, 'wp-script-module-data-@wordpress/block-library/form/view' ),
+	false !== strpos( $module_data_html, 'wp-script-module-data-@formblox/form/view' ),
 	'WordPress did not print data under the DOM ID expected by Gutenberg view.js.'
 );
 wp_forms_blocks_integration_assert(
-	false !== strpos( $module_data_html, 'wp_block_form_email_submit' ),
+	false !== strpos( $module_data_html, 'formblox_form_email_submit' ),
 	'Printed view-module data omitted the Gutenberg AJAX action.'
 );
 
-$comment_form = \WPFormsBlocks\render_block_core_form(
+$comment_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
 		'action' => '{SITE_URL}/wp-comments-post.php',
 		'method' => 'post',
 	),
-	'<form class="wp-block-form"></form>'
+	'<form class="wp-block-formblox-form"></form>'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $comment_form, site_url() . '/wp-comments-post.php' ),
@@ -148,12 +155,12 @@ wp_forms_blocks_integration_assert(
 	'Comment form post ID field was not added.'
 );
 
-$custom_form = \WPFormsBlocks\render_block_core_form(
+$custom_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
 		'action' => '{ADMIN_URL}admin-post.php',
 		'method' => 'get',
 	),
-	'<form class="wp-block-form"></form>'
+	'<form class="wp-block-formblox-form"></form>'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $custom_form, admin_url( 'admin-post.php' ) ),
@@ -164,18 +171,18 @@ wp_forms_blocks_integration_assert(
 	'Custom form method was not preserved.'
 );
 
-$default_form = \WPFormsBlocks\render_block_core_form(
+$default_form = \WPFormsBlocks\render_block_formblox_form(
 	array(),
-	'<form class="wp-block-form"></form>'
+	'<form class="wp-block-formblox-form"></form>'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $default_form, 'action=""' ) && false !== strpos( $default_form, 'method="post"' ),
 	'Form defaults changed.'
 );
 
-$non_string_action_form = \WPFormsBlocks\render_block_core_form(
+$non_string_action_form = \WPFormsBlocks\render_block_formblox_form(
 	array( 'action' => array( 'invalid' ) ),
-	'<form class="wp-block-form"></form>'
+	'<form class="wp-block-formblox-form"></form>'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $non_string_action_form, 'action=""' ),
@@ -185,63 +192,63 @@ wp_forms_blocks_integration_assert(
 $extra_field_callback = static function ( $fields, $attributes ) {
 	return $fields . '<input type="hidden" name="filtered" value="' . esc_attr( $attributes['marker'] ) . '">';
 };
-add_filter( 'render_block_core_form_extra_fields', $extra_field_callback, 20, 2 );
-$filtered_form = \WPFormsBlocks\render_block_core_form(
+add_filter( 'render_block_formblox_form_extra_fields', $extra_field_callback, 20, 2 );
+$filtered_form = \WPFormsBlocks\render_block_formblox_form(
 	array( 'marker' => 'yes' ),
-	'<form class="wp-block-form"></form>'
+	'<form class="wp-block-formblox-form"></form>'
 );
-remove_filter( 'render_block_core_form_extra_fields', $extra_field_callback, 20 );
+remove_filter( 'render_block_formblox_form_extra_fields', $extra_field_callback, 20 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $filtered_form, 'name="filtered" value="yes"' ),
 	'Form extra-field extension point changed.'
 );
 
 wp_forms_blocks_integration_assert(
-	'' === \WPFormsBlocks\render_block_core_form_input( array( 'visibilityPermissions' => 'logged-in' ), '<input>' ),
+	'' === \WPFormsBlocks\render_block_formblox_form_input( array( 'visibilityPermissions' => 'logged-in' ), '<input>' ),
 	'Logged-in-only field was shown to a logged-out visitor.'
 );
 wp_forms_blocks_integration_assert(
-	'<input>' === \WPFormsBlocks\render_block_core_form_input( array( 'visibilityPermissions' => 'logged-out' ), '<input>' ),
+	'<input>' === \WPFormsBlocks\render_block_formblox_form_input( array( 'visibilityPermissions' => 'logged-out' ), '<input>' ),
 	'Logged-out field was unexpectedly hidden.'
 );
 
 $administrator = get_user_by( 'login', 'admin' );
 wp_set_current_user( $administrator ? $administrator->ID : 0 );
 wp_forms_blocks_integration_assert(
-	'<input>' === \WPFormsBlocks\render_block_core_form_input( array( 'visibilityPermissions' => 'logged-in' ), '<input>' ),
+	'<input>' === \WPFormsBlocks\render_block_formblox_form_input( array( 'visibilityPermissions' => 'logged-in' ), '<input>' ),
 	'Logged-in field was unexpectedly hidden.'
 );
 wp_forms_blocks_integration_assert(
-	'' === \WPFormsBlocks\render_block_core_form_input( array( 'visibilityPermissions' => 'logged-out' ), '<input>' ),
+	'' === \WPFormsBlocks\render_block_formblox_form_input( array( 'visibilityPermissions' => 'logged-out' ), '<input>' ),
 	'Logged-out-only field was shown to an authenticated user.'
 );
 wp_set_current_user( 0 );
 
 wp_forms_blocks_integration_assert(
-	'<input>' === \WPFormsBlocks\render_block_core_form_input( array(), '<input>' ),
+	'<input>' === \WPFormsBlocks\render_block_formblox_form_input( array(), '<input>' ),
 	'The default input visibility is no longer all visitors.'
 );
 
-$_GET['wp-form-result'] = 'success';
+$_GET['formblox-form-result'] = 'success';
 wp_forms_blocks_integration_assert(
-	'<p>Success</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
+	'<p>Success</p>' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
 	'Success notification did not render for a successful result.'
 );
 wp_forms_blocks_integration_assert(
-	'' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
+	'' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
 	'Error notification rendered for a successful result.'
 );
-unset( $_GET['wp-form-result'] );
+unset( $_GET['formblox-form-result'] );
 
 $notification_override = static function ( $show, $attributes, $content ) {
 	return 'forced' === $attributes['type'] && '<p>Forced</p>' === $content;
 };
-add_filter( 'show_form_submission_notification_block', $notification_override, 99, 3 );
+add_filter( 'formblox_show_form_submission_notification_block', $notification_override, 99, 3 );
 wp_forms_blocks_integration_assert(
-	'<p>Forced</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'forced' ), '<p>Forced</p>' ),
+	'<p>Forced</p>' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'forced' ), '<p>Forced</p>' ),
 	'Notification visibility filter cannot force a notification to display.'
 );
-remove_filter( 'show_form_submission_notification_block', $notification_override, 99 );
+remove_filter( 'formblox_show_form_submission_notification_block', $notification_override, 99 );
 
 $allowed_html = \WPFormsBlocks\gutenberg_kses_allowed_html(
 	array( 'existing' => array( 'attribute' => array() ) )

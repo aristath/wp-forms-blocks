@@ -13,7 +13,7 @@ It provides:
 
 A newly inserted Form uses the default Contact Form variation. It starts with the original success and error notifications, Name, Email, and Comment fields, and a Submit button. Comment Form and Privacy Request Form are available as additional variations.
 
-The plugin intentionally retains the historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` block names. Content saved with the final Gutenberg experiment schema therefore remains compatible. Earlier experimental schemas that depended on Gutenberg's migration handlers are intentionally unsupported.
+The standalone blocks use the plugin-owned `formblox` namespace: `formblox/form`, `formblox/form-input`, `formblox/form-submit-button`, and `formblox/form-submission-notification`. The former experimental `core/form*` names are not registered because the `core` namespace is reserved for WordPress. As requested, the plugin contains no migration or compatibility layer for old experimental block names or schemas.
 
 ## Development
 

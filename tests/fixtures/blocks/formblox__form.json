@@ -1,6 +1,6 @@
 [
 	{
-		"name": "core/form",
+		"name": "formblox/form",
 		"isValid": true,
 		"attributes": {
 			"submissionMethod": "email",
@@ -8,7 +8,7 @@
 		},
 		"innerBlocks": [
 			{
-				"name": "core/form-input",
+				"name": "formblox/form-input",
 				"isValid": true,
 				"attributes": {
 					"type": "text",
@@ -21,7 +21,7 @@
 				"innerBlocks": []
 			},
 			{
-				"name": "core/form-input",
+				"name": "formblox/form-input",
 				"isValid": true,
 				"attributes": {
 					"type": "email",
@@ -34,7 +34,7 @@
 				"innerBlocks": []
 			},
 			{
-				"name": "core/form-input",
+				"name": "formblox/form-input",
 				"isValid": true,
 				"attributes": {
 					"type": "url",
@@ -47,7 +47,7 @@
 				"innerBlocks": []
 			},
 			{
-				"name": "core/form-input",
+				"name": "formblox/form-input",
 				"isValid": true,
 				"attributes": {
 					"type": "textarea",
@@ -60,7 +60,7 @@
 				"innerBlocks": []
 			},
 			{
-				"name": "core/form-submit-button",
+				"name": "formblox/form-submit-button",
 				"isValid": true,
 				"attributes": {},
 				"innerBlocks": [

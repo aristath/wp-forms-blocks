@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
 export const formSubmissionNotificationSuccess = [
-	'core/form-submission-notification',
+	'formblox/form-submission-notification',
 	{
 		type: 'success',
 	},
@@ -18,7 +18,7 @@ export const formSubmissionNotificationSuccess = [
 	],
 ];
 export const formSubmissionNotificationError = [
-	'core/form-submission-notification',
+	'formblox/form-submission-notification',
 	{
 		type: 'error',
 	},

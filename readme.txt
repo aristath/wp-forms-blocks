@@ -14,7 +14,7 @@ Block-editor forms with email, custom actions, comments, and privacy requests.
 
 WP Forms Blocks provides Form, Input Field, Form Submit Button, and Form Submission Notification blocks, along with comment-form and privacy-request variations.
 
-It retains the historical core/form block names for compatibility with content created while the Gutenberg experiment was available.
+Its four blocks use the plugin-owned formblox namespace. The former experimental core/form names are not registered, and no migration layer is included.
 
 == Installation ==
 

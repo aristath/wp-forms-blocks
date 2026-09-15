@@ -1,6 +1,6 @@
 <?php
 /**
- * Server-side rendering of the `core/form` block.
+ * Server-side rendering of the `formblox/form` block.
  *
  * @package WordPress
  */
@@ -8,15 +8,15 @@
 namespace WPFormsBlocks;
 
 /**
- * Renders the `core/form` block on server.
+ * Renders the `formblox/form` block on server.
  *
  * @param array  $attributes The block attributes.
  * @param string $content The saved content.
  *
  * @return string The content of the block being rendered.
  */
-function render_block_core_form( $attributes, $content ) {
-	wp_enqueue_script_module( '@wordpress/block-library/form/view' );
+function render_block_formblox_form( $attributes, $content ) {
+	wp_enqueue_script_module( '@formblox/form/view' );
 
 	$processed_content = new \WP_HTML_Tag_Processor( $content );
 	$processed_content->next_tag( 'form' );
@@ -37,7 +37,7 @@ function render_block_core_form( $attributes, $content ) {
 	$method = empty( $attributes['method'] ) ? 'post' : $attributes['method'];
 	$processed_content->set_attribute( 'method', $method );
 
-	$extra_fields = apply_filters( 'render_block_core_form_extra_fields', '', $attributes );
+	$extra_fields = apply_filters( 'render_block_formblox_form_extra_fields', '', $attributes );
 
 	return str_replace(
 		'</form>',
@@ -57,20 +57,20 @@ function render_block_core_form( $attributes, $content ) {
  *
  * @return string The extra fields.
  */
-function block_core_form_extra_fields_comment_form( $extra_fields, $attributes ) {
+function block_formblox_form_extra_fields_comment_form( $extra_fields, $attributes ) {
 	$form_action = $attributes['action'] ?? null;
 	if ( ! empty( $form_action ) && is_string( $form_action ) && str_ends_with( $form_action, '/wp-comments-post.php' ) ) {
 		$extra_fields .= '<input type="hidden" name="comment_post_ID" value="' . get_the_ID() . '" id="comment_post_ID">';
 	}
 	return $extra_fields;
 }
-add_filter( 'render_block_core_form_extra_fields', __NAMESPACE__ . '\\block_core_form_extra_fields_comment_form', 10, 2 );
+add_filter( 'render_block_formblox_form_extra_fields', __NAMESPACE__ . '\\block_formblox_form_extra_fields_comment_form', 10, 2 );
 
 /**
  * Sends an email if the form is a contact form.
  */
-function block_core_form_send_email() {
-	check_ajax_referer( 'wp-block-form' );
+function block_formblox_form_send_email() {
+	check_ajax_referer( 'formblox-form' );
 
 	// Get the POST data.
 	$params = wp_unslash( $_POST );
@@ -90,7 +90,7 @@ function block_core_form_send_email() {
 	}
 
 	// Filter the email content.
-	$content = apply_filters( 'render_block_core_form_email_content', $content, $params );
+	$content = apply_filters( 'render_block_formblox_form_email_content', $content, $params );
 
 	// Send the email.
 	$result = wp_mail(
@@ -104,13 +104,13 @@ function block_core_form_send_email() {
 	}
 	wp_send_json_success( $result );
 }
-add_action( 'wp_ajax_wp_block_form_email_submit', __NAMESPACE__ . '\\block_core_form_send_email' );
-add_action( 'wp_ajax_nopriv_wp_block_form_email_submit', __NAMESPACE__ . '\\block_core_form_send_email' );
+add_action( 'wp_ajax_formblox_form_email_submit', __NAMESPACE__ . '\\block_formblox_form_send_email' );
+add_action( 'wp_ajax_nopriv_formblox_form_email_submit', __NAMESPACE__ . '\\block_formblox_form_send_email' );
 
 /**
  * Send the data export/remove request if the form is a privacy-request form.
  */
-function block_core_form_privacy_form() {
+function block_formblox_form_privacy_form() {
 	// Get the POST data.
 	$params = wp_unslash( $_POST );
 
@@ -157,12 +157,12 @@ function block_core_form_privacy_form() {
 	}
 
 	/**
-	 * Determine whether the core/form-submission-notification block should be shown.
+	 * Determine whether the formblox/form-submission-notification block should be shown.
 	 *
-	 * @param bool   $show       Whether to show the core/form-submission-notification block.
+	 * @param bool   $show       Whether to show the formblox/form-submission-notification block.
 	 * @param array  $attributes The block attributes.
 	 *
-	 * @return bool Whether to show the core/form-submission-notification block.
+	 * @return bool Whether to show the formblox/form-submission-notification block.
 	 */
 	$show_notification = static function ( $show, $attributes ) use ( $actions_performed, $actions_errored ) {
 		switch ( $attributes['type'] ) {
@@ -177,20 +177,20 @@ function block_core_form_privacy_form() {
 		}
 	};
 
-	// Add filter to show the core/form-submission-notification block.
-	add_filter( 'show_form_submission_notification_block', $show_notification, 10, 2 );
+	// Add filter to show the formblox/form-submission-notification block.
+	add_filter( 'formblox_show_form_submission_notification_block', $show_notification, 10, 2 );
 }
-add_action( 'wp', __NAMESPACE__ . '\\block_core_form_privacy_form' );
+add_action( 'wp', __NAMESPACE__ . '\\block_formblox_form_privacy_form' );
 
 /**
- * Registers the `core/form` block on server.
+ * Registers the `formblox/form` block on server.
  */
-function register_block_core_form() {
+function register_block_formblox_form() {
 	register_block_type_from_metadata(
 		__DIR__,
 		array(
-			'render_callback' => __NAMESPACE__ . '\\render_block_core_form',
+			'render_callback' => __NAMESPACE__ . '\\render_block_formblox_form',
 		)
 	);
 }
-add_action( 'init', __NAMESPACE__ . '\\register_block_core_form' );
+add_action( 'init', __NAMESPACE__ . '\\register_block_formblox_form' );

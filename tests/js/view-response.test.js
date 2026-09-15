@@ -5,7 +5,7 @@
 const settings = {
 	nonce: 'test-nonce',
 	ajaxUrl: 'https://example.com/wp-admin/admin-ajax.php',
-	action: 'wp_block_form_email_submit',
+	action: 'formblox_form_email_submit',
 };
 
 describe( 'Gutenberg form view response handling', () => {
@@ -66,7 +66,7 @@ describe( 'Gutenberg form view response handling', () => {
 
 			expect( event.preventDefault ).toHaveBeenCalledTimes( 1 );
 			expect( global.window.location.search ).toBe(
-				`existing=1&wp-form-result=${ status }`
+				`existing=1&formblox-form-result=${ status }`
 			);
 		}
 	);

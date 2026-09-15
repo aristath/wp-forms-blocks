@@ -43,7 +43,7 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: getBlockType( 'core/form' )?.template,
+		template: getBlockType( 'formblox/form' )?.template,
 		renderAppender: hasInnerBlocks
 			? undefined
 			: InnerBlocks.ButtonBlockAppender,

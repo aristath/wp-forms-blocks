@@ -1,19 +1,19 @@
 const settings = {
 	nonce: 'test-nonce',
 	ajaxUrl: 'https://example.com/wp-admin/admin-ajax.php',
-	action: 'wp_block_form_email_submit',
+	action: 'formblox_form_email_submit',
 };
 
 const renderDocument = ( action, includeSettings = true ) => {
 	document.body.innerHTML = `
 		${
 			includeSettings
-				? `<script id="wp-script-module-data-@wordpress/block-library/form/view" type="application/json">${ JSON.stringify(
+				? `<script id="wp-script-module-data-@formblox/form/view" type="application/json">${ JSON.stringify(
 						settings
 				  ) }</script>`
 				: ''
 		}
-		<form class="wp-block-form" action="${ action }">
+		<form class="wp-block-formblox-form" action="${ action }">
 			<input name="message" value="Hello">
 		</form>
 	`;
@@ -82,8 +82,8 @@ describe( 'Gutenberg form view module', () => {
 
 	test( 'ignores malformed module data', () => {
 		document.body.innerHTML = `
-			<script id="wp-script-module-data-@wordpress/block-library/form/view" type="application/json">not-json</script>
-			<form class="wp-block-form" action="mailto:recipient@example.com"></form>
+			<script id="wp-script-module-data-@formblox/form/view" type="application/json">not-json</script>
+			<form class="wp-block-formblox-form" action="mailto:recipient@example.com"></form>
 		`;
 		loadViewModule();
 
@@ -93,11 +93,11 @@ describe( 'Gutenberg form view module', () => {
 
 	test( 'enhances every mailto form on a page and no unrelated form', async () => {
 		document.body.innerHTML = `
-			<script id="wp-script-module-data-@wordpress/block-library/form/view" type="application/json">${ JSON.stringify(
+			<script id="wp-script-module-data-@formblox/form/view" type="application/json">${ JSON.stringify(
 				settings
 			) }</script>
-			<form id="first" class="wp-block-form" action="mailto:first@example.com"><input name="value" value="first"></form>
-			<form id="second" class="wp-block-form" action="mailto:second@example.com"><input name="value" value="second"></form>
+			<form id="first" class="wp-block-formblox-form" action="mailto:first@example.com"><input name="value" value="first"></form>
+			<form id="second" class="wp-block-formblox-form" action="mailto:second@example.com"><input name="value" value="second"></form>
 			<form id="other" action="mailto:other@example.com"></form>
 		`;
 		loadViewModule();

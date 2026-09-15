@@ -6,8 +6,8 @@
  */
 
 $_POST = array(
-	'action'           => 'wp_block_form_email_submit',
-	'_ajax_nonce'      => wp_create_nonce( 'wp-block-form' ),
+	'action'           => 'formblox_form_email_submit',
+	'_ajax_nonce'      => wp_create_nonce( 'formblox-form' ),
 	'_wp_http_referer' => '/contact/',
 	'formAction'       => 'mailto:recipient@example.com',
 	'name'             => 'Ada Lovelace',
@@ -37,4 +37,4 @@ add_filter(
 	2
 );
 
-\WPFormsBlocks\block_core_form_send_email();
+\WPFormsBlocks\block_formblox_form_send_email();

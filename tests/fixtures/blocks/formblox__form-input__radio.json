@@ -1,11 +1,11 @@
 [
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
-			"type": "textarea",
+			"type": "radio",
 			"label": "Label",
-			"inlineLabel": false,
+			"inlineLabel": true,
 			"required": true,
 			"value": "",
 			"visibilityPermissions": "all"

@@ -1,9 +1,9 @@
 [
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
-			"type": "radio",
+			"type": "checkbox",
 			"label": "Label",
 			"inlineLabel": true,
 			"required": true,

@@ -59,14 +59,14 @@ function wp_forms_blocks_register_assets() {
 	);
 
 	wp_register_style(
-		'wp-block-form-input',
+		'wp-block-formblox-form-input',
 		WP_FORMS_BLOCKS_URL . 'build/style.css',
 		array(),
 		$style_asset['version']
 	);
 
 	wp_register_style(
-		'wp-block-form-submit-button',
+		'wp-block-formblox-form-submit-button',
 		WP_FORMS_BLOCKS_URL . 'build/style.css',
 		array(),
 		$style_asset['version']
@@ -74,10 +74,10 @@ function wp_forms_blocks_register_assets() {
 
 	if (
 		function_exists( 'wp_register_script_module' ) &&
-		null === wp_script_modules()->get_registered( '@wordpress/block-library/form/view' )
+		null === wp_script_modules()->get_registered( '@formblox/form/view' )
 	) {
 		wp_register_script_module(
-			'@wordpress/block-library/form/view',
+			'@formblox/form/view',
 			WP_FORMS_BLOCKS_URL . 'build/view.js',
 			$view_asset['dependencies'],
 			$view_asset['version']

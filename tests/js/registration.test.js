@@ -46,32 +46,32 @@ describe( 'standalone block registration contracts', () => {
 
 	test( 'retains all four Gutenberg metadata contracts', () => {
 		expect( formMetadata ).toMatchObject( {
-			name: 'core/form',
+			name: 'formblox/form',
 			apiVersion: 3,
 			allowedBlocks: [
 				'core/paragraph',
 				'core/heading',
-				'core/form-input',
-				'core/form-submit-button',
-				'core/form-submission-notification',
+				'formblox/form-input',
+				'formblox/form-submit-button',
+				'formblox/form-submission-notification',
 				'core/group',
 				'core/columns',
 			],
 		} );
 		expect( inputMetadata ).toMatchObject( {
-			name: 'core/form-input',
-			ancestor: [ 'core/form' ],
-			style: [ 'wp-block-form-input' ],
+			name: 'formblox/form-input',
+			ancestor: [ 'formblox/form' ],
+			style: [ 'wp-block-formblox-form-input' ],
 		} );
 		expect( submitMetadata ).toMatchObject( {
-			name: 'core/form-submit-button',
-			ancestor: [ 'core/form' ],
+			name: 'formblox/form-submit-button',
+			ancestor: [ 'formblox/form' ],
 			allowedBlocks: [ 'core/buttons', 'core/button' ],
-			style: [ 'wp-block-form-submit-button' ],
+			style: [ 'wp-block-formblox-form-submit-button' ],
 		} );
 		expect( notificationMetadata ).toMatchObject( {
-			name: 'core/form-submission-notification',
-			ancestor: [ 'core/form' ],
+			name: 'formblox/form-submission-notification',
+			ancestor: [ 'formblox/form' ],
 		} );
 		for ( const metadata of [
 			formMetadata,
@@ -85,12 +85,12 @@ describe( 'standalone block registration contracts', () => {
 
 	test( 'retains every default inner-block template', () => {
 		expect( formSettings.template.map( ( item ) => item[ 0 ] ) ).toEqual( [
-			'core/form-submission-notification',
-			'core/form-submission-notification',
-			'core/form-input',
-			'core/form-input',
-			'core/form-input',
-			'core/form-submit-button',
+			'formblox/form-submission-notification',
+			'formblox/form-submission-notification',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-submit-button',
 		] );
 		expect( formSettings.template[ 0 ][ 1 ] ).toEqual( {
 			type: 'success',
@@ -175,10 +175,10 @@ describe( 'standalone block registration contracts', () => {
 			anchor: 'comment-form',
 		} );
 		expect( comment.innerBlocks.map( ( item ) => item[ 0 ] ) ).toEqual( [
-			'core/form-input',
-			'core/form-input',
-			'core/form-input',
-			'core/form-submit-button',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-submit-button',
 		] );
 		expect( privacy.title ).toBe( 'Privacy Request Form' );
 		expect( privacy.isDefault ).toBe( false );
@@ -189,15 +189,15 @@ describe( 'standalone block registration contracts', () => {
 			anchor: 'gdpr-form',
 		} );
 		expect( privacy.innerBlocks.map( ( item ) => item[ 0 ] ) ).toEqual( [
-			'core/form-submission-notification',
-			'core/form-submission-notification',
+			'formblox/form-submission-notification',
+			'formblox/form-submission-notification',
 			'core/paragraph',
-			'core/form-input',
-			'core/form-input',
-			'core/form-input',
-			'core/form-submit-button',
-			'core/form-input',
-			'core/form-input',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-submit-button',
+			'formblox/form-input',
+			'formblox/form-input',
 		] );
 		for ( const variation of [ comment, privacy ] ) {
 			expect( variation.scope ).toEqual( [ 'inserter', 'transform' ] );
@@ -250,18 +250,18 @@ describe( 'standalone block registration contracts', () => {
 			applyFilters(
 				filterName,
 				true,
-				{ name: 'core/form' },
+				{ name: 'formblox/form' },
 				'root',
 				selectors
 			)
 		).toBe( true );
 
-		selectors.getBlock.mockReturnValue( { name: 'core/form' } );
+		selectors.getBlock.mockReturnValue( { name: 'formblox/form' } );
 		expect(
 			applyFilters(
 				filterName,
 				true,
-				{ name: 'core/form' },
+				{ name: 'formblox/form' },
 				'root',
 				selectors
 			)
@@ -273,7 +273,7 @@ describe( 'standalone block registration contracts', () => {
 			applyFilters(
 				filterName,
 				true,
-				{ name: 'core/form' },
+				{ name: 'formblox/form' },
 				'root',
 				selectors
 			)
@@ -281,7 +281,7 @@ describe( 'standalone block registration contracts', () => {
 
 		removeFilter(
 			filterName,
-			'core/block-library/preventInsertingFormIntoAnotherForm'
+			'formblox/block-library/preventInsertingFormIntoAnotherForm'
 		);
 	} );
 } );

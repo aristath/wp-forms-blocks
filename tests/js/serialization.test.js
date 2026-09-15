@@ -18,6 +18,12 @@ import { init as initFormSubmitButton } from '../../src/form-submit-button';
 
 const fixturesDirectory = path.join( __dirname, '../fixtures/blocks' );
 const blockNames = [
+	'formblox/form',
+	'formblox/form-input',
+	'formblox/form-submit-button',
+	'formblox/form-submission-notification',
+];
+const formerCoreBlockNames = [
 	'core/form',
 	'core/form-input',
 	'core/form-submit-button',
@@ -77,6 +83,11 @@ describe( 'current form block serialization fixtures', () => {
 		expect( fixtureBasenames ).toHaveLength( 7 );
 		expect( fs.readdirSync( fixturesDirectory ) ).toHaveLength( 28 );
 		expect(
+			fixtureBasenames.every( ( basename ) =>
+				basename.startsWith( 'formblox__' )
+			)
+		).toBe( true );
+		expect(
 			fixtureBasenames.some( ( basename ) =>
 				basename.includes( 'deprecated' )
 			)
@@ -89,14 +100,20 @@ describe( 'current form block serialization fixtures', () => {
 		} );
 	} );
 
+	test( 'does not register aliases in the reserved core namespace', () => {
+		formerCoreBlockNames.forEach( ( name ) => {
+			expect( getBlockType( name ) ).toBeUndefined();
+		} );
+	} );
+
 	test( 'registers the complete variation set', () => {
 		expect(
-			getBlockVariations( 'core/form' ).map(
+			getBlockVariations( 'formblox/form' ).map(
 				( variation ) => variation.name
 			)
 		).toEqual( [ 'contact-form', 'comment-form', 'wp-privacy-form' ] );
 		expect(
-			getBlockVariations( 'core/form-input' ).map(
+			getBlockVariations( 'formblox/form-input' ).map(
 				( variation ) => variation.name
 			)
 		).toEqual( [
@@ -110,7 +127,7 @@ describe( 'current form block serialization fixtures', () => {
 			'hidden',
 		] );
 		expect(
-			getBlockVariations( 'core/form-submission-notification' ).map(
+			getBlockVariations( 'formblox/form-submission-notification' ).map(
 				( variation ) => variation.name
 			)
 		).toEqual( [ 'form-submission-success', 'form-submission-error' ] );

@@ -4,11 +4,14 @@ import { getBlockType } from '@wordpress/blocks';
 const Edit = () => {
 	const blockProps = useBlockProps();
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: getBlockType( 'core/form-submit-button' )?.template,
+		template: getBlockType( 'formblox/form-submit-button' )?.template,
 		templateLock: 'all',
 	} );
 	return (
-		<div className="wp-block-form-submit-wrapper" { ...innerBlocksProps } />
+		<div
+			className="wp-block-formblox-form-submit-wrapper"
+			{ ...innerBlocksProps }
+		/>
 	);
 };
 export default Edit;

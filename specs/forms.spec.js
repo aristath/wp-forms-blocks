@@ -1,16 +1,16 @@
 const { test, expect } = require( '@wordpress/e2e-test-utils-playwright' );
 
-const successNotification = `<!-- wp:form-submission-notification -->
-<div class="wp-block-form-submission-notification form-notification-type-success"><!-- wp:paragraph -->
+const successNotification = `<!-- wp:formblox/form-submission-notification -->
+<div class="wp-block-formblox-form-submission-notification formblox-form-notification-type-success"><!-- wp:paragraph -->
 <p>Submission succeeded</p>
 <!-- /wp:paragraph --></div>
-<!-- /wp:form-submission-notification -->`;
+<!-- /wp:formblox/form-submission-notification -->`;
 
-const errorNotification = `<!-- wp:form-submission-notification {"type":"error"} -->
-<div class="wp-block-form-submission-notification form-notification-type-error"><!-- wp:paragraph -->
+const errorNotification = `<!-- wp:formblox/form-submission-notification {"type":"error"} -->
+<div class="wp-block-formblox-form-submission-notification formblox-form-notification-type-error"><!-- wp:paragraph -->
 <p>Submission failed</p>
 <!-- /wp:paragraph --></div>
-<!-- /wp:form-submission-notification -->`;
+<!-- /wp:formblox/form-submission-notification -->`;
 
 const inputBlocks = [
 	[ 'text', 'Full name', 'full-name' ],
@@ -24,80 +24,80 @@ const inputBlocks = [
 			type,
 			label,
 			name,
-		] ) => `<!-- wp:form-input {"type":"${ type }","name":"${ name }","label":"${ label }","required":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">${ label }</span><input class="wp-block-form-input__input" type="${ type }" name="${ name }" required aria-required="true"/></label></div>
-<!-- /wp:form-input -->`
+		] ) => `<!-- wp:formblox/form-input {"type":"${ type }","name":"${ name }","label":"${ label }","required":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">${ label }</span><input class="wp-block-formblox-form-input__input" type="${ type }" name="${ name }" required aria-required="true"/></label></div>
+<!-- /wp:formblox/form-input -->`
 	)
 	.join( '\n\n' );
 
-const formContent = `<!-- wp:form {"email":"recipient@example.com","action":"mailto:recipient@example.com"} -->
-<form class="wp-block-form" enctype="text/plain">
+const formContent = `<!-- wp:formblox/form {"email":"recipient@example.com","action":"mailto:recipient@example.com"} -->
+<form class="wp-block-formblox-form" enctype="text/plain">
 ${ successNotification }
 
 ${ errorNotification }
 
 ${ inputBlocks }
 
-<!-- wp:form-input {"type":"textarea","name":"message","label":"Message","required":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">Message</span><textarea class="wp-block-form-input__input" name="message" required aria-required="true"></textarea></label></div>
-<!-- /wp:form-input -->
+<!-- wp:formblox/form-input {"type":"textarea","name":"message","label":"Message","required":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">Message</span><textarea class="wp-block-formblox-form-input__input" name="message" required aria-required="true"></textarea></label></div>
+<!-- /wp:formblox/form-input -->
 
-<!-- wp:form-input {"type":"checkbox","name":"consent","label":"Consent","inlineLabel":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label is-label-inline"><input class="wp-block-form-input__input" type="checkbox" name="consent" aria-required="false"/><span class="wp-block-form-input__label-content">Consent</span></label></div>
-<!-- /wp:form-input -->
+<!-- wp:formblox/form-input {"type":"checkbox","name":"consent","label":"Consent","inlineLabel":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label is-label-inline"><input class="wp-block-formblox-form-input__input" type="checkbox" name="consent" aria-required="false"/><span class="wp-block-formblox-form-input__label-content">Consent</span></label></div>
+<!-- /wp:formblox/form-input -->
 
-<!-- wp:form-input {"type":"hidden","name":"source","value":"e2e"} -->
+<!-- wp:formblox/form-input {"type":"hidden","name":"source","value":"e2e"} -->
 <input type="hidden" name="source" value="e2e"/>
-<!-- /wp:form-input -->
+<!-- /wp:formblox/form-input -->
 
-<!-- wp:form-submit-button -->
-<div class="wp-block-form-submit-button"><!-- wp:buttons -->
+<!-- wp:formblox/form-submit-button -->
+<div class="wp-block-formblox-form-submit-button"><!-- wp:buttons -->
 <div class="wp-block-buttons"><!-- wp:button {"tagName":"button","type":"submit"} -->
 <div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Submit</button></div>
 <!-- /wp:button --></div>
 <!-- /wp:buttons --></div>
-<!-- /wp:form-submit-button -->
+<!-- /wp:formblox/form-submit-button -->
 </form>
-<!-- /wp:form -->`;
+<!-- /wp:formblox/form -->`;
 
-const visibilityContent = `<!-- wp:form {"submissionMethod":"custom","action":""} -->
-<form class="wp-block-form">
-<!-- wp:form-input {"name":"always","label":"Always"} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">Always</span><input class="wp-block-form-input__input" type="text" name="always" aria-required="false"/></label></div>
-<!-- /wp:form-input -->
-<!-- wp:form-input {"name":"members","label":"Members","visibilityPermissions":"logged-in"} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">Members</span><input class="wp-block-form-input__input" type="text" name="members" aria-required="false"/></label></div>
-<!-- /wp:form-input -->
-<!-- wp:form-input {"name":"visitors","label":"Visitors","visibilityPermissions":"logged-out"} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">Visitors</span><input class="wp-block-form-input__input" type="text" name="visitors" aria-required="false"/></label></div>
-<!-- /wp:form-input -->
+const visibilityContent = `<!-- wp:formblox/form {"submissionMethod":"custom","action":""} -->
+<form class="wp-block-formblox-form">
+<!-- wp:formblox/form-input {"name":"always","label":"Always"} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">Always</span><input class="wp-block-formblox-form-input__input" type="text" name="always" aria-required="false"/></label></div>
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-input {"name":"members","label":"Members","visibilityPermissions":"logged-in"} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">Members</span><input class="wp-block-formblox-form-input__input" type="text" name="members" aria-required="false"/></label></div>
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-input {"name":"visitors","label":"Visitors","visibilityPermissions":"logged-out"} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">Visitors</span><input class="wp-block-formblox-form-input__input" type="text" name="visitors" aria-required="false"/></label></div>
+<!-- /wp:formblox/form-input -->
 </form>
-<!-- /wp:form -->`;
+<!-- /wp:formblox/form -->`;
 
-const privacyContent = `<!-- wp:form {"submissionMethod":"custom","action":"","anchor":"gdpr-form"} -->
-<form class="wp-block-form" id="gdpr-form">
+const privacyContent = `<!-- wp:formblox/form {"submissionMethod":"custom","action":"","anchor":"gdpr-form"} -->
+<form class="wp-block-formblox-form" id="gdpr-form">
 ${ successNotification }
 ${ errorNotification }
-<!-- wp:form-input {"type":"email","name":"email","label":"Privacy email","required":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">Privacy email</span><input class="wp-block-form-input__input" type="email" name="email" required aria-required="true"/></label></div>
-<!-- /wp:form-input -->
-<!-- wp:form-input {"type":"checkbox","name":"export_personal_data","label":"Export","inlineLabel":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label is-label-inline"><input class="wp-block-form-input__input" type="checkbox" name="export_personal_data" aria-required="false"/><span class="wp-block-form-input__label-content">Export</span></label></div>
-<!-- /wp:form-input -->
-<!-- wp:form-input {"type":"checkbox","name":"remove_personal_data","label":"Erase","inlineLabel":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label is-label-inline"><input class="wp-block-form-input__input" type="checkbox" name="remove_personal_data" aria-required="false"/><span class="wp-block-form-input__label-content">Erase</span></label></div>
-<!-- /wp:form-input -->
-<!-- wp:form-input {"type":"hidden","name":"wp-action","value":"wp_privacy_send_request"} -->
+<!-- wp:formblox/form-input {"type":"email","name":"email","label":"Privacy email","required":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">Privacy email</span><input class="wp-block-formblox-form-input__input" type="email" name="email" required aria-required="true"/></label></div>
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-input {"type":"checkbox","name":"export_personal_data","label":"Export","inlineLabel":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label is-label-inline"><input class="wp-block-formblox-form-input__input" type="checkbox" name="export_personal_data" aria-required="false"/><span class="wp-block-formblox-form-input__label-content">Export</span></label></div>
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-input {"type":"checkbox","name":"remove_personal_data","label":"Erase","inlineLabel":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label is-label-inline"><input class="wp-block-formblox-form-input__input" type="checkbox" name="remove_personal_data" aria-required="false"/><span class="wp-block-formblox-form-input__label-content">Erase</span></label></div>
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-input {"type":"hidden","name":"wp-action","value":"wp_privacy_send_request"} -->
 <input type="hidden" name="wp-action" value="wp_privacy_send_request"/>
-<!-- /wp:form-input -->
-<!-- wp:form-input {"type":"hidden","name":"wp-privacy-request","value":"1"} -->
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-input {"type":"hidden","name":"wp-privacy-request","value":"1"} -->
 <input type="hidden" name="wp-privacy-request" value="1"/>
-<!-- /wp:form-input -->
-<!-- wp:form-submit-button -->
-<div class="wp-block-form-submit-button"><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button {"tagName":"button","type":"submit"} --><div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Submit privacy request</button></div><!-- /wp:button --></div><!-- /wp:buttons --></div>
-<!-- /wp:form-submit-button -->
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-submit-button -->
+<div class="wp-block-formblox-form-submit-button"><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button {"tagName":"button","type":"submit"} --><div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Submit privacy request</button></div><!-- /wp:button --></div><!-- /wp:buttons --></div>
+<!-- /wp:formblox/form-submit-button -->
 </form>
-<!-- /wp:form -->`;
+<!-- /wp:formblox/form -->`;
 
 test.describe( 'WP Forms Blocks', () => {
 	test.afterEach( async ( { requestUtils } ) => {
@@ -113,9 +113,9 @@ test.describe( 'WP Forms Blocks', () => {
 		const registration = await page.evaluate( () => {
 			const templates = Object.fromEntries(
 				[
-					'core/form',
-					'core/form-submit-button',
-					'core/form-submission-notification',
+					'formblox/form',
+					'formblox/form-submit-button',
+					'formblox/form-submission-notification',
 				].map( ( name ) => [
 					name,
 					window.wp.blocks
@@ -124,7 +124,7 @@ test.describe( 'WP Forms Blocks', () => {
 				] )
 			);
 			const variations = window.wp.blocks
-				.getBlockVariations( 'core/form' )
+				.getBlockVariations( 'formblox/form' )
 				.map( ( { name, title, isDefault } ) => ( {
 					name,
 					title,
@@ -132,7 +132,7 @@ test.describe( 'WP Forms Blocks', () => {
 				} ) );
 			const defaultVariation = window.wp.data
 				.select( 'core/blocks' )
-				.getDefaultBlockVariation( 'core/form', 'inserter' );
+				.getDefaultBlockVariation( 'formblox/form', 'inserter' );
 
 			return {
 				templates,
@@ -146,16 +146,16 @@ test.describe( 'WP Forms Blocks', () => {
 			};
 		} );
 		expect( registration.templates ).toEqual( {
-			'core/form': [
-				'core/form-submission-notification',
-				'core/form-submission-notification',
-				'core/form-input',
-				'core/form-input',
-				'core/form-input',
-				'core/form-submit-button',
+			'formblox/form': [
+				'formblox/form-submission-notification',
+				'formblox/form-submission-notification',
+				'formblox/form-input',
+				'formblox/form-input',
+				'formblox/form-input',
+				'formblox/form-submit-button',
 			],
-			'core/form-submit-button': [ 'core/buttons' ],
-			'core/form-submission-notification': [ 'core/paragraph' ],
+			'formblox/form-submit-button': [ 'core/buttons' ],
+			'formblox/form-submission-notification': [ 'core/paragraph' ],
 		} );
 		expect( registration.variations ).toEqual( [
 			{
@@ -176,12 +176,12 @@ test.describe( 'WP Forms Blocks', () => {
 		] );
 		expect( registration.defaultVariation ).toEqual( {
 			name: 'contact-form',
-			innerBlocks: registration.templates[ 'core/form' ],
+			innerBlocks: registration.templates[ 'formblox/form' ],
 		} );
 		await page.evaluate( () => {
 			const variation = window.wp.data
 				.select( 'core/blocks' )
-				.getDefaultBlockVariation( 'core/form', 'inserter' );
+				.getDefaultBlockVariation( 'formblox/form', 'inserter' );
 			const innerBlocks =
 				window.wp.blocks.createBlocksFromInnerBlocksTemplate(
 					variation.innerBlocks
@@ -190,7 +190,7 @@ test.describe( 'WP Forms Blocks', () => {
 				.dispatch( 'core/block-editor' )
 				.insertBlock(
 					window.wp.blocks.createBlock(
-						'core/form',
+						'formblox/form',
 						variation.attributes,
 						innerBlocks
 					)
@@ -198,25 +198,25 @@ test.describe( 'WP Forms Blocks', () => {
 		} );
 
 		await expect(
-			editor.canvas.locator( 'form.wp-block-form' )
+			editor.canvas.locator( 'form.wp-block-formblox-form' )
 		).toBeVisible();
 		await expect(
-			editor.canvas.locator( '.wp-block-form-input' )
+			editor.canvas.locator( '.wp-block-formblox-form-input' )
 		).toHaveCount( 3 );
 		await expect(
-			editor.canvas.locator( '.wp-block-form-submit-button' )
+			editor.canvas.locator( '.wp-block-formblox-form-submit-button' )
 		).toHaveCount( 1 );
 		const insertedForm = ( await editor.getBlocks() )[ 0 ];
-		expect( insertedForm.name ).toBe( 'core/form' );
+		expect( insertedForm.name ).toBe( 'formblox/form' );
 		expect(
 			insertedForm.innerBlocks.map( ( block ) => block.name )
 		).toEqual( [
-			'core/form-submission-notification',
-			'core/form-submission-notification',
-			'core/form-input',
-			'core/form-input',
-			'core/form-input',
-			'core/form-submit-button',
+			'formblox/form-submission-notification',
+			'formblox/form-submission-notification',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-input',
+			'formblox/form-submit-button',
 		] );
 		expect(
 			insertedForm.innerBlocks
@@ -248,16 +248,16 @@ test.describe( 'WP Forms Blocks', () => {
 		} );
 		await editor.setContent( formContent );
 		await expect(
-			editor.canvas.locator( '.wp-block-form-input' )
+			editor.canvas.locator( '.wp-block-formblox-form-input' )
 		).toHaveCount( 8 );
 		await expect(
-			editor.canvas.locator( '.wp-block-form-submit-button' )
+			editor.canvas.locator( '.wp-block-formblox-form-submit-button' )
 		).toHaveCount( 1 );
 		await editor.publishPost();
 
 		await page.reload();
 		await expect(
-			editor.canvas.locator( 'form.wp-block-form' )
+			editor.canvas.locator( 'form.wp-block-formblox-form' )
 		).toBeVisible();
 		await expect(
 			page.getByText(
@@ -265,7 +265,7 @@ test.describe( 'WP Forms Blocks', () => {
 			)
 		).toHaveCount( 0 );
 		expect( await editor.getEditedPostContent() ).toContain(
-			'<!-- wp:form-input {"type":"hidden"'
+			'<!-- wp:formblox/form-input {"type":"hidden"'
 		);
 	} );
 
@@ -285,7 +285,7 @@ test.describe( 'WP Forms Blocks', () => {
 		} );
 
 		await page.goto( post.link );
-		const form = page.locator( 'form.wp-block-form' );
+		const form = page.locator( 'form.wp-block-formblox-form' );
 		await expect( form ).toHaveAttribute(
 			'action',
 			'mailto:recipient@example.com'
@@ -318,7 +318,7 @@ test.describe( 'WP Forms Blocks', () => {
 		await form.locator( '[name="consent"]' ).check();
 		await form.getByRole( 'button', { name: 'Submit' } ).click();
 
-		await expect( page ).toHaveURL( /[?&]wp-form-result=success/ );
+		await expect( page ).toHaveURL( /[?&]formblox-form-result=success/ );
 		await expect( page.getByText( 'Submission succeeded' ) ).toBeVisible();
 		await expect( page.getByText( 'Submission failed' ) ).toHaveCount( 0 );
 
@@ -352,7 +352,7 @@ test.describe( 'WP Forms Blocks', () => {
 		} );
 
 		await page.goto( post.link );
-		const form = page.locator( 'form.wp-block-form' );
+		const form = page.locator( 'form.wp-block-formblox-form' );
 		await form.locator( '[name="full-name"]' ).fill( 'Grace Hopper' );
 		await form.locator( '[name="email"]' ).fill( 'grace@example.com' );
 		await form.locator( '[name="website"]' ).fill( 'https://example.com' );
@@ -361,7 +361,7 @@ test.describe( 'WP Forms Blocks', () => {
 		await form.locator( '[name="message"]' ).fill( 'Expected failure' );
 		await form.getByRole( 'button', { name: 'Submit' } ).click();
 
-		await expect( page ).toHaveURL( /[?&]wp-form-result=error/ );
+		await expect( page ).toHaveURL( /[?&]formblox-form-result=error/ );
 		await expect( page.getByText( 'Submission failed' ) ).toBeVisible();
 		await expect( page.getByText( 'Submission succeeded' ) ).toHaveCount(
 			0
@@ -394,7 +394,7 @@ test.describe( 'WP Forms Blocks', () => {
 		} );
 
 		await page.goto( post.link );
-		const form = page.locator( 'form.wp-block-form' );
+		const form = page.locator( 'form.wp-block-formblox-form' );
 		await expect( form ).toHaveAttribute( 'method', 'post' );
 		await expect( form ).toHaveAttribute( 'action', '/custom-endpoint' );
 		await form.locator( '[name="full-name"]' ).fill( 'Custom User' );
@@ -493,14 +493,14 @@ test.describe( 'WP Forms Blocks', () => {
 		page,
 		requestUtils,
 	} ) => {
-		const commentContent = `<!-- wp:form {"submissionMethod":"custom","action":"{SITE_URL}/wp-comments-post.php","method":"post","anchor":"comment-form"} -->
-<form class="wp-block-form" id="comment-form">
-<!-- wp:form-input {"type":"textarea","name":"comment","label":"Comment","required":true} -->
-<div class="wp-block-form-input"><label class="wp-block-form-input__label"><span class="wp-block-form-input__label-content">Comment</span><textarea class="wp-block-form-input__input" name="comment" required aria-required="true"></textarea></label></div>
-<!-- /wp:form-input -->
-<!-- wp:form-submit-button --><div class="wp-block-form-submit-button"><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button {"tagName":"button","type":"submit"} --><div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Post comment</button></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:form-submit-button -->
+		const commentContent = `<!-- wp:formblox/form {"submissionMethod":"custom","action":"{SITE_URL}/wp-comments-post.php","method":"post","anchor":"comment-form"} -->
+<form class="wp-block-formblox-form" id="comment-form">
+<!-- wp:formblox/form-input {"type":"textarea","name":"comment","label":"Comment","required":true} -->
+<div class="wp-block-formblox-form-input"><label class="wp-block-formblox-form-input__label"><span class="wp-block-formblox-form-input__label-content">Comment</span><textarea class="wp-block-formblox-form-input__input" name="comment" required aria-required="true"></textarea></label></div>
+<!-- /wp:formblox/form-input -->
+<!-- wp:formblox/form-submit-button --><div class="wp-block-formblox-form-submit-button"><!-- wp:buttons --><div class="wp-block-buttons"><!-- wp:button {"tagName":"button","type":"submit"} --><div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Post comment</button></div><!-- /wp:button --></div><!-- /wp:buttons --></div><!-- /wp:formblox/form-submit-button -->
 </form>
-<!-- /wp:form -->`;
+<!-- /wp:formblox/form -->`;
 		const post = await requestUtils.rest( {
 			path: '/wp/v2/posts',
 			method: 'POST',

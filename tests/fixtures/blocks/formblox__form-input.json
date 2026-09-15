@@ -1,6 +1,6 @@
 [
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
 			"type": "text",
@@ -13,7 +13,7 @@
 		"innerBlocks": []
 	},
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
 			"type": "email",
@@ -26,7 +26,7 @@
 		"innerBlocks": []
 	},
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
 			"type": "number",
@@ -39,7 +39,7 @@
 		"innerBlocks": []
 	},
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
 			"type": "tel",
@@ -52,7 +52,7 @@
 		"innerBlocks": []
 	},
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
 			"type": "url",

@@ -1,11 +1,11 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
   "apiVersion": 3,
-  "name": "core/form-submission-notification",
+  "name": "formblox/form-submission-notification",
   "title": "Form Submission Notification",
   "category": "widgets",
   "ancestor": [
-    "core/form"
+    "formblox/form"
   ],
   "description": "Provide a notification message after the form has been submitted.",
   "keywords": [

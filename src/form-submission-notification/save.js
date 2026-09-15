@@ -8,9 +8,13 @@ export default function save( { attributes } ) {
 		<div
 			{ ...useInnerBlocksProps.save(
 				useBlockProps.save( {
-					className: clsx( 'wp-block-form-submission-notification', {
-						[ `form-notification-type-${ type }` ]: type,
-					} ),
+					className: clsx(
+						'wp-block-formblox-form-submission-notification',
+						{
+							[ `formblox-form-notification-type-${ type }` ]:
+								type,
+						}
+					),
 				} )
 			) }
 		/>

@@ -17,7 +17,7 @@ const variations = [
 			formSubmissionNotificationSuccess,
 			formSubmissionNotificationError,
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'text',
 					label: __( 'Name' ),
@@ -25,7 +25,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'email',
 					label: __( 'Email' ),
@@ -33,14 +33,14 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'textarea',
 					label: __( 'Comment' ),
 					required: true,
 				},
 			],
-			[ 'core/form-submit-button', {} ],
+			[ 'formblox/form-submit-button', {} ],
 		],
 		scope: [ 'inserter', 'transform' ],
 		isActive: ( blockAttributes ) =>
@@ -60,7 +60,7 @@ const variations = [
 		isDefault: false,
 		innerBlocks: [
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'text',
 					name: 'author',
@@ -70,7 +70,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'email',
 					name: 'email',
@@ -80,7 +80,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'textarea',
 					name: 'comment',
@@ -89,7 +89,7 @@ const variations = [
 					visibilityPermissions: 'all',
 				},
 			],
-			[ 'core/form-submit-button', {} ],
+			[ 'formblox/form-submit-button', {} ],
 		],
 		scope: [ 'inserter', 'transform' ],
 		isActive: ( blockAttributes ) =>
@@ -119,7 +119,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'email',
 					name: 'email',
@@ -129,7 +129,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'checkbox',
 					name: 'export_personal_data',
@@ -139,7 +139,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'checkbox',
 					name: 'remove_personal_data',
@@ -148,9 +148,9 @@ const variations = [
 					visibilityPermissions: 'all',
 				},
 			],
-			[ 'core/form-submit-button', {} ],
+			[ 'formblox/form-submit-button', {} ],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'hidden',
 					name: 'wp-action',
@@ -158,7 +158,7 @@ const variations = [
 				},
 			],
 			[
-				'core/form-input',
+				'formblox/form-input',
 				{
 					type: 'hidden',
 					name: 'wp-privacy-request',

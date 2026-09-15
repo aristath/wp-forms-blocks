@@ -1,6 +1,6 @@
 [
 	{
-		"name": "core/form-submission-notification",
+		"name": "formblox/form-submission-notification",
 		"isValid": true,
 		"attributes": {
 			"type": "success"

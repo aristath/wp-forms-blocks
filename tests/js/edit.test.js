@@ -21,9 +21,9 @@ const mockState = {
 	ref: { current: null },
 };
 const mockTemplates = {
-	'core/form': [ [ 'core/form-input' ] ],
-	'core/form-submit-button': [ [ 'core/buttons' ] ],
-	'core/form-submission-notification': [ [ 'core/paragraph' ] ],
+	'formblox/form': [ [ 'formblox/form-input' ] ],
+	'formblox/form-submit-button': [ [ 'core/buttons' ] ],
+	'formblox/form-submission-notification': [ [ 'core/paragraph' ] ],
 };
 
 jest.mock( '../../src/utils/hooks', () => ( {
@@ -165,7 +165,7 @@ describe( 'block editor components', () => {
 			mockCaptured.innerBlockOptions[ 0 ].renderAppender
 		).toBeDefined();
 		expect( mockCaptured.innerBlockOptions[ 0 ].template ).toEqual(
-			mockTemplates[ 'core/form' ]
+			mockTemplates[ 'formblox/form' ]
 		);
 		expect( mockCaptured.toolsPanels[ 0 ].dropdownMenuProps ).toEqual( {
 			popoverProps: { placement: 'left-start', offset: 259 },
@@ -213,7 +213,7 @@ describe( 'block editor components', () => {
 
 	test( 'form editor exposes and applies custom action settings', () => {
 		const setAttributes = jest.fn();
-		mockState.block = { innerBlocks: [ { name: 'core/form-input' } ] };
+		mockState.block = { innerBlocks: [ { name: 'formblox/form-input' } ] };
 		act( () => {
 			root.render(
 				<FormEdit
@@ -282,7 +282,7 @@ describe( 'block editor components', () => {
 			expect( [ ...field.classList ] ).toEqual(
 				expect.arrayContaining( [
 					'custom-class',
-					'wp-block-form-input__input',
+					'wp-block-formblox-form-input__input',
 					'has-color',
 					'has-border',
 				] )
@@ -315,7 +315,7 @@ describe( 'block editor components', () => {
 				).toBeUndefined();
 				expect(
 					container
-						.querySelector( '.wp-block-form-input__label' )
+						.querySelector( '.wp-block-formblox-form-input__label' )
 						.classList.contains( 'is-label-inline' )
 				).toBe( true );
 			}
@@ -384,8 +384,8 @@ describe( 'block editor components', () => {
 	} );
 
 	test.each( [
-		[ 'success', 'form-notification-type-success' ],
-		[ 'error', 'form-notification-type-error' ],
+		[ 'success', 'formblox-form-notification-type-success' ],
+		[ 'error', 'formblox-form-notification-type-error' ],
 	] )( 'notification editor renders the %s state', ( type, className ) => {
 		mockState.block = { innerBlocks: [] };
 		act( () => {
@@ -395,7 +395,7 @@ describe( 'block editor components', () => {
 		} );
 
 		const notification = container.querySelector(
-			'.wp-block-form-submission-notification'
+			'.wp-block-formblox-form-submission-notification'
 		);
 		expect( notification.classList.contains( className ) ).toBe( true );
 		expect( notification.getAttribute( 'data-message-success' ) ).toBe(
@@ -408,7 +408,7 @@ describe( 'block editor components', () => {
 			mockCaptured.innerBlockOptions[ 0 ].renderAppender
 		).toBeDefined();
 		expect( mockCaptured.innerBlockOptions[ 0 ].template ).toEqual(
-			mockTemplates[ 'core/form-submission-notification' ]
+			mockTemplates[ 'formblox/form-submission-notification' ]
 		);
 	} );
 
@@ -426,18 +426,20 @@ describe( 'block editor components', () => {
 			mockCaptured.innerBlockOptions[ 0 ].renderAppender
 		).toBeUndefined();
 		expect(
-			container.querySelector( '.form-notification-type-success' )
+			container.querySelector(
+				'.formblox-form-notification-type-success'
+			)
 		).toBeNull();
 
 		act( () => {
 			root.render( <SubmitButtonEdit /> );
 		} );
 		expect( mockCaptured.innerBlockOptions.at( -1 ) ).toEqual( {
-			template: mockTemplates[ 'core/form-submit-button' ],
+			template: mockTemplates[ 'formblox/form-submit-button' ],
 			templateLock: 'all',
 		} );
 		expect(
-			container.querySelector( '.wp-block-form-submit-wrapper' )
+			container.querySelector( '.wp-block-formblox-form-submit-wrapper' )
 		).not.toBeNull();
 	} );
 } );

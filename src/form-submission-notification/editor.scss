@@ -1,4 +1,4 @@
-.wp-block-form-submission-notification {
+.wp-block-formblox-form-submission-notification {
 	> * {
 		opacity: 0.25;
 		border: 1px dashed;
@@ -31,13 +31,13 @@
 		// font-weight: bold;
 	}
 
-	&.form-notification-type-success {
+	&.formblox-form-notification-type-success {
 		&::after {
 			content: attr(data-message-success);
 		}
 	}
 
-	&.form-notification-type-error {
+	&.formblox-form-notification-type-error {
 		&::after {
 			content: attr(data-message-error);
 		}

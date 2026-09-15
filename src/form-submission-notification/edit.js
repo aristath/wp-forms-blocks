@@ -12,8 +12,8 @@ import clsx from 'clsx';
 const Edit = ( { attributes, clientId } ) => {
 	const { type } = attributes;
 	const blockProps = useBlockProps( {
-		className: clsx( 'wp-block-form-submission-notification', {
-			[ `form-notification-type-${ type }` ]: type,
+		className: clsx( 'wp-block-formblox-form-submission-notification', {
+			[ `formblox-form-notification-type-${ type }` ]: type,
 		} ),
 	} );
 
@@ -29,7 +29,8 @@ const Edit = ( { attributes, clientId } ) => {
 	);
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		template: getBlockType( 'core/form-submission-notification' )?.template,
+		template: getBlockType( 'formblox/form-submission-notification' )
+			?.template,
 		renderAppender: hasInnerBlocks
 			? undefined
 			: InnerBlocks.ButtonBlockAppender,

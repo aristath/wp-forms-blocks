@@ -1,6 +1,6 @@
 [
 	{
-		"blockName": "core/form-submission-notification",
+		"blockName": "formblox/form-submission-notification",
 		"attrs": {},
 		"innerBlocks": [
 			{
@@ -25,9 +25,9 @@
 				]
 			}
 		],
-		"innerHTML": "\n<div class=\"wp-block-form-submission-notification form-notification-type-success\"></div>\n",
+		"innerHTML": "\n<div class=\"wp-block-formblox-form-submission-notification formblox-form-notification-type-success\"></div>\n",
 		"innerContent": [
-			"\n<div class=\"wp-block-form-submission-notification form-notification-type-success\">",
+			"\n<div class=\"wp-block-formblox-form-submission-notification formblox-form-notification-type-success\">",
 			null,
 			"</div>\n"
 		]

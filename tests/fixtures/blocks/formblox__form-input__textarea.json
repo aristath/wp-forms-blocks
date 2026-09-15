@@ -1,11 +1,11 @@
 [
 	{
-		"name": "core/form-input",
+		"name": "formblox/form-input",
 		"isValid": true,
 		"attributes": {
-			"type": "checkbox",
+			"type": "textarea",
 			"label": "Label",
-			"inlineLabel": true,
+			"inlineLabel": false,
 			"required": true,
 			"value": "",
 			"visibilityPermissions": "all"

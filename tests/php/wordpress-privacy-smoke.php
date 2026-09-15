@@ -57,7 +57,7 @@ foreach (
 	) as $ignored_submission
 ) {
 	$_POST = $ignored_submission;
-	\WPFormsBlocks\block_core_form_privacy_form();
+	\WPFormsBlocks\block_formblox_form_privacy_form();
 }
 wp_forms_blocks_privacy_assert(
 	$before === $count_requests(),
@@ -71,18 +71,18 @@ $_POST = array(
 	'export_personal_data' => '1',
 	'remove_personal_data' => '1',
 );
-\WPFormsBlocks\block_core_form_privacy_form();
+\WPFormsBlocks\block_formblox_form_privacy_form();
 
 wp_forms_blocks_privacy_assert(
 	$before + 2 === $count_requests(),
 	'The privacy form did not create both requested actions.'
 );
 wp_forms_blocks_privacy_assert(
-	'<p>Success</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
+	'<p>Success</p>' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
 	'The Gutenberg privacy success notification was not enabled.'
 );
 wp_forms_blocks_privacy_assert(
-	'' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
+	'' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
 	'The Gutenberg privacy error notification was enabled after successful requests.'
 );
 
@@ -92,13 +92,13 @@ $_POST = array(
 	'email'                => 'not-an-email',
 	'export_personal_data' => '1',
 );
-\WPFormsBlocks\block_core_form_privacy_form();
+\WPFormsBlocks\block_formblox_form_privacy_form();
 wp_forms_blocks_privacy_assert(
-	'<p>Error</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
+	'<p>Error</p>' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
 	'The privacy error notification was not enabled after request creation failed.'
 );
 wp_forms_blocks_privacy_assert(
-	'' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
+	'' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
 	'The privacy success notification was enabled after request creation failed.'
 );
 

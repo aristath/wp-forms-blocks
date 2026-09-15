@@ -19,7 +19,7 @@ const TEMPLATE = [
 	formSubmissionNotificationSuccess,
 	formSubmissionNotificationError,
 	[
-		'core/form-input',
+		'formblox/form-input',
 		{
 			type: 'text',
 			label: __( 'Name' ),
@@ -27,7 +27,7 @@ const TEMPLATE = [
 		},
 	],
 	[
-		'core/form-input',
+		'formblox/form-input',
 		{
 			type: 'email',
 			label: __( 'Email' ),
@@ -35,14 +35,14 @@ const TEMPLATE = [
 		},
 	],
 	[
-		'core/form-input',
+		'formblox/form-input',
 		{
 			type: 'textarea',
 			label: __( 'Comment' ),
 			required: true,
 		},
 	],
-	[ 'core/form-submit-button', {} ],
+	[ 'formblox/form-submit-button', {} ],
 ];
 
 export const settings = {
@@ -56,17 +56,17 @@ export const settings = {
 
 export const init = () => {
 	// Prevent adding forms inside forms.
-	const DISALLOWED_PARENTS = [ 'core/form' ];
+	const DISALLOWED_PARENTS = [ 'formblox/form' ];
 	addFilter(
 		'blockEditor.__unstableCanInsertBlockType',
-		'core/block-library/preventInsertingFormIntoAnotherForm',
+		'formblox/block-library/preventInsertingFormIntoAnotherForm',
 		(
 			canInsert,
 			blockType,
 			rootClientId,
 			{ getBlock, getBlockParentsByBlockName }
 		) => {
-			if ( blockType.name !== 'core/form' ) {
+			if ( blockType.name !== 'formblox/form' ) {
 				return canInsert;
 			}
 

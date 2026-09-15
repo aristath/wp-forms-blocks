@@ -1,0 +1,14 @@
+[
+	{
+		"blockName": "formblox/form-input",
+		"attrs": {
+			"type": "radio",
+			"inlineLabel": true
+		},
+		"innerBlocks": [],
+		"innerHTML": "\n<div class=\"wp-block-formblox-form-input\"><label class=\"wp-block-formblox-form-input__label is-label-inline\"><input class=\"wp-block-formblox-form-input__input\" type=\"radio\" name=\"label\" required aria-required=\"true\"/><span class=\"wp-block-formblox-form-input__label-content\">Label</span></label></div>\n",
+		"innerContent": [
+			"\n<div class=\"wp-block-formblox-form-input\"><label class=\"wp-block-formblox-form-input__label is-label-inline\"><input class=\"wp-block-formblox-form-input__input\" type=\"radio\" name=\"label\" required aria-required=\"true\"/><span class=\"wp-block-formblox-form-input__label-content\">Label</span></label></div>\n"
+		]
+	}
+]

@@ -1,10 +1,10 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "core/form-input",
+	"name": "formblox/form-input",
 	"title": "Input Field",
 	"category": "widgets",
-	"ancestor": [ "core/form" ],
+	"ancestor": [ "formblox/form" ],
 	"description": "The basic building block for forms.",
 	"keywords": [ "input", "form" ],
 	"textdomain": "default",
@@ -19,7 +19,7 @@
 		"label": {
 			"type": "rich-text",
 			"default": "Label",
-			"selector": ".wp-block-form-input__label-content",
+			"selector": ".wp-block-formblox-form-input__label-content",
 			"source": "rich-text",
 			"role": "content"
 		},
@@ -30,13 +30,13 @@
 		"required": {
 			"type": "boolean",
 			"default": false,
-			"selector": ".wp-block-form-input__input",
+			"selector": ".wp-block-formblox-form-input__input",
 			"source": "attribute",
 			"attribute": "required"
 		},
 		"placeholder": {
 			"type": "string",
-			"selector": ".wp-block-form-input__input",
+			"selector": ".wp-block-formblox-form-input__input",
 			"source": "attribute",
 			"attribute": "placeholder",
 			"role": "content"
@@ -67,5 +67,5 @@
 			}
 		}
 	},
-	"style": [ "wp-block-form-input" ]
+	"style": [ "wp-block-formblox-form-input" ]
 }

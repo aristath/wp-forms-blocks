@@ -6,21 +6,13 @@ This plugin is ported from the official Gutenberg `v23.9.1` tag at commit `c2961
 
 The original source audit covered all 40 files in the four `packages/block-library/src/form*` directories, the relevant KSES and script-module-data functions under `lib/experimental`, and all 60 form serialization fixture files. Gutenberg contains no dedicated form-block PHP unit test or form-block E2E spec in that tag.
 
-## Literal source files
+## Literal source fidelity
 
-Of the 38 retained upstream source files, 21 are byte-identical to Gutenberg `v23.9.1`:
+The implementation remains a direct source port rather than a reimplementation. The behavioral bodies, attributes, variations, templates, editor controls, save output structure, server rendering, email transport, privacy processing, and visibility rules come from Gutenberg `v23.9.1`. The deliberate standalone changes are enumerated below.
 
-- all save, icon, and utility JavaScript;
-- `form-input/edit.js`;
-- `form-input/variations.js` and `form-submission-notification/variations.js`;
-- all four `init.js` files;
-- all component Sass files;
-- `form/view.js`;
-- all 28 retained canonical serialization fixture files.
+The namespace change necessarily touches every serialized fixture and many otherwise-identical source files: plugin blocks now serialize as `formblox/*`, their generated classes use `wp-block-formblox-*`, and plugin-owned runtime identifiers use `formblox`. Apart from those systematic substitutions and the standalone changes listed below, the port preserves the upstream implementation.
 
-The two retained block registration files, `form/index.js` and `form-input/index.js`, differ only by removal of their deprecation imports and settings. The Form, Submit Button, and Submission Notification edit components differ only by explicitly passing their registered templates to `useInnerBlocksProps`, restoring the implicit behavior provided by Gutenberg's older block editor. The three PHP block files are retained in their original block directories and preserve their original function bodies and hooks. The KSES and script-module-data functions are likewise retained as discrete ports of their Gutenberg counterparts.
-
-The two historical JavaScript deprecation implementations (`form/deprecated.js` and `form-input/deprecated.js`) and their 32 migration-only fixture files were subsequently removed. The remaining 28 upstream fixture files are byte-identical. This standalone plugin now supports one canonical block schema and does not migrate markup saved by earlier experimental versions.
+The two historical JavaScript deprecation implementations (`form/deprecated.js` and `form-input/deprecated.js`) and their 32 migration-only fixture files were subsequently removed. The retained 28 fixtures cover the seven canonical current-format cases under the standalone `formblox` namespace. This plugin supports one canonical block schema and does not register aliases or migrate markup saved with the former experimental `core/form*` names.
 
 ## Standalone-only changes
 
@@ -30,21 +22,22 @@ The maintained differences from Gutenberg are limited to:
 2. Gutenberg experiment-flag guards are removed; activating the plugin is the opt-in mechanism.
 3. PHP metadata paths point at each standalone build directory.
 4. PHP callback strings include the namespace.
-5. The standalone asset loader registers and enqueues the consolidated editor bundle, the original Gutenberg front-end style handles, and the original `@wordpress/block-library/form/view` script-module ID.
+5. The standalone asset loader registers and enqueues the consolidated editor bundle, `formblox`-scoped front-end style handles, and the `@formblox/form/view` script-module ID.
 6. `src/index.js` imports the four original `init.js` entry points into one plugin editor bundle.
 7. Plugin bootstrap, build configuration, package metadata, and consolidated Sass entry points are added around the port.
-8. A minimal PHP registration file is added for `core/form-submit-button`, which Gutenberg registered through its shared block-library loader and therefore did not give a per-block PHP file.
+8. A minimal PHP registration file is added for `formblox/form-submit-button`, which Gutenberg registered through its shared block-library loader and therefore did not give a per-block PHP file.
 9. WordPress 7.0 is the minimum version because the unchanged Gutenberg `view.js` relies on WordPress's native script-module data API.
 10. Historical deprecation registrations and migration-only fixtures are omitted so the standalone plugin exposes only its canonical schema.
 11. Current WordPress no longer applies a block type's registered `template` setting implicitly. The three container edit components pass their unchanged registered templates to `useInnerBlocksProps`, preserving Gutenberg's original default fields and nested content.
 12. The standalone product adds a default Contact Form variation and removes the historical `Experimental` prefix from the Comment Form and Privacy Request Form titles. Their active-state checks use form attributes so each variation resolves distinctly.
 13. The four block manifests and generated block documentation no longer mark the blocks as experimental; the experiment status applied to their former Gutenberg lifecycle, not to this standalone product.
+14. The plugin blocks use `formblox/form`, `formblox/form-input`, `formblox/form-submit-button`, and `formblox/form-submission-notification`. The same namespace scopes their generated classes, PHP callbacks and filters, editor hook, AJAX action and nonce, result query parameter, style handles, and view-module ID. Genuine WordPress child blocks retain their `core/*` names.
 
-The historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` names, text domain, input and notification variation labels, saved markup, render behavior, email transport, privacy processing, notification filtering, KSES allowlist, AJAX action, view-module data shape, and front-end JavaScript behavior remain unchanged.
+The input and notification variation labels, markup structure, render behavior, email transport, privacy processing, KSES allowlist, view-module data shape, and front-end submission behavior otherwise remain unchanged.
 
 ## Tests
 
-`tests/fixtures/blocks/` contains all seven canonical current-format upstream cases with four files per case. The JavaScript suite checks parser output, block registration, all variations, exact reserialization, and the unchanged view module's original data and submission contract.
+`tests/fixtures/blocks/` contains all seven canonical current-format cases with four files per case, rewritten only for the standalone namespace. The JavaScript suite checks parser output, block registration, all variations, exact reserialization, and the view module's namespaced data and submission contract.
 
 The unit suite additionally covers the metadata and templates for all four blocks, every variation and activation branch, editor rendering and every settings callback, current save branches, shared hooks, and all front-end response outcomes. Coverage gates require at least 95% statements/lines and 90% branches/functions across the executable ported JavaScript.
 

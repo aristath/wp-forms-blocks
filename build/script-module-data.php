@@ -13,14 +13,14 @@ namespace WPFormsBlocks;
  * @param array $data Existing script module data.
  * @return array The script module data.
  */
-function gutenberg_block_core_form_view_script_module( $data ) {
-	$data['nonce']   = wp_create_nonce( 'wp-block-form' );
+function formblox_form_view_script_module( $data ) {
+	$data['nonce']   = wp_create_nonce( 'formblox-form' );
 	$data['ajaxUrl'] = admin_url( 'admin-ajax.php' );
-	$data['action']  = 'wp_block_form_email_submit';
+	$data['action']  = 'formblox_form_email_submit';
 
 	return $data;
 }
 add_filter(
-	'script_module_data_@wordpress/block-library/form/view',
-	__NAMESPACE__ . '\\gutenberg_block_core_form_view_script_module'
+	'script_module_data_@formblox/form/view',
+	__NAMESPACE__ . '\\formblox_form_view_script_module'
 );

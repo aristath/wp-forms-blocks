@@ -1,6 +1,6 @@
 [
 	{
-		"name": "core/form-submit-button",
+		"name": "formblox/form-submit-button",
 		"isValid": true,
 		"attributes": {},
 		"innerBlocks": [

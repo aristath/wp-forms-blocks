@@ -40,7 +40,7 @@ export default function save( { attributes } ) {
 	};
 
 	const inputClasses = clsx(
-		'wp-block-form-input__input',
+		'wp-block-formblox-form-input__input',
 		colorProps.className,
 		borderProps.className
 	);
@@ -59,12 +59,12 @@ export default function save( { attributes } ) {
 		<div { ...blockProps }>
 			{ /* eslint-disable jsx-a11y/label-has-associated-control */ }
 			<label
-				className={ clsx( 'wp-block-form-input__label', {
+				className={ clsx( 'wp-block-formblox-form-input__label', {
 					'is-label-inline': inlineLabel,
 				} ) }
 			>
 				{ ! isCheckboxOrRadio && (
-					<span className="wp-block-form-input__label-content">
+					<span className="wp-block-formblox-form-input__label-content">
 						<RichText.Content value={ label } />
 					</span>
 				) }
@@ -78,7 +78,7 @@ export default function save( { attributes } ) {
 					style={ inputStyle }
 				/>
 				{ isCheckboxOrRadio && (
-					<span className="wp-block-form-input__label-content">
+					<span className="wp-block-formblox-form-input__label-content">
 						<RichText.Content value={ label } />
 					</span>
 				) }
