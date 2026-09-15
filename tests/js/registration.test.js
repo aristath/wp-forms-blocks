@@ -113,6 +113,11 @@ describe( 'standalone block registration contracts', () => {
 		expect( inputSettings.example ).toEqual( {} );
 	} );
 
+	test( 'registers only the canonical block schemas', () => {
+		expect( formSettings ).not.toHaveProperty( 'deprecated' );
+		expect( inputSettings ).not.toHaveProperty( 'deprecated' );
+	} );
+
 	test( 'retains every variation attribute, template, scope, and activation rule', () => {
 		const inputVariations = inputSettings.variations;
 		expect(

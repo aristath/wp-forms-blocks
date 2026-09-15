@@ -11,7 +11,7 @@ It provides:
 - Comment form and privacy request form variations
 - Email and custom-URL submission methods
 
-The plugin intentionally retains the historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` block names. Content created with the Gutenberg experiment therefore remains compatible.
+The plugin intentionally retains the historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` block names. Content saved with the final Gutenberg experiment schema therefore remains compatible. Earlier experimental schemas that depended on Gutenberg's migration handlers are intentionally unsupported.
 
 ## Development
 
@@ -29,7 +29,7 @@ pnpm run test:e2e
 pnpm test
 ```
 
-`test:unit` covers block registration, metadata, templates, every variation, editor controls and callbacks, current and deprecated save output, the complete Gutenberg serialization fixture corpus, front-end submission outcomes, and shared hooks. `test:coverage` enforces at least 95% statement/line coverage and 90% branch/function coverage across the executable ported JavaScript.
+`test:unit` covers block registration, metadata, templates, every variation, editor controls and callbacks, current save output, every canonical current-format Gutenberg serialization fixture, front-end submission outcomes, and shared hooks. `test:coverage` enforces at least 95% statement/line coverage and 90% branch/function coverage across the executable ported JavaScript.
 
 `test:wordpress` creates a disposable SQLite database alongside the local WordPress checkout and covers asset and module registration, rendering branches, successful and failed email handling, custom actions, comments, visibility permissions, notification filtering, privacy requests, and KSES. It never uses the development site's database.
 

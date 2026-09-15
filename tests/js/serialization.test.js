@@ -72,10 +72,15 @@ beforeAll( () => {
 	initFormSubmissionNotification();
 } );
 
-describe( 'Gutenberg 23.9.1 form block serialization fixtures', () => {
-	test( 'contains the complete upstream fixture corpus', () => {
-		expect( fixtureBasenames ).toHaveLength( 15 );
-		expect( fs.readdirSync( fixturesDirectory ) ).toHaveLength( 60 );
+describe( 'current form block serialization fixtures', () => {
+	test( 'contains every canonical current-format fixture', () => {
+		expect( fixtureBasenames ).toHaveLength( 7 );
+		expect( fs.readdirSync( fixturesDirectory ) ).toHaveLength( 28 );
+		expect(
+			fixtureBasenames.some( ( basename ) =>
+				basename.includes( 'deprecated' )
+			)
+		).toBe( false );
 	} );
 
 	blockNames.forEach( ( name ) => {
@@ -125,18 +130,6 @@ describe( 'Gutenberg 23.9.1 form block serialization fixtures', () => {
 		expect( grammarParse( html ) ).toEqual( expectedParserOutput );
 
 		const blocks = parse( html );
-
-		// Deprecated fixtures intentionally emit a migration notice. Gutenberg's
-		// own full-content fixture runner clears those expected messages before
-		// its console-error guard evaluates the test.
-		if ( /__deprecated([-_]|$)/.test( basename ) ) {
-			// eslint-disable-next-line no-console -- The Gutenberg test preset replaces these methods with tracked mocks.
-			console.warn.mockReset();
-			// eslint-disable-next-line no-console -- See above.
-			console.error.mockReset();
-			// eslint-disable-next-line no-console -- See above.
-			console.info.mockReset();
-		}
 
 		expect( normalizeParsedBlocks( blocks ) ).toEqual( expectedBlocks );
 		expect( serialize( blocks ) + '\n' ).toBe( expectedSerialization );

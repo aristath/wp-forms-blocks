@@ -5,7 +5,6 @@ import edit from './edit';
 import metadata from './block.json';
 import save from './save';
 import variations from './variations';
-import deprecated from './deprecated';
 import { icon } from './icons';
 import {
 	formSubmissionNotificationSuccess,
@@ -51,7 +50,6 @@ export const settings = {
 	template: TEMPLATE,
 	edit,
 	save,
-	deprecated,
 	variations,
 	example: {},
 };
