@@ -33,4 +33,10 @@ wp_test=(
 ajax_success=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-smoke.php")
 [[ "$ajax_success" == *'"success":true'* ]]
 
+ajax_failure=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-failure.php")
+[[ "$ajax_failure" == *'"success":false'* ]]
+
+invalid_nonce=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-invalid-nonce.php")
+[[ "$invalid_nonce" == '-1' ]]
+
 echo "All isolated WordPress integration tests passed."

@@ -25,6 +25,15 @@ const loadViewModule = () => {
 	} );
 };
 
+const submit = () => {
+	const event = new Event( 'submit', {
+		bubbles: true,
+		cancelable: true,
+	} );
+	document.querySelector( 'form' ).dispatchEvent( event );
+	return event;
+};
+
 describe( 'Gutenberg form view module', () => {
 	beforeEach( () => {
 		global.fetch = jest.fn( () => new Promise( () => {} ) );
@@ -34,12 +43,7 @@ describe( 'Gutenberg form view module', () => {
 		renderDocument( 'mailto:recipient@example.com' );
 		loadViewModule();
 
-		const form = document.querySelector( 'form' );
-		const event = new Event( 'submit', {
-			bubbles: true,
-			cancelable: true,
-		} );
-		form.dispatchEvent( event );
+		const event = submit();
 		await Promise.resolve();
 
 		expect( event.defaultPrevented ).toBe( true );
@@ -74,5 +78,56 @@ describe( 'Gutenberg form view module', () => {
 
 		expect( event.defaultPrevented ).toBe( false );
 		expect( global.fetch ).not.toHaveBeenCalled();
+	} );
+
+	test( 'ignores malformed module data', () => {
+		document.body.innerHTML = `
+			<script id="wp-script-module-data-@wordpress/block-library/form/view" type="application/json">not-json</script>
+			<form class="wp-block-form" action="mailto:recipient@example.com"></form>
+		`;
+		loadViewModule();
+
+		expect( submit().defaultPrevented ).toBe( false );
+		expect( global.fetch ).not.toHaveBeenCalled();
+	} );
+
+	test( 'enhances every mailto form on a page and no unrelated form', async () => {
+		document.body.innerHTML = `
+			<script id="wp-script-module-data-@wordpress/block-library/form/view" type="application/json">${ JSON.stringify(
+				settings
+			) }</script>
+			<form id="first" class="wp-block-form" action="mailto:first@example.com"><input name="value" value="first"></form>
+			<form id="second" class="wp-block-form" action="mailto:second@example.com"><input name="value" value="second"></form>
+			<form id="other" action="mailto:other@example.com"></form>
+		`;
+		loadViewModule();
+
+		for ( const id of [ 'first', 'second' ] ) {
+			const event = new Event( 'submit', {
+				bubbles: true,
+				cancelable: true,
+			} );
+			document.getElementById( id ).dispatchEvent( event );
+			expect( event.defaultPrevented ).toBe( true );
+		}
+		const unrelatedEvent = new Event( 'submit', {
+			bubbles: true,
+			cancelable: true,
+		} );
+		document.getElementById( 'other' ).dispatchEvent( unrelatedEvent );
+		await Promise.resolve();
+
+		expect( unrelatedEvent.defaultPrevented ).toBe( false );
+		expect( global.fetch ).toHaveBeenCalledTimes( 2 );
+		expect(
+			new URLSearchParams( global.fetch.mock.calls[ 0 ][ 1 ].body ).get(
+				'formAction'
+			)
+		).toBe( 'mailto:first@example.com' );
+		expect(
+			new URLSearchParams( global.fetch.mock.calls[ 1 ][ 1 ].body ).get(
+				'formAction'
+			)
+		).toBe( 'mailto:second@example.com' );
 	} );
 } );

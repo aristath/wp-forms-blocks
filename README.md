@@ -20,11 +20,20 @@ pnpm install --ignore-scripts
 pnpm run build
 pnpm run lint:js
 pnpm run lint:css
+pnpm run lint:php
 pnpm run test:unit
+pnpm run test:coverage
 pnpm run test:wordpress
+pnpm run test:e2e
+# Or run every test suite:
+pnpm test
 ```
 
-`test:unit` runs Gutenberg's complete form-block serialization fixture corpus and verifies the original view-module data contract. `test:wordpress` creates a disposable SQLite database alongside the local WordPress checkout and covers block registration, rendering, email, custom actions, comments, privacy requests, and KSES. It never uses the development site's database.
+`test:unit` covers block registration, metadata, templates, every variation, editor controls and callbacks, current and deprecated save output, the complete Gutenberg serialization fixture corpus, front-end submission outcomes, and shared hooks. `test:coverage` enforces at least 95% statement/line coverage and 90% branch/function coverage across the executable ported JavaScript.
+
+`test:wordpress` creates a disposable SQLite database alongside the local WordPress checkout and covers asset and module registration, rendering branches, successful and failed email handling, custom actions, comments, visibility permissions, notification filtering, privacy requests, and KSES. It never uses the development site's database.
+
+`test:e2e` launches another disposable local WordPress/SQLite instance and drives Chromium through the real editor and front end. It verifies block insertion and persistence, every field type, successful and failed submissions, custom browser submissions, logged-in and logged-out visibility, both privacy-request workflows, and comment submission. The runner requires the plugin to be located inside a local WordPress checkout, plus PHP, WP-CLI, and Playwright's Chromium browser (`pnpm exec playwright install chromium`).
 
 Built assets are committed so a checkout of a release can be installed directly as a WordPress plugin. See [docs/port-audit.md](docs/port-audit.md) for the file-by-file upstream audit and intentional standalone changes.
 

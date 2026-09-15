@@ -39,4 +39,8 @@ All four `block.json` files are byte-identical. The historical `core/form`, `cor
 
 `tests/fixtures/blocks/` contains the complete upstream fixture corpus: 15 cases and four files per case. The JavaScript suite checks parser output, migrations, block registration, all variations, exact reserialization, and the unchanged view module's original data and submission contract.
 
-The standalone WordPress integration runner uses a disposable SQLite database and checks asset/module registration plus the original PHP behavior for rendering, email, comments, custom actions, visibility permissions, notifications, privacy requests, and KSES.
+The unit suite additionally covers the metadata and templates for all four blocks, every variation and activation branch, editor rendering and every settings callback, current and deprecated save branches, shared hooks, and all front-end response outcomes. Coverage gates require at least 95% statements/lines and 90% branches/functions across the executable ported JavaScript.
+
+The standalone WordPress integration runner uses a disposable SQLite database and checks asset/module registration plus the original PHP behavior for rendering, successful and failed email handling, comments, custom actions, visibility permissions, notifications, privacy requests, and KSES.
+
+The Playwright suite boots a separate disposable WordPress/SQLite site and verifies seven complete browser workflows: editor insertion and round-trip persistence, all field types and successful email submission, failed AJAX submission, a custom method/action submission, logged-in/logged-out visibility, both privacy-request types, and comment submission. Neither integration runner touches the development site's database.

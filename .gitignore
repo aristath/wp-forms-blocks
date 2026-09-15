@@ -1,3 +1,5 @@
 node_modules/
+artifacts/
+coverage/
 .DS_Store
 npm-debug.log*

@@ -31,6 +31,14 @@ foreach ( $block_names as $block_name ) {
 	);
 }
 
+wp_forms_blocks_integration_assert(
+	array(
+		'dependencies' => array(),
+		'version'      => WP_FORMS_BLOCKS_VERSION,
+	) === wp_forms_blocks_get_asset( 'does-not-exist' ),
+	'Asset manifest fallback changed.'
+);
+
 $form_block = $registry->get_registered( 'core/form' );
 wp_forms_blocks_integration_assert(
 	'WPFormsBlocks\\render_block_core_form' === $form_block->render_callback,
@@ -156,6 +164,38 @@ wp_forms_blocks_integration_assert(
 	'Custom form method was not preserved.'
 );
 
+$default_form = \WPFormsBlocks\render_block_core_form(
+	array(),
+	'<form class="wp-block-form"></form>'
+);
+wp_forms_blocks_integration_assert(
+	false !== strpos( $default_form, 'action=""' ) && false !== strpos( $default_form, 'method="post"' ),
+	'Form defaults changed.'
+);
+
+$non_string_action_form = \WPFormsBlocks\render_block_core_form(
+	array( 'action' => array( 'invalid' ) ),
+	'<form class="wp-block-form"></form>'
+);
+wp_forms_blocks_integration_assert(
+	false !== strpos( $non_string_action_form, 'action=""' ),
+	'Non-string form actions are no longer ignored.'
+);
+
+$extra_field_callback = static function ( $fields, $attributes ) {
+	return $fields . '<input type="hidden" name="filtered" value="' . esc_attr( $attributes['marker'] ) . '">';
+};
+add_filter( 'render_block_core_form_extra_fields', $extra_field_callback, 20, 2 );
+$filtered_form = \WPFormsBlocks\render_block_core_form(
+	array( 'marker' => 'yes' ),
+	'<form class="wp-block-form"></form>'
+);
+remove_filter( 'render_block_core_form_extra_fields', $extra_field_callback, 20 );
+wp_forms_blocks_integration_assert(
+	false !== strpos( $filtered_form, 'name="filtered" value="yes"' ),
+	'Form extra-field extension point changed.'
+);
+
 wp_forms_blocks_integration_assert(
 	'' === \WPFormsBlocks\render_block_core_form_input( array( 'visibilityPermissions' => 'logged-in' ), '<input>' ),
 	'Logged-in-only field was shown to a logged-out visitor.'
@@ -177,6 +217,11 @@ wp_forms_blocks_integration_assert(
 );
 wp_set_current_user( 0 );
 
+wp_forms_blocks_integration_assert(
+	'<input>' === \WPFormsBlocks\render_block_core_form_input( array(), '<input>' ),
+	'The default input visibility is no longer all visitors.'
+);
+
 $_GET['wp-form-result'] = 'success';
 wp_forms_blocks_integration_assert(
 	'<p>Success</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
@@ -188,7 +233,23 @@ wp_forms_blocks_integration_assert(
 );
 unset( $_GET['wp-form-result'] );
 
-$allowed_html = \WPFormsBlocks\gutenberg_kses_allowed_html( array() );
+$notification_override = static function ( $show, $attributes, $content ) {
+	return 'forced' === $attributes['type'] && '<p>Forced</p>' === $content;
+};
+add_filter( 'show_form_submission_notification_block', $notification_override, 99, 3 );
+wp_forms_blocks_integration_assert(
+	'<p>Forced</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'forced' ), '<p>Forced</p>' ),
+	'Notification visibility filter cannot force a notification to display.'
+);
+remove_filter( 'show_form_submission_notification_block', $notification_override, 99 );
+
+$allowed_html = \WPFormsBlocks\gutenberg_kses_allowed_html(
+	array( 'existing' => array( 'attribute' => array() ) )
+);
+wp_forms_blocks_integration_assert(
+	isset( $allowed_html['existing']['attribute'] ),
+	'KSES extension discarded existing allowed HTML.'
+);
 wp_forms_blocks_integration_assert(
 	array( 'type', 'name', 'value', 'checked', 'required', 'aria-required', 'class' ) === array_keys( $allowed_html['input'] ),
 	'Input KSES rules differ from Gutenberg.'

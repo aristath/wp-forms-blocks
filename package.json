@@ -33,9 +33,11 @@
 		"remove-accents": "^0.5.0"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.63.0",
 		"@wordpress/babel-preset-default": "^8.55.0",
 		"@wordpress/block-library": "^11.0.0",
 		"@wordpress/block-serialization-default-parser": "^5.55.0",
+		"@wordpress/e2e-test-utils-playwright": "^2.0.0",
 		"@wordpress/jest-preset-default": "^14.2.0",
 		"@wordpress/scripts": "^35.0.0",
 		"react": "^19.3.0",
@@ -44,11 +46,15 @@
 	"scripts": {
 		"build": "wp-scripts build --webpack-copy-php",
 		"start": "wp-scripts start --webpack-copy-php",
-		"lint:js": "wp-scripts lint-js src tests/js webpack.config.js jest-unit.config.js",
+		"lint:js": "wp-scripts lint-js src tests/js specs webpack.config.js jest-unit.config.js playwright.config.js",
+		"lint:php": "find . -path './node_modules' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l",
 		"lint:css": "wp-scripts lint-style 'src/**/*.scss'",
 		"format": "wp-scripts format",
+		"test": "pnpm test:coverage && pnpm test:wordpress && pnpm test:e2e",
+		"test:e2e": "wp-scripts test-e2e",
 		"test:fixtures": "wp-scripts test-unit-js tests/js/serialization.test.js --runInBand",
 		"test:wordpress": "tests/run-wordpress-tests.sh",
-		"test:unit": "wp-scripts test-unit-js --runInBand"
+		"test:unit": "wp-scripts test-unit-js --runInBand",
+		"test:coverage": "wp-scripts test-unit-js --runInBand --coverage"
 	}
 }

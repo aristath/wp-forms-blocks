@@ -1,0 +1,427 @@
+/* eslint-disable jest/no-conditional-expect */
+import { act } from 'react';
+import { createRoot } from 'react-dom/client';
+
+import FormEdit from '../../src/form/edit';
+import InputEdit from '../../src/form-input/edit';
+import NotificationEdit from '../../src/form-submission-notification/edit';
+import SubmitButtonEdit from '../../src/form-submit-button/edit';
+
+const mockCaptured = {
+	checkboxControls: [],
+	innerBlockOptions: [],
+	richTexts: [],
+	selectControls: [],
+	textControls: [],
+	toolsPanels: [],
+	toolsPanelItems: [],
+};
+const mockState = {
+	block: null,
+	ref: { current: null },
+};
+
+jest.mock( '../../src/utils/hooks', () => ( {
+	useToolsPanelDropdownMenuProps: () => ( {
+		popoverProps: { placement: 'left-start', offset: 259 },
+	} ),
+} ) );
+
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	useRef: () => mockState.ref,
+} ) );
+
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: ( callback ) =>
+		callback( () => ( {
+			getBlock: () => mockState.block,
+		} ) ),
+} ) );
+
+jest.mock( '@wordpress/block-editor', () => {
+	const React = jest.requireActual( 'react' );
+	const useBlockProps = ( properties = {} ) => ( {
+		...properties,
+		'data-block-props': 'true',
+	} );
+	useBlockProps.save = useBlockProps;
+	const useInnerBlocksProps = ( properties = {}, options = {} ) => {
+		mockCaptured.innerBlockOptions.push( options );
+		return { ...properties, 'data-inner-block-props': 'true' };
+	};
+	useInnerBlocksProps.save = useInnerBlocksProps;
+
+	return {
+		InnerBlocks: {
+			ButtonBlockAppender: () =>
+				React.createElement( 'span', null, 'Appender' ),
+			Content: () => React.createElement( 'span', null, 'Content' ),
+		},
+		InspectorControls: ( { children, group } ) =>
+			React.createElement(
+				'div',
+				{ 'data-inspector-group': group || 'default' },
+				children
+			),
+		RichText: ( properties ) => {
+			mockCaptured.richTexts.push( properties );
+			return React.createElement( 'span', null, properties.value );
+		},
+		store: {},
+		useBlockProps,
+		useInnerBlocksProps,
+		__experimentalUseBorderProps: () => ( {
+			className: 'has-border',
+			style: { borderRadius: '2px' },
+		} ),
+		__experimentalUseColorProps: () => ( {
+			className: 'has-color',
+			style: { color: 'red' },
+		} ),
+	};
+} );
+
+jest.mock( '@wordpress/components', () => {
+	const React = jest.requireActual( 'react' );
+	const capture = ( collection, tagName ) => ( properties ) => {
+		mockCaptured[ collection ].push( properties );
+		return React.createElement(
+			tagName,
+			{ 'data-control-label': properties.label },
+			properties.children
+		);
+	};
+
+	return {
+		CheckboxControl: capture( 'checkboxControls', 'span' ),
+		SelectControl: capture( 'selectControls', 'span' ),
+		TextControl: capture( 'textControls', 'span' ),
+		__experimentalToolsPanel: capture( 'toolsPanels', 'section' ),
+		__experimentalToolsPanelItem: capture( 'toolsPanelItems', 'div' ),
+	};
+} );
+
+const getControl = ( collection, label, occurrence = 0 ) =>
+	mockCaptured[ collection ].filter(
+		( properties ) => properties.label === label
+	)[ occurrence ];
+
+describe( 'block editor components', () => {
+	let container;
+	let root;
+
+	beforeAll( () => {
+		global.IS_REACT_ACT_ENVIRONMENT = true;
+	} );
+
+	beforeEach( () => {
+		Object.keys( mockCaptured ).forEach( ( key ) => {
+			mockCaptured[ key ].length = 0;
+		} );
+		mockState.block = null;
+		mockState.ref = { current: null };
+		container = document.createElement( 'div' );
+		document.body.appendChild( container );
+		root = createRoot( container );
+	} );
+
+	afterEach( () => {
+		act( () => root.unmount() );
+		container.remove();
+	} );
+
+	test( 'form editor exposes and applies every email setting', () => {
+		const setAttributes = jest.fn();
+		mockState.block = { innerBlocks: [] };
+		act( () => {
+			root.render(
+				<FormEdit
+					attributes={ {
+						submissionMethod: 'email',
+						email: '',
+						action: undefined,
+						method: 'post',
+					} }
+					setAttributes={ setAttributes }
+					clientId="form"
+				/>
+			);
+		} );
+
+		expect(
+			container.querySelector( 'form' ).getAttribute( 'enctype' )
+		).toBe( 'text/plain' );
+		expect(
+			mockCaptured.innerBlockOptions[ 0 ].renderAppender
+		).toBeDefined();
+		expect( mockCaptured.toolsPanels[ 0 ].dropdownMenuProps ).toEqual( {
+			popoverProps: { placement: 'left-start', offset: 259 },
+		} );
+		expect(
+			getControl( 'toolsPanelItems', 'Submissions method' ).hasValue()
+		).toBe( false );
+		expect(
+			getControl(
+				'toolsPanelItems',
+				'Email for form submissions'
+			).hasValue()
+		).toBe( false );
+
+		getControl( 'selectControls', 'Submissions method' ).onChange(
+			'custom'
+		);
+		getControl( 'textControls', 'Email for form submissions' ).onChange(
+			'forms@example.com'
+		);
+		getControl( 'toolsPanelItems', 'Submissions method' ).onDeselect();
+		getControl(
+			'toolsPanelItems',
+			'Email for form submissions'
+		).onDeselect();
+		mockCaptured.toolsPanels[ 0 ].resetAll();
+
+		expect( setAttributes.mock.calls ).toEqual( [
+			[ { submissionMethod: 'custom' } ],
+			[ { email: 'forms@example.com' } ],
+			[ { action: 'mailto:forms@example.com' } ],
+			[ { method: 'post' } ],
+			[ { submissionMethod: 'email' } ],
+			[ { email: undefined, action: undefined, method: 'post' } ],
+			[
+				{
+					submissionMethod: 'email',
+					email: undefined,
+					action: undefined,
+					method: 'post',
+				},
+			],
+		] );
+	} );
+
+	test( 'form editor exposes and applies custom action settings', () => {
+		const setAttributes = jest.fn();
+		mockState.block = { innerBlocks: [ { name: 'core/form-input' } ] };
+		act( () => {
+			root.render(
+				<FormEdit
+					attributes={ {
+						submissionMethod: 'custom',
+						email: 'unused@example.com',
+						action: 'https://example.com/submit',
+						method: 'get',
+					} }
+					setAttributes={ setAttributes }
+					clientId="form"
+				/>
+			);
+		} );
+
+		expect(
+			container.querySelector( 'form' ).hasAttribute( 'enctype' )
+		).toBe( false );
+		expect(
+			mockCaptured.innerBlockOptions[ 0 ].renderAppender
+		).toBeUndefined();
+		expect(
+			getControl( 'toolsPanelItems', 'Submissions method' ).hasValue()
+		).toBe( true );
+		expect(
+			getControl( 'textControls', 'Email for form submissions' )
+		).toBeUndefined();
+		getControl( 'selectControls', 'Method' ).onChange( 'post' );
+		getControl( 'textControls', 'Form action' ).onChange(
+			'https://example.com/new'
+		);
+		expect( setAttributes.mock.calls ).toEqual( [
+			[ { method: 'post' } ],
+			[ { action: 'https://example.com/new' } ],
+		] );
+	} );
+
+	test.each( [ 'text', 'textarea', 'checkbox', 'radio' ] )(
+		'input editor renders and updates the %s field branch',
+		( type ) => {
+			const setAttributes = jest.fn();
+			const focus = jest.fn();
+			mockState.ref = { current: { focus } };
+			act( () => {
+				root.render(
+					<InputEdit
+						attributes={ {
+							type,
+							name: 'field',
+							label: 'Field label',
+							inlineLabel: false,
+							required: false,
+							placeholder: '',
+							value: '',
+						} }
+						setAttributes={ setAttributes }
+						className="custom-class"
+					/>
+				);
+			} );
+
+			expect( focus ).toHaveBeenCalledTimes( 1 );
+			const field = container.querySelector(
+				type === 'textarea' ? 'textarea' : 'input'
+			);
+			expect( [ ...field.classList ] ).toEqual(
+				expect.arrayContaining( [
+					'custom-class',
+					'wp-block-form-input__input',
+					'has-color',
+					'has-border',
+				] )
+			);
+			expect( field.style.color ).toBe( 'red' );
+			expect( field.style.borderRadius ).toBe( '2px' );
+			expect( getControl( 'textControls', 'Name' ).value ).toBe(
+				'field'
+			);
+			expect(
+				getControl( 'toolsPanelItems', 'Required' ).hasValue()
+			).toBe( false );
+			getControl( 'textControls', 'Name' ).onChange( 'renamed' );
+			getControl( 'checkboxControls', 'Required' ).onChange( true );
+			getControl( 'toolsPanelItems', 'Required' ).onDeselect();
+			mockCaptured.toolsPanels[ 0 ].resetAll();
+			mockCaptured.richTexts[ 0 ].onChange( 'Changed label' );
+
+			if ( 'checkbox' !== type ) {
+				expect(
+					getControl( 'toolsPanelItems', 'Inline label' ).hasValue()
+				).toBe( false );
+				getControl( 'checkboxControls', 'Inline label' ).onChange(
+					true
+				);
+				getControl( 'toolsPanelItems', 'Inline label' ).onDeselect();
+			} else {
+				expect(
+					getControl( 'checkboxControls', 'Inline label' )
+				).toBeUndefined();
+				expect(
+					container
+						.querySelector( '.wp-block-form-input__label' )
+						.classList.contains( 'is-label-inline' )
+				).toBe( true );
+			}
+			if ( 'text' === type || 'textarea' === type ) {
+				act( () => {
+					const prototype =
+						type === 'textarea'
+							? window.HTMLTextAreaElement.prototype
+							: window.HTMLInputElement.prototype;
+					Object.getOwnPropertyDescriptor(
+						prototype,
+						'value'
+					).set.call( field, 'Changed placeholder' );
+					field.dispatchEvent(
+						new Event( 'input', { bubbles: true } )
+					);
+				} );
+			}
+
+			expect( setAttributes ).toHaveBeenCalledWith( { name: 'renamed' } );
+			expect( setAttributes ).toHaveBeenCalledWith( { required: true } );
+			expect( setAttributes ).toHaveBeenCalledWith( { required: false } );
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				inlineLabel: false,
+				required: false,
+			} );
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				label: 'Changed label',
+			} );
+			if ( 'text' === type || 'textarea' === type ) {
+				expect( setAttributes ).toHaveBeenCalledWith( {
+					placeholder: 'Changed placeholder',
+				} );
+			}
+		}
+	);
+
+	test( 'input editor renders and updates a hidden field', () => {
+		const setAttributes = jest.fn();
+		act( () => {
+			root.render(
+				<InputEdit
+					attributes={ {
+						type: 'hidden',
+						name: 'token',
+						label: '',
+						inlineLabel: false,
+						required: false,
+						placeholder: 'ignored',
+						value: 'old',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+		} );
+
+		expect(
+			container
+				.querySelector( '.is-input-hidden' )
+				.getAttribute( 'data-message' )
+		).toBe( 'Hidden field' );
+		expect( mockCaptured.toolsPanels ).toHaveLength( 0 );
+		expect( getControl( 'textControls', 'Value' ).value ).toBe( 'old' );
+		getControl( 'textControls', 'Value' ).onChange( 'new' );
+		expect( setAttributes ).toHaveBeenCalledWith( { value: 'new' } );
+	} );
+
+	test.each( [
+		[ 'success', 'form-notification-type-success' ],
+		[ 'error', 'form-notification-type-error' ],
+	] )( 'notification editor renders the %s state', ( type, className ) => {
+		mockState.block = { innerBlocks: [] };
+		act( () => {
+			root.render(
+				<NotificationEdit attributes={ { type } } clientId="notice" />
+			);
+		} );
+
+		const notification = container.querySelector(
+			'.wp-block-form-submission-notification'
+		);
+		expect( notification.classList.contains( className ) ).toBe( true );
+		expect( notification.getAttribute( 'data-message-success' ) ).toBe(
+			'Submission success notification'
+		);
+		expect( notification.getAttribute( 'data-message-error' ) ).toBe(
+			'Submission error notification'
+		);
+		expect(
+			mockCaptured.innerBlockOptions[ 0 ].renderAppender
+		).toBeDefined();
+	} );
+
+	test( 'notification and submit editors suppress or lock appenders correctly', () => {
+		mockState.block = { innerBlocks: [ { name: 'core/paragraph' } ] };
+		act( () => {
+			root.render(
+				<NotificationEdit
+					attributes={ { type: undefined } }
+					clientId="notice"
+				/>
+			);
+		} );
+		expect(
+			mockCaptured.innerBlockOptions[ 0 ].renderAppender
+		).toBeUndefined();
+		expect(
+			container.querySelector( '.form-notification-type-success' )
+		).toBeNull();
+
+		act( () => {
+			root.render( <SubmitButtonEdit /> );
+		} );
+		expect( mockCaptured.innerBlockOptions.at( -1 ) ).toEqual( {
+			templateLock: 'all',
+		} );
+		expect(
+			container.querySelector( '.wp-block-form-submit-wrapper' )
+		).not.toBeNull();
+	} );
+} );

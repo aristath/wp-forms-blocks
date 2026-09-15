@@ -40,6 +40,37 @@ $_POST = array(
 
 add_filter( 'pre_wp_mail', '__return_true' );
 $before = $count_requests();
+
+foreach (
+	array(
+		array(),
+		array(
+			'wp-action'          => 'wrong_action',
+			'wp-privacy-request' => '1',
+			'email'              => 'privacy@example.com',
+		),
+		array(
+			'wp-action'          => 'wp_privacy_send_request',
+			'wp-privacy-request' => '1',
+			'email'              => 'privacy@example.com',
+		),
+	) as $ignored_submission
+) {
+	$_POST = $ignored_submission;
+	\WPFormsBlocks\block_core_form_privacy_form();
+}
+wp_forms_blocks_privacy_assert(
+	$before === $count_requests(),
+	'Invalid or actionless privacy submissions created requests.'
+);
+
+$_POST = array(
+	'wp-action'            => 'wp_privacy_send_request',
+	'wp-privacy-request'   => '1',
+	'email'                => 'privacy@example.com',
+	'export_personal_data' => '1',
+	'remove_personal_data' => '1',
+);
 \WPFormsBlocks\block_core_form_privacy_form();
 
 wp_forms_blocks_privacy_assert(
@@ -53,6 +84,22 @@ wp_forms_blocks_privacy_assert(
 wp_forms_blocks_privacy_assert(
 	'' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
 	'The Gutenberg privacy error notification was enabled after successful requests.'
+);
+
+$_POST = array(
+	'wp-action'            => 'wp_privacy_send_request',
+	'wp-privacy-request'   => '1',
+	'email'                => 'not-an-email',
+	'export_personal_data' => '1',
+);
+\WPFormsBlocks\block_core_form_privacy_form();
+wp_forms_blocks_privacy_assert(
+	'<p>Error</p>' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
+	'The privacy error notification was not enabled after request creation failed.'
+);
+wp_forms_blocks_privacy_assert(
+	'' === \WPFormsBlocks\render_block_core_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
+	'The privacy success notification was enabled after request creation failed.'
 );
 
 echo "WordPress privacy-request tests passed for the faithful port.\n";

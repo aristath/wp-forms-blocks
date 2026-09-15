@@ -10,4 +10,10 @@ module.exports = [
 			'@wordpress/no-unsafe-wp-apis': 'off',
 		},
 	},
+	{
+		files: [ 'tests/js/view-response.test.js' ],
+		rules: {
+			'jsdoc/check-tag-names': 'off',
+		},
+	},
 ];
