@@ -110,8 +110,8 @@ test.describe( 'WP Forms Blocks', () => {
 		page,
 	} ) => {
 		await admin.createNewPost();
-		const registeredTemplates = await page.evaluate( () =>
-			Object.fromEntries(
+		const registration = await page.evaluate( () => {
+			const templates = Object.fromEntries(
 				[
 					'core/form',
 					'core/form-submit-button',
@@ -122,9 +122,30 @@ test.describe( 'WP Forms Blocks', () => {
 						.getBlockType( name )
 						.template?.map( ( block ) => block[ 0 ] ),
 				] )
-			)
-		);
-		expect( registeredTemplates ).toEqual( {
+			);
+			const variations = window.wp.blocks
+				.getBlockVariations( 'core/form' )
+				.map( ( { name, title, isDefault } ) => ( {
+					name,
+					title,
+					isDefault,
+				} ) );
+			const defaultVariation = window.wp.data
+				.select( 'core/blocks' )
+				.getDefaultBlockVariation( 'core/form', 'inserter' );
+
+			return {
+				templates,
+				variations,
+				defaultVariation: {
+					name: defaultVariation.name,
+					innerBlocks: defaultVariation.innerBlocks.map(
+						( block ) => block[ 0 ]
+					),
+				},
+			};
+		} );
+		expect( registration.templates ).toEqual( {
 			'core/form': [
 				'core/form-submission-notification',
 				'core/form-submission-notification',
@@ -136,7 +157,45 @@ test.describe( 'WP Forms Blocks', () => {
 			'core/form-submit-button': [ 'core/buttons' ],
 			'core/form-submission-notification': [ 'core/paragraph' ],
 		} );
-		await editor.insertBlock( { name: 'core/form' } );
+		expect( registration.variations ).toEqual( [
+			{
+				name: 'contact-form',
+				title: 'Contact Form',
+				isDefault: true,
+			},
+			{
+				name: 'comment-form',
+				title: 'Comment Form',
+				isDefault: false,
+			},
+			{
+				name: 'wp-privacy-form',
+				title: 'Privacy Request Form',
+				isDefault: false,
+			},
+		] );
+		expect( registration.defaultVariation ).toEqual( {
+			name: 'contact-form',
+			innerBlocks: registration.templates[ 'core/form' ],
+		} );
+		await page.evaluate( () => {
+			const variation = window.wp.data
+				.select( 'core/blocks' )
+				.getDefaultBlockVariation( 'core/form', 'inserter' );
+			const innerBlocks =
+				window.wp.blocks.createBlocksFromInnerBlocksTemplate(
+					variation.innerBlocks
+				);
+			window.wp.data
+				.dispatch( 'core/block-editor' )
+				.insertBlock(
+					window.wp.blocks.createBlock(
+						'core/form',
+						variation.attributes,
+						innerBlocks
+					)
+				);
+		} );
 
 		await expect(
 			editor.canvas.locator( 'form.wp-block-form' )

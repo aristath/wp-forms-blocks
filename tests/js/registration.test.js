@@ -73,6 +73,14 @@ describe( 'standalone block registration contracts', () => {
 			name: 'core/form-submission-notification',
 			ancestor: [ 'core/form' ],
 		} );
+		for ( const metadata of [
+			formMetadata,
+			inputMetadata,
+			submitMetadata,
+			notificationMetadata,
+		] ) {
+			expect( metadata ).not.toHaveProperty( '__experimental' );
+		}
 	} );
 
 	test( 'retains every default inner-block template', () => {
@@ -141,7 +149,25 @@ describe( 'standalone block registration contracts', () => {
 		} );
 		expect( inputVariations[ 0 ].isActive( {} ) ).toBe( true );
 
-		const [ comment, privacy ] = formSettings.variations;
+		const [ contact, comment, privacy ] = formSettings.variations;
+		expect( contact ).toMatchObject( {
+			name: 'contact-form',
+			title: 'Contact Form',
+			description: 'A contact form for site visitors.',
+			attributes: { submissionMethod: 'email' },
+			isDefault: true,
+			scope: [ 'inserter', 'transform' ],
+		} );
+		expect( contact.innerBlocks ).toEqual( formSettings.template );
+		expect( contact.isActive() ).toBe( true );
+		expect( contact.isActive( { submissionMethod: 'email' } ) ).toBe(
+			true
+		);
+		expect( contact.isActive( { submissionMethod: 'custom' } ) ).toBe(
+			false
+		);
+		expect( comment.title ).toBe( 'Comment Form' );
+		expect( comment.isDefault ).toBe( false );
 		expect( comment.attributes ).toEqual( {
 			submissionMethod: 'custom',
 			action: '{SITE_URL}/wp-comments-post.php',
@@ -154,6 +180,8 @@ describe( 'standalone block registration contracts', () => {
 			'core/form-input',
 			'core/form-submit-button',
 		] );
+		expect( privacy.title ).toBe( 'Privacy Request Form' );
+		expect( privacy.isDefault ).toBe( false );
 		expect( privacy.attributes ).toEqual( {
 			submissionMethod: 'custom',
 			action: '',
@@ -173,10 +201,12 @@ describe( 'standalone block registration contracts', () => {
 		] );
 		for ( const variation of [ comment, privacy ] ) {
 			expect( variation.scope ).toEqual( [ 'inserter', 'transform' ] );
-			expect( variation.isActive() ).toBe( true );
-			expect( variation.isActive( { type: 'text' } ) ).toBe( true );
-			expect( variation.isActive( { type: 'other' } ) ).toBe( false );
+			expect( variation.isActive() ).toBe( false );
 		}
+		expect( comment.isActive( comment.attributes ) ).toBe( true );
+		expect( comment.isActive( privacy.attributes ) ).toBe( false );
+		expect( privacy.isActive( privacy.attributes ) ).toBe( true );
+		expect( privacy.isActive( comment.attributes ) ).toBe( false );
 
 		const [ success, error ] = notificationSettings.variations;
 		expect( success.attributes ).toEqual( { type: 'success' } );

@@ -94,7 +94,7 @@ describe( 'current form block serialization fixtures', () => {
 			getBlockVariations( 'core/form' ).map(
 				( variation ) => variation.name
 			)
-		).toEqual( [ 'comment-form', 'wp-privacy-form' ] );
+		).toEqual( [ 'contact-form', 'comment-form', 'wp-privacy-form' ] );
 		expect(
 			getBlockVariations( 'core/form-input' ).map(
 				( variation ) => variation.name

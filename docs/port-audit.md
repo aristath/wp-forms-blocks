@@ -8,13 +8,13 @@ The original source audit covered all 40 files in the four `packages/block-libra
 
 ## Literal source files
 
-Of the 38 retained upstream source files, 30 are byte-identical to Gutenberg `v23.9.1`:
+Of the 38 retained upstream source files, 21 are byte-identical to Gutenberg `v23.9.1`:
 
-- all save, icon, utility, and variation JavaScript;
+- all save, icon, and utility JavaScript;
 - `form-input/edit.js`;
+- `form-input/variations.js` and `form-submission-notification/variations.js`;
 - all four `init.js` files;
 - all component Sass files;
-- all four generated block README files;
 - `form/view.js`;
 - all 28 retained canonical serialization fixture files.
 
@@ -37,8 +37,10 @@ The maintained differences from Gutenberg are limited to:
 9. WordPress 7.0 is the minimum version because the unchanged Gutenberg `view.js` relies on WordPress's native script-module data API.
 10. Historical deprecation registrations and migration-only fixtures are omitted so the standalone plugin exposes only its canonical schema.
 11. Current WordPress no longer applies a block type's registered `template` setting implicitly. The three container edit components pass their unchanged registered templates to `useInnerBlocksProps`, preserving Gutenberg's original default fields and nested content.
+12. The standalone product adds a default Contact Form variation and removes the historical `Experimental` prefix from the Comment Form and Privacy Request Form titles. Their active-state checks use form attributes so each variation resolves distinctly.
+13. The four block manifests and generated block documentation no longer mark the blocks as experimental; the experiment status applied to their former Gutenberg lifecycle, not to this standalone product.
 
-All four `block.json` files are byte-identical. The historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` names, `__experimental` metadata, text domain, variation labels, saved markup, render behavior, email transport, privacy processing, notification filtering, KSES allowlist, AJAX action, view-module data shape, and front-end JavaScript behavior remain unchanged.
+The historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` names, text domain, input and notification variation labels, saved markup, render behavior, email transport, privacy processing, notification filtering, KSES allowlist, AJAX action, view-module data shape, and front-end JavaScript behavior remain unchanged.
 
 ## Tests
 
@@ -48,4 +50,4 @@ The unit suite additionally covers the metadata and templates for all four block
 
 The standalone WordPress integration runner uses a disposable SQLite database and checks asset/module registration plus the original PHP behavior for rendering, successful and failed email handling, comments, custom actions, visibility permissions, notifications, privacy requests, and KSES.
 
-The Playwright suite boots a separate disposable WordPress/SQLite site and verifies seven complete browser workflows: editor insertion and round-trip persistence, all field types and successful email submission, failed AJAX submission, a custom method/action submission, logged-in/logged-out visibility, both privacy-request types, and comment submission. Neither integration runner touches the development site's database.
+The Playwright suite boots a separate disposable WordPress/SQLite site and verifies seven complete browser workflows: default Contact Form variation insertion and round-trip persistence, all field types and successful email submission, failed AJAX submission, a custom method/action submission, logged-in/logged-out visibility, both privacy-request types, and comment submission. Neither integration runner touches the development site's database.

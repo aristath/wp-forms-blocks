@@ -8,10 +8,10 @@ It provides:
 - Input Field
 - Form Submit Button
 - Form Submission Notification
-- Comment form and privacy request form variations
+- Contact Form, Comment Form, and Privacy Request Form variations
 - Email and custom-URL submission methods
 
-A newly inserted Form starts with the original success and error notifications, Name, Email, and Comment fields, and a Submit button. The original Comment Form and Privacy Request Form presets are registered as block variations.
+A newly inserted Form uses the default Contact Form variation. It starts with the original success and error notifications, Name, Email, and Comment fields, and a Submit button. Comment Form and Privacy Request Form are available as additional variations.
 
 The plugin intentionally retains the historical `core/form`, `core/form-input`, `core/form-submit-button`, and `core/form-submission-notification` block names. Content saved with the final Gutenberg experiment schema therefore remains compatible. Earlier experimental schemas that depended on Gutenberg's migration handlers are intentionally unsupported.
 
@@ -35,11 +35,11 @@ pnpm test
 
 `test:wordpress` creates a disposable SQLite database alongside the local WordPress checkout and covers asset and module registration, rendering branches, successful and failed email handling, custom actions, comments, visibility permissions, notification filtering, privacy requests, and KSES. It never uses the development site's database.
 
-`test:e2e` launches another disposable local WordPress/SQLite instance on an available port and drives Chromium through the real editor and front end. It verifies the complete default Form template, block insertion and persistence, every field type, successful and failed submissions, custom browser submissions, logged-in and logged-out visibility, both privacy-request workflows, and comment submission. The runner requires the plugin to be located inside a local WordPress checkout, plus PHP, WP-CLI, and Playwright's Chromium browser (`pnpm exec playwright install chromium`).
+`test:e2e` launches another disposable local WordPress/SQLite instance on an available port and drives Chromium through the real editor and front end. It verifies the default Contact Form variation and its complete template, block insertion and persistence, every field type, successful and failed submissions, custom browser submissions, logged-in and logged-out visibility, both privacy-request workflows, and comment submission. The runner requires the plugin to be located inside a local WordPress checkout, plus PHP, WP-CLI, and Playwright's Chromium browser (`pnpm exec playwright install chromium`).
 
 Built assets are committed so a checkout of a release can be installed directly as a WordPress plugin. See [docs/port-audit.md](docs/port-audit.md) for the file-by-file upstream audit and intentional standalone changes.
 
-## Experimental status
+## Security note
 
 This is a faithful port of experimental Gutenberg code, including its original email and privacy-request behavior. In particular, the email AJAX handler accepts the form's `mailto:` destination from the submitted request. That behavior should be reviewed before using the block on an untrusted public site.
 

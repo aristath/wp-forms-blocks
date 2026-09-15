@@ -6,8 +6,50 @@ import {
 
 const variations = [
 	{
+		name: 'contact-form',
+		title: __( 'Contact Form' ),
+		description: __( 'A contact form for site visitors.' ),
+		attributes: {
+			submissionMethod: 'email',
+		},
+		isDefault: true,
+		innerBlocks: [
+			formSubmissionNotificationSuccess,
+			formSubmissionNotificationError,
+			[
+				'core/form-input',
+				{
+					type: 'text',
+					label: __( 'Name' ),
+					required: true,
+				},
+			],
+			[
+				'core/form-input',
+				{
+					type: 'email',
+					label: __( 'Email' ),
+					required: true,
+				},
+			],
+			[
+				'core/form-input',
+				{
+					type: 'textarea',
+					label: __( 'Comment' ),
+					required: true,
+				},
+			],
+			[ 'core/form-submit-button', {} ],
+		],
+		scope: [ 'inserter', 'transform' ],
+		isActive: ( blockAttributes ) =>
+			! blockAttributes?.submissionMethod ||
+			blockAttributes?.submissionMethod === 'email',
+	},
+	{
 		name: 'comment-form',
-		title: __( 'Experimental Comment form' ),
+		title: __( 'Comment Form' ),
 		description: __( 'A comment form for posts and pages.' ),
 		attributes: {
 			submissionMethod: 'custom',
@@ -51,11 +93,11 @@ const variations = [
 		],
 		scope: [ 'inserter', 'transform' ],
 		isActive: ( blockAttributes ) =>
-			! blockAttributes?.type || blockAttributes?.type === 'text',
+			blockAttributes?.action === '{SITE_URL}/wp-comments-post.php',
 	},
 	{
 		name: 'wp-privacy-form',
-		title: __( 'Experimental Privacy Request Form' ),
+		title: __( 'Privacy Request Form' ),
 		keywords: [ 'GDPR' ],
 		description: __( 'A form to request data exports and/or deletion.' ),
 		attributes: {
@@ -126,7 +168,7 @@ const variations = [
 		],
 		scope: [ 'inserter', 'transform' ],
 		isActive: ( blockAttributes ) =>
-			! blockAttributes?.type || blockAttributes?.type === 'text',
+			blockAttributes?.anchor === 'gdpr-form',
 	},
 ];
 
