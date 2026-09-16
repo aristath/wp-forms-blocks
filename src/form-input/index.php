@@ -31,6 +31,18 @@ function render_block_formblox_form_input( $attributes, $content ) {
 	if ( 'logged-out' === $visibility_permissions && $user_logged_in ) {
 		return '';
 	}
+
+	if (
+		! empty( $attributes['required'] ) &&
+		false !== strpos( $content, 'wp-block-formblox-form-input__label-content' )
+	) {
+		$processor = new \WP_HTML_Tag_Processor( $content );
+		if ( $processor->next_tag( array( 'class_name' => 'wp-block-formblox-form-input__label-content' ) ) ) {
+			$processor->set_attribute( 'data-formblox-required-label', __( 'required', 'wp-forms-blocks' ) );
+			$content = $processor->get_updated_html();
+		}
+	}
+
 	return $content;
 }
 

@@ -6,6 +6,7 @@ const settings = {
 	nonce: 'test-nonce',
 	ajaxUrl: 'https://example.com/wp-admin/admin-ajax.php',
 	action: 'formblox_form_email_submit',
+	submittingText: 'Submitting…',
 };
 
 describe( 'Gutenberg form view response handling', () => {
@@ -15,6 +16,9 @@ describe( 'Gutenberg form view response handling', () => {
 	beforeEach( () => {
 		form = {
 			dataset: { formbloxSubmissionMethod: 'email' },
+			setAttribute: jest.fn(),
+			querySelectorAll: jest.fn( () => [] ),
+			after: jest.fn(),
 			addEventListener: jest.fn( ( eventName, callback ) => {
 				if ( 'submit' === eventName ) {
 					submitHandler = callback;
@@ -25,7 +29,11 @@ describe( 'Gutenberg form view response handling', () => {
 			getElementById: jest.fn( () => ( {
 				textContent: JSON.stringify( settings ),
 			} ) ),
+			querySelector: jest.fn( () => null ),
 			querySelectorAll: jest.fn( () => [ form ] ),
+			createElement: jest.fn( () => ( {
+				setAttribute: jest.fn(),
+			} ) ),
 		};
 		global.window = {
 			location: {

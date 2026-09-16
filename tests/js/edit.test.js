@@ -347,6 +347,29 @@ describe( 'block editor components', () => {
 		}
 	);
 
+	test( 'input editor visibly identifies required fields', () => {
+		act( () => {
+			root.render(
+				<InputEdit
+					attributes={ {
+						type: 'text',
+						name: 'required-field',
+						label: 'Required field',
+						inlineLabel: false,
+						required: true,
+						placeholder: '',
+						value: '',
+					} }
+					setAttributes={ jest.fn() }
+				/>
+			);
+		} );
+
+		expect(
+			mockCaptured.richTexts[ 0 ][ 'data-formblox-required-label' ]
+		).toBe( 'required' );
+	} );
+
 	test( 'input editor renders and updates a hidden field', () => {
 		const setAttributes = jest.fn();
 		act( () => {

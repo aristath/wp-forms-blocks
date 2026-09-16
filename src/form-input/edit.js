@@ -140,6 +140,9 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 					: __( 'Empty label', 'wp-forms-blocks' )
 			}
 			data-empty={ ! label }
+			data-formblox-required-label={
+				required ? __( 'required', 'wp-forms-blocks' ) : undefined
+			}
 			placeholder={ __(
 				'Type the label for this input',
 				'wp-forms-blocks'

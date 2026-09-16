@@ -1,4 +1,8 @@
 .wp-block-formblox-form-input {
+	.wp-block-formblox-form-input__label-content[data-formblox-required-label]::after {
+		content: " (" attr(data-formblox-required-label) ")";
+	}
+
 	.is-input-hidden {
 		display: flex;
 		position: relative;

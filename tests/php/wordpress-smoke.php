@@ -115,6 +115,10 @@ wp_forms_blocks_integration_assert(
 	(bool) wp_verify_nonce( $module_data['nonce'], 'formblox-form' ),
 	'View-module nonce differs from Gutenberg.'
 );
+wp_forms_blocks_integration_assert(
+	'Submitting…' === $module_data['submittingText'],
+	'View-module data is missing the localized submitting status.'
+);
 
 $email_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
@@ -311,14 +315,52 @@ wp_forms_blocks_integration_assert(
 	'The default input visibility is no longer all visitors.'
 );
 
-$_GET['formblox-form-result'] = 'success';
+$required_input           = '<div class="wp-block-formblox-form-input"><label><span class="wp-block-formblox-form-input__label-content">Name</span><input required></label></div>';
+$rendered_required_input  = \WPFormsBlocks\render_block_formblox_form_input(
+	array( 'required' => true ),
+	$required_input
+);
+$required_input_processor = new WP_HTML_Tag_Processor( $rendered_required_input );
 wp_forms_blocks_integration_assert(
-	'<p>Success</p>' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'success' ), '<p>Success</p>' ),
+	$required_input_processor->next_tag( array( 'class_name' => 'wp-block-formblox-form-input__label-content' ) ) &&
+	'required' === $required_input_processor->get_attribute( 'data-formblox-required-label' ),
+	'Required fields do not expose their localized visible indicator.'
+);
+
+$_GET['formblox-form-result']   = 'success';
+$success_notification           = '<div class="wp-block-formblox-form-submission-notification formblox-form-notification-type-success"><p>Success</p></div>';
+$rendered_success_notification  = \WPFormsBlocks\render_block_formblox_form_submission_notification(
+	array( 'type' => 'success' ),
+	$success_notification
+);
+$success_notification_processor = new WP_HTML_Tag_Processor( $rendered_success_notification );
+wp_forms_blocks_integration_assert(
+	$success_notification_processor->next_tag( array( 'class_name' => 'wp-block-formblox-form-submission-notification' ) ) &&
+	'status' === $success_notification_processor->get_attribute( 'role' ) &&
+	'polite' === $success_notification_processor->get_attribute( 'aria-live' ) &&
+	'true' === $success_notification_processor->get_attribute( 'aria-atomic' ) &&
+	'-1' === $success_notification_processor->get_attribute( 'tabindex' ),
 	'Success notification did not render for a successful result.'
 );
 wp_forms_blocks_integration_assert(
 	'' === \WPFormsBlocks\render_block_formblox_form_submission_notification( array( 'type' => 'error' ), '<p>Error</p>' ),
 	'Error notification rendered for a successful result.'
+);
+
+$_GET['formblox-form-result'] = 'error';
+$error_notification           = '<div class="wp-block-formblox-form-submission-notification formblox-form-notification-type-error"><p>Error</p></div>';
+$rendered_error_notification  = \WPFormsBlocks\render_block_formblox_form_submission_notification(
+	array( 'type' => 'error' ),
+	$error_notification
+);
+$error_notification_processor = new WP_HTML_Tag_Processor( $rendered_error_notification );
+wp_forms_blocks_integration_assert(
+	$error_notification_processor->next_tag( array( 'class_name' => 'wp-block-formblox-form-submission-notification' ) ) &&
+	'alert' === $error_notification_processor->get_attribute( 'role' ) &&
+	'assertive' === $error_notification_processor->get_attribute( 'aria-live' ) &&
+	'true' === $error_notification_processor->get_attribute( 'aria-atomic' ) &&
+	'-1' === $error_notification_processor->get_attribute( 'tabindex' ),
+	'Error notification is missing its accessible runtime semantics.'
 );
 unset( $_GET['formblox-form-result'] );
 

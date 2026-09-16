@@ -16,7 +16,7 @@ WP Forms Blocks provides Form, Input Field, Form Submit Button, and Form Submiss
 
 Email forms send submissions to the Administration Email Address configured in WordPress. Form visitors cannot select or override the recipient.
 
-Its four blocks use the plugin-owned formblox namespace. The former experimental core/form names are not registered, and no migration layer is included.
+Its four blocks use the plugin-owned formblox namespace.
 
 == Installation ==
 
@@ -27,5 +27,4 @@ Its four blocks use the plugin-owned formblox namespace. The former experimental
 == Changelog ==
 
 = 0.1.0 =
-* Initial standalone release, based on the implementation from Gutenberg 23.9.1.
-* Retain contact, comment, and privacy-request form behavior.
+* Initial release with contact, comment, privacy-request, and custom-action forms.

@@ -32,6 +32,10 @@
 
 :where(.wp-block-formblox-form-input__label-content) {
 	width: fit-content;
+
+	&[data-formblox-required-label]::after {
+		content: " (" attr(data-formblox-required-label) ")";
+	}
 }
 
 :where(.wp-block-formblox-form-input__input) {

@@ -92,13 +92,15 @@ final class CallbacksTest extends TestCase {
 			->once()
 			->with( 'admin-ajax.php' )
 			->andReturn( 'https://example.com/wp-admin/admin-ajax.php' );
+		Functions\when( '__' )->returnArg();
 
 		$this->assertSame(
 			array(
-				'existing' => true,
-				'nonce'    => 'nonce',
-				'ajaxUrl'  => 'https://example.com/wp-admin/admin-ajax.php',
-				'action'   => 'formblox_form_email_submit',
+				'existing'       => true,
+				'nonce'          => 'nonce',
+				'ajaxUrl'        => 'https://example.com/wp-admin/admin-ajax.php',
+				'action'         => 'formblox_form_email_submit',
+				'submittingText' => 'Submitting…',
 			),
 			formblox_form_view_script_module( array( 'existing' => true ) )
 		);

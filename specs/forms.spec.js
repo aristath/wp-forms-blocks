@@ -330,6 +330,19 @@ test.describe( 'WP Forms Blocks', () => {
 		await expect( form.locator( 'textarea[name="message"]' ) ).toHaveCount(
 			1
 		);
+		const requiredLabel = form.locator(
+			'.wp-block-formblox-form-input:has([name="full-name"]) .wp-block-formblox-form-input__label-content'
+		);
+		await expect( requiredLabel ).toHaveAttribute(
+			'data-formblox-required-label',
+			'required'
+		);
+		expect(
+			await requiredLabel.evaluate(
+				( element ) =>
+					window.getComputedStyle( element, '::after' ).content
+			)
+		).toContain( 'required' );
 
 		await form.locator( '[name="full-name"]' ).fill( 'Ada Lovelace' );
 		await form.locator( '[name="email"]' ).fill( 'ada@example.com' );
@@ -348,10 +361,66 @@ test.describe( 'WP Forms Blocks', () => {
 			forgedRecipient.value = 'mailto:attacker-controlled@example.net';
 			element.appendChild( forgedRecipient );
 		} );
-		await form.getByRole( 'button', { name: 'Submit' } ).click();
+
+		let releaseSubmission;
+		const submissionRelease = new Promise( ( resolve ) => {
+			releaseSubmission = resolve;
+		} );
+		let markSubmissionStarted;
+		const submissionStarted = new Promise( ( resolve ) => {
+			markSubmissionStarted = resolve;
+		} );
+		let submissionRequests = 0;
+		await page.route( '**/wp-admin/admin-ajax.php', async ( route ) => {
+			const request = route.request();
+			if (
+				'POST' === request.method() &&
+				request
+					.postData()
+					?.includes( 'action=formblox_form_email_submit' )
+			) {
+				submissionRequests++;
+				markSubmissionStarted();
+				await submissionRelease;
+			}
+			await route.continue();
+		} );
+
+		const submitButton = form.getByRole( 'button', { name: 'Submit' } );
+		await submitButton.click();
+		await submissionStarted;
+		await expect( form ).toHaveAttribute( 'aria-busy', 'true' );
+		await expect( submitButton ).toBeDisabled();
+		const submittingStatus = page.getByText( 'Submitting…' );
+		await expect( submittingStatus ).toBeVisible();
+		await expect( submittingStatus ).toHaveAttribute( 'role', 'status' );
+		await expect( submittingStatus ).toHaveAttribute(
+			'aria-live',
+			'polite'
+		);
+		await expect( submittingStatus ).toHaveAttribute(
+			'aria-atomic',
+			'true'
+		);
+		await form.evaluate( ( element ) => {
+			element.dispatchEvent(
+				new Event( 'submit', { bubbles: true, cancelable: true } )
+			);
+		} );
+		await page.waitForTimeout( 50 );
+		expect( submissionRequests ).toBe( 1 );
+		releaseSubmission();
 
 		await expect( page ).toHaveURL( /[?&]formblox-form-result=success/ );
-		await expect( page.getByText( 'Submission succeeded' ) ).toBeVisible();
+		const successNotice = page
+			.getByText( 'Submission succeeded' )
+			.locator( '..' );
+		await expect( successNotice ).toBeVisible();
+		await expect( successNotice ).toHaveAttribute( 'role', 'status' );
+		await expect( successNotice ).toHaveAttribute( 'aria-live', 'polite' );
+		await expect( successNotice ).toHaveAttribute( 'aria-atomic', 'true' );
+		await expect( successNotice ).toHaveAttribute( 'tabindex', '-1' );
+		await expect( successNotice ).toBeFocused();
 		await expect( page.getByText( 'Submission failed' ) ).toHaveCount( 0 );
 
 		const mail = await requestUtils.rest( {
@@ -412,7 +481,15 @@ source: e2e
 		expect( response.status() ).toBe( 500 );
 
 		await expect( page ).toHaveURL( /[?&]formblox-form-result=error/ );
-		await expect( page.getByText( 'Submission failed' ) ).toBeVisible();
+		const errorNotice = page
+			.getByText( 'Submission failed' )
+			.locator( '..' );
+		await expect( errorNotice ).toBeVisible();
+		await expect( errorNotice ).toHaveAttribute( 'role', 'alert' );
+		await expect( errorNotice ).toHaveAttribute( 'aria-live', 'assertive' );
+		await expect( errorNotice ).toHaveAttribute( 'aria-atomic', 'true' );
+		await expect( errorNotice ).toHaveAttribute( 'tabindex', '-1' );
+		await expect( errorNotice ).toBeFocused();
 		await expect( page.getByText( 'Submission succeeded' ) ).toHaveCount(
 			0
 		);

@@ -2,6 +2,7 @@ const settings = {
 	nonce: 'test-nonce',
 	ajaxUrl: 'https://example.com/wp-admin/admin-ajax.php',
 	action: 'formblox_form_email_submit',
+	submittingText: 'Submitting…',
 };
 
 const renderDocument = (
@@ -19,6 +20,7 @@ const renderDocument = (
 		}
 		<form class="wp-block-formblox-form" action="${ action }" data-formblox-submission-method="${ submissionMethod }">
 			<input name="message" value="Hello">
+			<button type="submit">Submit</button>
 		</form>
 	`;
 };
@@ -41,6 +43,7 @@ const submit = () => {
 describe( 'Gutenberg form view module', () => {
 	beforeEach( () => {
 		global.fetch = jest.fn( () => new Promise( () => {} ) );
+		window.history.replaceState( {}, '', '/' );
 	} );
 
 	test( 'submits email forms without a client-controlled recipient', async () => {
@@ -48,10 +51,23 @@ describe( 'Gutenberg form view module', () => {
 		loadViewModule();
 
 		const event = submit();
+		const duplicateEvent = submit();
 		await Promise.resolve();
 
 		expect( event.defaultPrevented ).toBe( true );
+		expect( duplicateEvent.defaultPrevented ).toBe( true );
 		expect( global.fetch ).toHaveBeenCalledTimes( 1 );
+		const form = document.querySelector( 'form' );
+		expect( form.getAttribute( 'aria-busy' ) ).toBe( 'true' );
+		expect( form.querySelector( 'button' ).disabled ).toBe( true );
+		const submittingStatus = document.querySelector(
+			'.formblox-form-submitting-status'
+		);
+		expect( submittingStatus.textContent ).toBe( 'Submitting…' );
+		expect( submittingStatus.getAttribute( 'role' ) ).toBe( 'status' );
+		expect( submittingStatus.getAttribute( 'aria-live' ) ).toBe( 'polite' );
+		expect( submittingStatus.getAttribute( 'aria-atomic' ) ).toBe( 'true' );
+		expect( submittingStatus.previousElementSibling ).toBe( form );
 		const [ url, request ] = global.fetch.mock.calls[ 0 ];
 		expect( url ).toBe( settings.ajaxUrl );
 		expect( request.method ).toBe( 'POST' );
@@ -82,6 +98,29 @@ describe( 'Gutenberg form view module', () => {
 
 			expect( event.defaultPrevented ).toBe( false );
 			expect( global.fetch ).not.toHaveBeenCalled();
+			expect(
+				document.querySelector( 'form' ).hasAttribute( 'aria-busy' )
+			).toBe( false );
+		}
+	);
+
+	test.each( [ 'success', 'error' ] )(
+		'focuses the visible %s notification after a redirect',
+		( status ) => {
+			window.history.replaceState(
+				{},
+				'',
+				`/?formblox-form-result=${ status }`
+			);
+			document.body.innerHTML = `<div class="wp-block-formblox-form-submission-notification formblox-form-notification-type-${ status }" tabindex="-1">Result</div>`;
+
+			loadViewModule();
+
+			expect( document.activeElement ).toBe(
+				document.querySelector(
+					'.wp-block-formblox-form-submission-notification'
+				)
+			);
 		}
 	);
 

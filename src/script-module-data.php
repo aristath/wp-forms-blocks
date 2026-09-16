@@ -16,9 +16,10 @@ defined( 'ABSPATH' ) || exit;
  * @return array<string, mixed> The script module data.
  */
 function formblox_form_view_script_module( $data ) {
-	$data['nonce']   = wp_create_nonce( 'formblox-form' );
-	$data['ajaxUrl'] = admin_url( 'admin-ajax.php' );
-	$data['action']  = 'formblox_form_email_submit';
+	$data['nonce']          = wp_create_nonce( 'formblox-form' );
+	$data['ajaxUrl']        = admin_url( 'admin-ajax.php' );
+	$data['action']         = 'formblox_form_email_submit';
+	$data['submittingText'] = __( 'Submitting…', 'wp-forms-blocks' );
 
 	return $data;
 }

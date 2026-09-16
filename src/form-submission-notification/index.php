@@ -33,6 +33,21 @@ function render_block_formblox_form_submission_notification( $attributes, $conte
 	if ( ! $show ) {
 		return '';
 	}
+
+	if ( false === strpos( $content, 'wp-block-formblox-form-submission-notification' ) ) {
+		return $content;
+	}
+
+	$type      = $attributes['type'] ?? 'success';
+	$processor = new \WP_HTML_Tag_Processor( $content );
+	if ( $processor->next_tag( array( 'class_name' => 'wp-block-formblox-form-submission-notification' ) ) ) {
+		$processor->set_attribute( 'role', 'error' === $type ? 'alert' : 'status' );
+		$processor->set_attribute( 'aria-live', 'error' === $type ? 'assertive' : 'polite' );
+		$processor->set_attribute( 'aria-atomic', 'true' );
+		$processor->set_attribute( 'tabindex', '-1' );
+		return $processor->get_updated_html();
+	}
+
 	return $content;
 }
 
