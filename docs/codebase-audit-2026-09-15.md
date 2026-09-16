@@ -8,15 +8,15 @@ Upstream comparison baseline: Gutenberg `v23.9.1` (`c29617a19a0197efdf3f53a82083
 
 The standalone port is substantially faithful to the final Gutenberg experiment, but it is not ready to be treated as a production forms product without further changes.
 
-The audit found 14 issues. Subsequent verification narrowed finding 10 to three low-severity inconsistencies, and administrator-recipient, response-contract, privacy-request, field-behavior, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, 10, and 14, leaving 7 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
+The audit found 14 issues. Subsequent verification narrowed finding 10 to three low-severity inconsistencies, and administrator-recipient, response-contract, privacy-request, field-behavior, asset, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, 10, 11, and 14, leaving 6 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
 
 | Severity | Original | Resolved | Open |
 | --- | ---: | ---: | ---: |
 | Critical | 1 | 1 | 0 |
 | High | 8 | 4 | 4 |
-| Medium | 3 | 0 | 3 |
+| Medium | 3 | 1 | 2 |
 | Low | 2 | 2 | 0 |
-| Total | 14 | 7 | 7 |
+| Total | 14 | 8 | 6 |
 
 Most runtime defects are inherited from the rejected Gutenberg experiment. That provenance explains why they exist, but it does not make them appropriate for a standalone product. The plugin-boundary work should remain as small and auditable as possible while correcting security, correctness, localization, testing, and release-readiness problems.
 
@@ -279,7 +279,7 @@ Resolution:
 
 Provenance: inherited from Gutenberg, then narrowly corrected without expanding the supported field feature set.
 
-### 11. Medium: the submit-button style is ineffective and the shared stylesheet is printed twice
+### 11. Medium, resolved: the submit-button style was ineffective and the shared stylesheet was printed twice
 
 Evidence:
 
@@ -296,7 +296,14 @@ Required change:
 - Use one shared style handle for the consolidated stylesheet, or split the stylesheet into genuinely block-specific assets.
 - Add an integration test using real block props/class merging and assert the final front-end markup and printed asset URLs.
 
-Provenance: the class/spread problem is inherited; duplicate shared handles come from the standalone asset adapter.
+Resolution:
+
+- The dead explicit wrapper class was removed from both editor and save components, leaving WordPress's canonical `wp-block-formblox-form-submit-button` class as the single source of truth.
+- The submit-button spacing rule now targets that canonical class, without changing saved block markup.
+- A single `wp-forms-blocks` handle owns `build/style.css`. The input and submit-button handles remain as source-less compatibility aliases depending on that shared handle, so either block loads the stylesheet and pages containing both print its URL once.
+- Component tests cover the real canonical class for editor and saved output. WordPress integration and Playwright tests require one printed stylesheet URL, and the browser test verifies non-zero submit-button bottom spacing.
+
+Provenance: the class/spread problem was inherited; the duplicate shared handles came from the standalone asset adapter. Both are now corrected without changing serialized block markup.
 
 ### 12. Medium: email content mixes HTML markup with the default plain-text mail format
 

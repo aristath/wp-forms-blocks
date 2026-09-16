@@ -6,6 +6,7 @@ import FormEdit from '../../src/form/edit';
 import InputEdit from '../../src/form-input/edit';
 import NotificationEdit from '../../src/form-submission-notification/edit';
 import SubmitButtonEdit from '../../src/form-submit-button/edit';
+import SubmitButtonSave from '../../src/form-submit-button/save';
 
 const mockCaptured = {
 	checkboxControls: [],
@@ -18,6 +19,7 @@ const mockCaptured = {
 };
 const mockState = {
 	block: null,
+	blockProps: {},
 	ref: { current: null },
 };
 const mockTemplates = {
@@ -51,6 +53,7 @@ jest.mock( '@wordpress/blocks', () => ( {
 jest.mock( '@wordpress/block-editor', () => {
 	const React = jest.requireActual( 'react' );
 	const useBlockProps = ( properties = {} ) => ( {
+		...mockState.blockProps,
 		...properties,
 		'data-block-props': 'true',
 	} );
@@ -129,6 +132,7 @@ describe( 'block editor components', () => {
 			mockCaptured[ key ].length = 0;
 		} );
 		mockState.block = null;
+		mockState.blockProps = {};
 		mockState.ref = { current: null };
 		container = document.createElement( 'div' );
 		document.body.appendChild( container );
@@ -422,6 +426,9 @@ describe( 'block editor components', () => {
 		).toBeNull();
 
 		act( () => {
+			mockState.blockProps = {
+				className: 'wp-block-formblox-form-submit-button',
+			};
 			root.render( <SubmitButtonEdit /> );
 		} );
 		expect( mockCaptured.innerBlockOptions.at( -1 ) ).toEqual( {
@@ -429,7 +436,18 @@ describe( 'block editor components', () => {
 			templateLock: 'all',
 		} );
 		expect(
-			container.querySelector( '.wp-block-formblox-form-submit-wrapper' )
+			container.querySelector( '.wp-block-formblox-form-submit-button' )
 		).not.toBeNull();
+		expect(
+			container.querySelector( '.wp-block-formblox-form-submit-wrapper' )
+		).toBeNull();
+
+		act( () => root.render( <SubmitButtonSave /> ) );
+		expect(
+			container.querySelector( '.wp-block-formblox-form-submit-button' )
+		).not.toBeNull();
+		expect(
+			container.querySelector( '.wp-block-formblox-form-submit-wrapper' )
+		).toBeNull();
 	} );
 } );

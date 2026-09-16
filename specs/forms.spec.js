@@ -294,6 +294,21 @@ test.describe( 'WP Forms Blocks', () => {
 
 		await page.goto( post.link );
 		const form = page.locator( 'form.wp-block-formblox-form' );
+		await expect(
+			page.locator(
+				'link[rel="stylesheet"][href*="/wp-forms-blocks/build/style.css"]'
+			)
+		).toHaveCount( 1 );
+		const submitWrapper = form.locator(
+			'.wp-block-formblox-form-submit-button'
+		);
+		expect(
+			await submitWrapper.evaluate( ( element ) =>
+				Number.parseFloat(
+					window.getComputedStyle( element ).marginBottom
+				)
+			)
+		).toBeGreaterThan( 0 );
 		await expect( form ).toHaveAttribute( 'action', '' );
 		await expect( form ).toHaveAttribute(
 			'data-formblox-submission-method',

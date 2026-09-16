@@ -22,7 +22,7 @@ The maintained differences from Gutenberg are limited to:
 2. Gutenberg experiment-flag guards are removed; activating the plugin is the opt-in mechanism.
 3. PHP metadata paths point at each standalone build directory.
 4. PHP callback strings include the namespace.
-5. The standalone asset loader registers and enqueues the consolidated editor bundle, `formblox`-scoped front-end style handles, and the `@formblox/form/view` script-module ID.
+5. The standalone asset loader registers and enqueues the consolidated editor bundle, a single shared front-end stylesheet with `formblox`-scoped compatibility handles, and the `@formblox/form/view` script-module ID.
 6. `src/index.js` imports the four original `init.js` entry points into one plugin editor bundle.
 7. Plugin bootstrap, build configuration, package metadata, and consolidated Sass entry points are added around the port.
 8. A minimal PHP registration file is added for `formblox/form-submit-button`, which Gutenberg registered through its shared block-library loader and therefore did not give a per-block PHP file.
@@ -40,6 +40,7 @@ The maintained differences from Gutenberg are limited to:
 20. Email submission failures return HTTP 500, and the browser requires both an HTTP success response and a JSON `success: true` result before showing the success notification. This corrects the upstream experiment's false-success response handling.
 21. Rendered privacy forms receive a unique instance UUID and purpose-specific nonce. Privacy confirmation-mail failures are reported as errors and moved to an auditable `request-failed` state with the unusable confirmation key cleared, allowing a later retry to create a fresh request.
 22. Text Input is the sole default input variation, checkbox/radio editor previews do not mutate text-placeholder state, and the error-notification variation requires an explicit error type. These narrowly correct inherited editor and variation inconsistencies without adding grouped-field features.
+23. The submit-button spacing targets WordPress's canonical saved block class, and the input and submit-button style handles are source-less aliases of one shared front-end stylesheet. This preserves saved markup and registered block handles while ensuring the consolidated CSS URL prints only once.
 
 The saved block markup, input and notification variation labels, KSES allowlist, and view-module data shape otherwise remain unchanged.
 

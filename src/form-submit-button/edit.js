@@ -7,11 +7,6 @@ const Edit = () => {
 		template: getBlockType( 'formblox/form-submit-button' )?.template,
 		templateLock: 'all',
 	} );
-	return (
-		<div
-			className="wp-block-formblox-form-submit-wrapper"
-			{ ...innerBlocksProps }
-		/>
-	);
+	return <div { ...innerBlocksProps } />;
 };
 export default Edit;

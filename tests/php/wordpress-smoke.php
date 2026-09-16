@@ -73,13 +73,29 @@ wp_forms_blocks_integration_assert(
 	wp_style_is( 'wp-forms-blocks-editor', 'enqueued' ),
 	'Editor stylesheet was not enqueued through the standalone adapter.'
 );
+$shared_style = wp_styles()->query( 'wp-forms-blocks', 'registered' );
 wp_forms_blocks_integration_assert(
-	(bool) wp_styles()->query( 'wp-block-formblox-form-input', 'registered' ),
-	'Input stylesheet was not registered.'
+	$shared_style && FORMBLOX_URL . 'build/style.css' === $shared_style->src,
+	'Shared front-end stylesheet was not registered.'
 );
+$input_style = wp_styles()->query( 'wp-block-formblox-form-input', 'registered' );
 wp_forms_blocks_integration_assert(
-	(bool) wp_styles()->query( 'wp-block-formblox-form-submit-button', 'registered' ),
-	'Submit stylesheet was not registered.'
+	$input_style && ! $input_style->src && array( 'wp-forms-blocks' ) === $input_style->deps,
+	'Input stylesheet handle is not an alias of the shared front-end stylesheet.'
+);
+$submit_style = wp_styles()->query( 'wp-block-formblox-form-submit-button', 'registered' );
+wp_forms_blocks_integration_assert(
+	$submit_style && ! $submit_style->src && array( 'wp-forms-blocks' ) === $submit_style->deps,
+	'Submit stylesheet handle is not an alias of the shared front-end stylesheet.'
+);
+wp_enqueue_style( 'wp-block-formblox-form-input' );
+wp_enqueue_style( 'wp-block-formblox-form-submit-button' );
+ob_start();
+wp_print_styles( array( 'wp-block-formblox-form-input', 'wp-block-formblox-form-submit-button' ) );
+$front_end_styles = ob_get_clean();
+wp_forms_blocks_integration_assert(
+	1 === substr_count( $front_end_styles, FORMBLOX_URL . 'build/style.css' ),
+	'Shared front-end stylesheet was not printed exactly once.'
 );
 wp_forms_blocks_integration_assert(
 	null !== wp_script_modules()->get_registered( '@formblox/form/view' ),

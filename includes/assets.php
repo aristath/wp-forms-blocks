@@ -66,16 +66,23 @@ function formblox_register_assets() {
 	);
 
 	wp_register_style(
-		'wp-block-formblox-form-input',
+		'wp-forms-blocks',
 		FORMBLOX_URL . 'build/style.css',
 		array(),
 		$style_asset['version']
 	);
 
 	wp_register_style(
+		'wp-block-formblox-form-input',
+		false,
+		array( 'wp-forms-blocks' ),
+		$style_asset['version']
+	);
+
+	wp_register_style(
 		'wp-block-formblox-form-submit-button',
-		FORMBLOX_URL . 'build/style.css',
-		array(),
+		false,
+		array( 'wp-forms-blocks' ),
 		$style_asset['version']
 	);
 
