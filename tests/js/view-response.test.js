@@ -48,15 +48,26 @@ describe( 'Gutenberg form view response handling', () => {
 	} );
 
 	test.each( [
-		[ 'success', true, null ],
-		[ 'error', false, null ],
-		[ 'error', null, new Error( 'Network unavailable' ) ],
+		[ 'success', true, true, null ],
+		[ 'error', true, false, null ],
+		[ 'error', false, true, null ],
+		[ 'error', false, false, null ],
+		[ 'error', true, null, new Error( 'Invalid JSON' ) ],
+		[ 'error', null, null, new Error( 'Network unavailable' ) ],
 	] )(
 		'redirects to %s after the corresponding request result',
-		async ( status, ok, thrownError ) => {
-			global.fetch = thrownError
-				? jest.fn().mockRejectedValue( thrownError )
-				: jest.fn().mockResolvedValue( { ok } );
+		async ( status, ok, success, thrownError ) => {
+			if ( null === ok ) {
+				global.fetch = jest.fn().mockRejectedValue( thrownError );
+			} else {
+				global.fetch = jest.fn().mockResolvedValue( {
+					ok,
+					json:
+						null === success
+							? jest.fn().mockRejectedValue( thrownError )
+							: jest.fn().mockResolvedValue( { success } ),
+				} );
+			}
 			jest.isolateModules( () => {
 				require( '../../src/form/view' );
 			} );

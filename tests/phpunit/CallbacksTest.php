@@ -11,6 +11,7 @@ use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 use function WPFormsBlocks\block_formblox_form_extra_fields_comment_form;
+use function WPFormsBlocks\block_formblox_form_send_email;
 use function WPFormsBlocks\formblox_form_view_script_module;
 use function WPFormsBlocks\gutenberg_kses_allowed_html;
 use function WPFormsBlocks\render_block_formblox_form_input;
@@ -26,14 +27,16 @@ final class CallbacksTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		Monkey\setUp();
-		$_GET = array();
+		$_GET  = array();
+		$_POST = array();
 	}
 
 	/**
 	 * Tear down Brain Monkey.
 	 */
 	protected function tearDown(): void {
-		$_GET = array();
+		$_GET  = array();
+		$_POST = array();
 		Monkey\tearDown();
 		parent::tearDown();
 	}
@@ -97,6 +100,44 @@ final class CallbacksTest extends TestCase {
 			),
 			formblox_form_view_script_module( array( 'existing' => true ) )
 		);
+	}
+
+	/**
+	 * Mail transport failures return an HTTP 500 JSON error.
+	 */
+	public function test_mail_failure_returns_http_500_json_error(): void {
+		$_POST = array(
+			'_wp_http_referer' => '/contact/',
+			'message'          => 'Expected failure',
+		);
+
+		Functions\expect( 'check_ajax_referer' )->once()->with( 'formblox-form' );
+		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\when( '__' )->returnArg();
+		Functions\when( 'get_site_url' )->justReturn( 'https://example.com/contact/' );
+		Functions\when( 'esc_url' )->returnArg();
+		Functions\when( 'get_bloginfo' )->justReturn( 'Example' );
+		Functions\when( 'sanitize_key' )->returnArg();
+		Functions\when( 'wp_kses_post' )->returnArg();
+		Functions\when( 'apply_filters' )->alias(
+			static function ( $hook, $value ) {
+				return $value;
+			}
+		);
+		Functions\when( 'get_option' )->justReturn( 'admin@example.com' );
+		Functions\when( 'is_email' )->justReturn( true );
+		Functions\expect( 'wp_mail' )
+			->once()
+			->with( 'admin@example.com', 'Form submission', \Mockery::type( 'string' ) )
+			->andReturn( false );
+		Functions\expect( 'wp_send_json_error' )
+			->once()
+			->with( false, 500 )
+			->andThrow( new \RuntimeException( 'JSON error response sent.' ) );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'JSON error response sent.' );
+		block_formblox_form_send_email();
 	}
 
 	/**

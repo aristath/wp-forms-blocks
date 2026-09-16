@@ -100,6 +100,14 @@ ${ errorNotification }
 <!-- /wp:formblox/form -->`;
 
 test.describe( 'WP Forms Blocks', () => {
+	test.beforeEach( async ( { requestUtils } ) => {
+		await requestUtils.rest( {
+			path: '/wp-forms-blocks-test/v1/mail-mode',
+			method: 'POST',
+			data: { mode: 'success' },
+		} );
+	} );
+
 	test.afterEach( async ( { requestUtils } ) => {
 		await requestUtils.deleteAllPosts();
 	} );
@@ -346,12 +354,10 @@ test.describe( 'WP Forms Blocks', () => {
 		page,
 		requestUtils,
 	} ) => {
-		await page.route( '**/wp-admin/admin-ajax.php', async ( route ) => {
-			await route.fulfill( {
-				status: 500,
-				contentType: 'application/json',
-				body: JSON.stringify( { success: false } ),
-			} );
+		await requestUtils.rest( {
+			path: '/wp-forms-blocks-test/v1/mail-mode',
+			method: 'POST',
+			data: { mode: 'failure' },
 		} );
 		const post = await requestUtils.createPost( {
 			title: 'Forms E2E failure',
@@ -367,7 +373,14 @@ test.describe( 'WP Forms Blocks', () => {
 		await form.locator( '[name="phone"]' ).fill( '+1 555 0100' );
 		await form.locator( '[name="guests"]' ).fill( '1' );
 		await form.locator( '[name="message"]' ).fill( 'Expected failure' );
+		const responsePromise = page.waitForResponse(
+			( response ) =>
+				response.url().includes( '/wp-admin/admin-ajax.php' ) &&
+				'POST' === response.request().method()
+		);
 		await form.getByRole( 'button', { name: 'Submit' } ).click();
+		const response = await responsePromise;
+		expect( response.status() ).toBe( 500 );
 
 		await expect( page ).toHaveURL( /[?&]formblox-form-result=error/ );
 		await expect( page.getByText( 'Submission failed' ) ).toBeVisible();

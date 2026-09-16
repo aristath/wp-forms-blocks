@@ -102,7 +102,7 @@ function block_formblox_form_send_email() {
 	// select or override the recipient.
 	$recipient = get_option( 'admin_email' );
 	if ( ! is_email( $recipient ) ) {
-		wp_send_json_error( false );
+		wp_send_json_error( false, 500 );
 	}
 
 	// Send the email.
@@ -113,7 +113,7 @@ function block_formblox_form_send_email() {
 	);
 
 	if ( ! $result ) {
-		wp_send_json_error( $result );
+		wp_send_json_error( $result, 500 );
 	}
 	wp_send_json_success( $result );
 }

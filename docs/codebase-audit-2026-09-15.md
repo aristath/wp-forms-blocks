@@ -8,15 +8,15 @@ Upstream comparison baseline: Gutenberg `v23.9.1` (`c29617a19a0197efdf3f53a82083
 
 The standalone port is substantially faithful to the final Gutenberg experiment, but it is not ready to be treated as a production forms product without further changes.
 
-The audit found 14 confirmed issues. Subsequent administrator-recipient, localization, and documentation changes resolve findings 1, 7, 8, and 14, leaving 10 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
+The audit found 14 confirmed issues. Subsequent administrator-recipient, response-contract, localization, and documentation changes resolve findings 1, 2, 7, 8, and 14, leaving 9 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
 
 | Severity | Original | Resolved | Open |
 | --- | ---: | ---: | ---: |
 | Critical | 1 | 1 | 0 |
-| High | 8 | 2 | 6 |
+| High | 8 | 3 | 5 |
 | Medium | 4 | 0 | 4 |
 | Low | 1 | 1 | 0 |
-| Total | 14 | 4 | 10 |
+| Total | 14 | 5 | 9 |
 
 Most runtime defects are inherited from the rejected Gutenberg experiment. That provenance explains why they exist, but it does not make them appropriate for a standalone product. The plugin-boundary work should remain as small and auditable as possible while correcting security, correctness, localization, testing, and release-readiness problems.
 
@@ -38,11 +38,11 @@ Post-audit quality remediation was then verified with the complete repository ch
 
 - `npm run lint` passed Prettier, ESLint, Stylelint, Markdownlint, package metadata, POT freshness, PHP syntax, PHPCS/WPCS/PHPCompatibilityWP, and PHPStan level 6.
 - `npm run lint:plugin` produced no findings while checking the extracted production archive with all experimental checks enabled. The established product-name-only `trademarked_term` code is explicitly ignored.
-- JavaScript unit coverage passed 42 tests across 7 suites with 100% statements, functions, and lines and 98.8% branches.
-- PHPUnit passed 9 tests with 22 assertions; the isolated WordPress integration suite passed; and all 7 Playwright workflows passed on both the declared minimum WordPress 7.0 and current WordPress 7.1.
+- JavaScript unit coverage passed 45 tests across 7 suites with 100% statements, functions, and lines and 98.8% branches.
+- PHPUnit passed 10 tests with 24 assertions; the isolated WordPress integration suite passed; and all 7 Playwright workflows passed on both the declared minimum WordPress 7.0 and current WordPress 7.1.
 - Frozen pnpm installation, strict Composer manifest validation, production build, archive generation, and archive-content inspection all passed.
 
-Passing tests do not invalidate the findings below. Several tests deliberately preserve the upstream experiment's behavior, and some mocks do not model the real WordPress response contract.
+Passing tests do not invalidate the remaining findings below. Several tests deliberately preserve the upstream experiment's behavior.
 
 ## Confirmed findings
 
@@ -75,7 +75,7 @@ Resolution:
 
 Provenance: inherited from Gutenberg, then deliberately changed at the plugin boundary to make the public standalone product safe from arbitrary-recipient relay abuse.
 
-### 2. High: a real `wp_mail()` failure is shown as a successful submission
+### 2. High, resolved: a real `wp_mail()` failure was shown as a successful submission
 
 Evidence:
 
@@ -92,7 +92,15 @@ Required change:
 - Treat a response as successful only when both the HTTP response and JSON contract indicate success.
 - Replace the mocked failure E2E path with a real `pre_wp_mail` failure through the actual endpoint.
 
-Provenance: inherited from Gutenberg.
+Resolution:
+
+- PHP now returns HTTP 500 when the administration email is invalid or `wp_mail()` returns false.
+- The browser parses the JSON body and shows success only when the HTTP response is successful and the JSON payload contains `success: true`.
+- JavaScript unit tests cover every HTTP/JSON success combination, malformed JSON, and network failure.
+- The PHPUnit test asserts that a mail transport failure is passed to `wp_send_json_error()` with HTTP status 500, while the WordPress integration test asserts the real error JSON body.
+- The Playwright failure workflow forces `pre_wp_mail` to return false and exercises the real WordPress AJAX endpoint instead of intercepting it with a fabricated response.
+
+Provenance: inherited from Gutenberg, then deliberately corrected for standalone-product correctness.
 
 ### 3. High: the email submission handler has no strict request schema or resource limits
 
@@ -226,8 +234,8 @@ Evidence:
 
 - JavaScript has enforced coverage thresholds, and a PHPUnit suite now covers isolated PHP callbacks and hook registration. PHP line coverage is not yet collected.
 - The WordPress integration suite still uses WP-CLI evaluation scripts and does not yet convert every warning or notice into a hard test failure.
-- The browser failure test does not exercise the real PHP failure contract.
-- There are no tests for arbitrary recipient override, malformed/nested input, resource limits, KSES contexts, privacy mail failure, multiple-form correlation, notification forgery, localization, accessibility announcements, repeated field names, or archive activation.
+- The browser and WordPress integration suites now exercise the real PHP mail-failure contract.
+- There are no tests for malformed/nested input, resource limits, KSES contexts, privacy mail failure, multiple-form correlation, notification forgery, accessibility announcements, repeated field names, or archive activation.
 - PHPCS with WPCS and PHPCompatibilityWP, PHPStan level 6, official Plugin Check, Prettier, ESLint, Stylelint, Markdownlint, translation validation, and Lefthook are now configured and passing. Lefthook gates every commit on all checks, a reproducible build, and every test suite.
 - GitHub Actions now runs JavaScript coverage, PHP 7.4/8.5 lint/static-analysis/unit matrices, isolated WordPress 7.0/current integration and Playwright suites, build reproducibility, and Plugin Check against the release archive.
 
@@ -353,11 +361,10 @@ Provenance: standalone documentation drift.
 
 ## Recommended implementation order
 
-1. Correct the AJAX response contract and add real failure-path tests.
-2. Add strict request validation, limits, throttling, and spam controls.
-3. Correct the KSES filter and add context-specific tests.
-4. Correct and bind privacy/result workflows to individual forms.
-5. Complete or remove unsupported field behavior.
-6. Correct styles, email formatting, and accessibility.
+1. Add strict request validation, limits, throttling, and spam controls.
+2. Correct the KSES filter and add context-specific tests.
+3. Correct and bind privacy/result workflows to individual forms.
+4. Complete or remove unsupported field behavior.
+5. Correct styles, email formatting, and accessibility.
 
 These changes should be implemented as narrowly scoped, separately reviewable commits. Where behavior intentionally diverges from the Gutenberg baseline for security or standalone-product correctness, the divergence should be recorded in `docs/port-audit.md` and covered by tests.

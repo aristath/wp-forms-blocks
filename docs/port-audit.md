@@ -37,6 +37,7 @@ The maintained differences from Gutenberg are limited to:
 17. Shipped PHP entry files have direct-access guards, and standalone global bootstrap identifiers use the plugin-owned `formblox` prefix. These hardening changes do not alter form behavior.
 18. PHP documentation was normalized for WPCS and static analysis. The tag-processor call uses the modern array query accepted by the same WordPress API instead of its deprecated string shorthand.
 19. Repository-only quality infrastructure adds Gutenberg-aligned Prettier, ESLint, Stylelint, Markdownlint, PHPCS/WPCS, PHPCompatibilityWP, PHPStan, PHPUnit, Plugin Check, a complete Lefthook commit gate, dependency updates, and CI. It is excluded from the production archive and does not alter runtime behavior.
+20. Email submission failures return HTTP 500, and the browser requires both an HTTP success response and a JSON `success: true` result before showing the success notification. This corrects the upstream experiment's false-success response handling.
 
 The input and notification variation labels, markup structure, privacy processing, KSES allowlist, and view-module data shape otherwise remain unchanged.
 
@@ -48,4 +49,4 @@ The unit suite additionally covers the metadata and templates for all four block
 
 The standalone WordPress integration runner uses a disposable SQLite database and checks asset/module registration, rendering, administrator-only email delivery, recipient-override rejection, successful and failed email handling, comments, custom actions, visibility permissions, notifications, privacy requests, and KSES.
 
-The Playwright suite boots a separate disposable WordPress/SQLite site and verifies seven complete browser workflows: default Contact Form variation insertion and round-trip persistence, all field types and successful email submission, failed AJAX submission, a custom method/action submission, logged-in/logged-out visibility, both privacy-request types, and comment submission. Neither integration runner touches the development site's database.
+The Playwright suite boots a separate disposable WordPress/SQLite site and verifies seven complete browser workflows: default Contact Form variation insertion and round-trip persistence, all field types and successful email submission, a real `wp_mail()` failure returning HTTP 500 through the AJAX endpoint, a custom method/action submission, logged-in/logged-out visibility, both privacy-request types, and comment submission. Neither integration runner touches the development site's database.

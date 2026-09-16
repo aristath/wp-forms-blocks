@@ -42,7 +42,8 @@ document
 					},
 					body: new URLSearchParams( formData ).toString(),
 				} );
-				if ( response.ok ) {
+				const responseData = await response.json();
+				if ( response.ok && true === responseData.success ) {
 					redirectNotification( 'success' );
 				} else {
 					redirectNotification( 'error' );
