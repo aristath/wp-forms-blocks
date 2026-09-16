@@ -14,7 +14,7 @@ describe( 'Gutenberg form view response handling', () => {
 
 	beforeEach( () => {
 		form = {
-			action: 'mailto:recipient@example.com',
+			dataset: { formbloxSubmissionMethod: 'email' },
 			addEventListener: jest.fn( ( eventName, callback ) => {
 				if ( 'submit' === eventName ) {
 					submitHandler = callback;

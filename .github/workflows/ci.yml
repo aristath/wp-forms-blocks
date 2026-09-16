@@ -1,0 +1,187 @@
+name: CI
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    javascript:
+        name: JavaScript and styles
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Set up pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.28.1
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - name: Install JavaScript dependencies
+              run: pnpm install --frozen-lockfile --ignore-scripts
+
+            - name: Check formatting, JavaScript, styles, docs, metadata, and translations
+              run: |
+                  npm run lint:format
+                  npm run lint:js
+                  npm run lint:css
+                  npm run lint:md
+                  npm run lint:pkg-json
+                  npm run lint:i18n
+                  npm run lint:lefthook
+
+            - name: Run JavaScript unit tests with coverage
+              run: npm run test:coverage
+
+            - name: Verify committed build output
+              run: |
+                  npm run build
+                  git diff --exit-code -- build
+
+    php:
+        name: PHP ${{ matrix.php }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php:
+                    - '7.4'
+                    - '8.5'
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: none
+                  tools: composer:v2
+
+            - name: Install PHP dependencies
+              run: composer install --no-interaction --prefer-dist
+
+            - name: Check PHP syntax and WordPress coding standards
+              run: composer lint
+
+            - name: Run PHP static analysis
+              run: composer analyse
+
+            - name: Run PHP unit tests
+              run: composer test
+
+    wordpress:
+        name: WordPress ${{ matrix.wordpress }} integration and browser tests
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                wordpress:
+                    - '7.0'
+                    - latest
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Set up pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.28.1
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - name: Set up PHP and WP-CLI
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.3'
+                  coverage: none
+                  tools: wp-cli
+
+            - name: Install JavaScript dependencies and Chromium
+              run: |
+                  pnpm install --frozen-lockfile --ignore-scripts
+                  pnpm exec playwright install --with-deps chromium
+
+            - name: Install isolated WordPress with SQLite
+              env:
+                  WORDPRESS_ROOT: ${{ runner.temp }}/wordpress
+              run: |
+                  wp core download --path="$WORDPRESS_ROOT" --version="${{ matrix.wordpress }}"
+                  wp config create --path="$WORDPRESS_ROOT" --dbname=wordpress --dbuser=root --dbpass= --dbhost=localhost --skip-check
+                  curl --fail --location --silent --show-error \
+                    https://downloads.wordpress.org/plugin/sqlite-database-integration.latest-stable.zip \
+                    --output "${RUNNER_TEMP}/sqlite-database-integration.zip"
+                  unzip -q "${RUNNER_TEMP}/sqlite-database-integration.zip" -d "$WORDPRESS_ROOT/wp-content/plugins"
+                  cp "$WORDPRESS_ROOT/wp-content/plugins/sqlite-database-integration/db.copy" "$WORDPRESS_ROOT/wp-content/db.php"
+                  ln -s "$GITHUB_WORKSPACE" "$WORDPRESS_ROOT/wp-content/plugins/wp-forms-blocks"
+
+            - name: Run isolated WordPress integration tests
+              env:
+                  WP_ROOT_DIR: ${{ runner.temp }}/wordpress
+              run: npm run test:wordpress
+
+            - name: Run Playwright end-to-end tests
+              env:
+                  WP_ROOT_DIR: ${{ runner.temp }}/wordpress
+              run: npm run test:e2e
+
+            - name: Upload browser artifacts after failure
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-artifacts-wordpress-${{ matrix.wordpress }}
+                  path: artifacts
+                  if-no-files-found: ignore
+
+    plugin-check:
+        name: WordPress Plugin Check
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v4
+
+            - name: Set up pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10.28.1
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - name: Build distributable plugin
+              run: |
+                  pnpm install --frozen-lockfile --ignore-scripts
+                  npm run build
+                  npm run plugin-zip
+                  mkdir plugin-check-build
+                  unzip -q wp-forms-blocks.zip -d plugin-check-build
+
+            - name: Run Plugin Check
+              uses: wordpress/plugin-check-action@v1
+              with:
+                  build-dir: plugin-check-build/wp-forms-blocks
+                  strict: true
+                  include-experimental: true
+                  ignore-codes: trademarked_term

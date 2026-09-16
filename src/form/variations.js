@@ -7,8 +7,11 @@ import {
 const variations = [
 	{
 		name: 'contact-form',
-		title: __( 'Contact Form' ),
-		description: __( 'A contact form for site visitors.' ),
+		title: __( 'Contact Form', 'wp-forms-blocks' ),
+		description: __(
+			'A contact form for site visitors.',
+			'wp-forms-blocks'
+		),
 		attributes: {
 			submissionMethod: 'email',
 		},
@@ -20,7 +23,7 @@ const variations = [
 				'formblox/form-input',
 				{
 					type: 'text',
-					label: __( 'Name' ),
+					label: __( 'Name', 'wp-forms-blocks' ),
 					required: true,
 				},
 			],
@@ -28,7 +31,7 @@ const variations = [
 				'formblox/form-input',
 				{
 					type: 'email',
-					label: __( 'Email' ),
+					label: __( 'Email', 'wp-forms-blocks' ),
 					required: true,
 				},
 			],
@@ -36,7 +39,7 @@ const variations = [
 				'formblox/form-input',
 				{
 					type: 'textarea',
-					label: __( 'Comment' ),
+					label: __( 'Comment', 'wp-forms-blocks' ),
 					required: true,
 				},
 			],
@@ -49,8 +52,11 @@ const variations = [
 	},
 	{
 		name: 'comment-form',
-		title: __( 'Comment Form' ),
-		description: __( 'A comment form for posts and pages.' ),
+		title: __( 'Comment Form', 'wp-forms-blocks' ),
+		description: __(
+			'A comment form for posts and pages.',
+			'wp-forms-blocks'
+		),
 		attributes: {
 			submissionMethod: 'custom',
 			action: '{SITE_URL}/wp-comments-post.php',
@@ -64,7 +70,7 @@ const variations = [
 				{
 					type: 'text',
 					name: 'author',
-					label: __( 'Name' ),
+					label: __( 'Name', 'wp-forms-blocks' ),
 					required: true,
 					visibilityPermissions: 'logged-out',
 				},
@@ -74,7 +80,7 @@ const variations = [
 				{
 					type: 'email',
 					name: 'email',
-					label: __( 'Email' ),
+					label: __( 'Email', 'wp-forms-blocks' ),
 					required: true,
 					visibilityPermissions: 'logged-out',
 				},
@@ -84,7 +90,7 @@ const variations = [
 				{
 					type: 'textarea',
 					name: 'comment',
-					label: __( 'Comment' ),
+					label: __( 'Comment', 'wp-forms-blocks' ),
 					required: true,
 					visibilityPermissions: 'all',
 				},
@@ -97,9 +103,12 @@ const variations = [
 	},
 	{
 		name: 'wp-privacy-form',
-		title: __( 'Privacy Request Form' ),
+		title: __( 'Privacy Request Form', 'wp-forms-blocks' ),
 		keywords: [ 'GDPR' ],
-		description: __( 'A form to request data exports and/or deletion.' ),
+		description: __(
+			'A form to request data exports and/or deletion.',
+			'wp-forms-blocks'
+		),
 		attributes: {
 			submissionMethod: 'custom',
 			action: '',
@@ -114,7 +123,8 @@ const variations = [
 				'core/paragraph',
 				{
 					content: __(
-						'To request an export or deletion of your personal data on this site, please fill-in the form below. You can define the type of request you wish to perform, and your email address. Once the form is submitted, you will receive a confirmation email with instructions on the next steps.'
+						'To request an export or deletion of your personal data on this site, please fill-in the form below. You can define the type of request you wish to perform, and your email address. Once the form is submitted, you will receive a confirmation email with instructions on the next steps.',
+						'wp-forms-blocks'
 					),
 				},
 			],
@@ -123,7 +133,7 @@ const variations = [
 				{
 					type: 'email',
 					name: 'email',
-					label: __( 'Enter your email address.' ),
+					label: __( 'Enter your email address.', 'wp-forms-blocks' ),
 					required: true,
 					visibilityPermissions: 'all',
 				},
@@ -133,7 +143,7 @@ const variations = [
 				{
 					type: 'checkbox',
 					name: 'export_personal_data',
-					label: __( 'Request data export' ),
+					label: __( 'Request data export', 'wp-forms-blocks' ),
 					required: false,
 					visibilityPermissions: 'all',
 				},
@@ -143,7 +153,7 @@ const variations = [
 				{
 					type: 'checkbox',
 					name: 'remove_personal_data',
-					label: __( 'Request data deletion' ),
+					label: __( 'Request data deletion', 'wp-forms-blocks' ),
 					required: false,
 					visibilityPermissions: 'all',
 				},

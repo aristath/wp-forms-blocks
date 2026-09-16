@@ -2,15 +2,17 @@
 /**
  * Server-side rendering of the `formblox/form` block.
  *
- * @package WordPress
+ * @package WPFormsBlocks
  */
 
 namespace WPFormsBlocks;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Renders the `formblox/form` block on server.
  *
- * @param array  $attributes The block attributes.
+ * @param array<string, mixed> $attributes The block attributes.
  * @param string $content The saved content.
  *
  * @return string The content of the block being rendered.
@@ -19,12 +21,14 @@ function render_block_formblox_form( $attributes, $content ) {
 	wp_enqueue_script_module( '@formblox/form/view' );
 
 	$processed_content = new \WP_HTML_Tag_Processor( $content );
-	$processed_content->next_tag( 'form' );
+	$processed_content->next_tag( array( 'tag_name' => 'form' ) );
+	$submission_method = $attributes['submissionMethod'] ?? 'email';
+	$processed_content->set_attribute( 'data-formblox-submission-method', $submission_method );
 
 	// Get the action for this form.
 	$action      = '';
 	$form_action = $attributes['action'] ?? null;
-	if ( is_string( $form_action ) ) {
+	if ( 'email' !== $submission_method && is_string( $form_action ) ) {
 		$action = str_replace(
 			array( '{SITE_URL}', '{ADMIN_URL}' ),
 			array( site_url(), admin_url() ),
@@ -53,7 +57,7 @@ function render_block_formblox_form( $attributes, $content ) {
  * to allow the comment to be associated with the post.
  *
  * @param string $extra_fields The extra fields.
- * @param array  $attributes   The block attributes.
+ * @param array<string, mixed> $attributes The block attributes.
  *
  * @return string The extra fields.
  */
@@ -68,6 +72,8 @@ add_filter( 'render_block_formblox_form_extra_fields', __NAMESPACE__ . '\\block_
 
 /**
  * Sends an email if the form is a contact form.
+ *
+ * @return void
  */
 function block_formblox_form_send_email() {
 	check_ajax_referer( 'formblox-form' );
@@ -77,7 +83,7 @@ function block_formblox_form_send_email() {
 	// Start building the email content.
 	$content = sprintf(
 		/* translators: %s: The request URI. */
-		__( 'Form submission from %1$s' ) . '</br>',
+		__( 'Form submission from %1$s', 'wp-forms-blocks' ) . '</br>',
 		'<a href="' . esc_url( get_site_url( null, $params['_wp_http_referer'] ) ) . '">' . get_bloginfo( 'name' ) . '</a>'
 	);
 
@@ -92,10 +98,17 @@ function block_formblox_form_send_email() {
 	// Filter the email content.
 	$content = apply_filters( 'render_block_formblox_form_email_content', $content, $params );
 
+	// Email forms always send to the site administrator. The request cannot
+	// select or override the recipient.
+	$recipient = get_option( 'admin_email' );
+	if ( ! is_email( $recipient ) ) {
+		wp_send_json_error( false );
+	}
+
 	// Send the email.
 	$result = wp_mail(
-		str_replace( 'mailto:', '', $params['formAction'] ),
-		__( 'Form submission' ),
+		$recipient,
+		__( 'Form submission', 'wp-forms-blocks' ),
 		$content
 	);
 
@@ -109,9 +122,12 @@ add_action( 'wp_ajax_nopriv_formblox_form_email_submit', __NAMESPACE__ . '\\bloc
 
 /**
  * Send the data export/remove request if the form is a privacy-request form.
+ *
+ * @return void
  */
 function block_formblox_form_privacy_form() {
 	// Get the POST data.
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public privacy requests are confirmed by email through the WordPress privacy-request API.
 	$params = wp_unslash( $_POST );
 
 	// Bail early if not a form submission, or if the nonce is not valid.
@@ -184,6 +200,8 @@ add_action( 'wp', __NAMESPACE__ . '\\block_formblox_form_privacy_form' );
 
 /**
  * Registers the `formblox/form` block on server.
+ *
+ * @return void
  */
 function register_block_formblox_form() {
 	register_block_type_from_metadata(

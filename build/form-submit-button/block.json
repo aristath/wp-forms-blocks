@@ -18,7 +18,7 @@
     "button",
     "form"
   ],
-  "textdomain": "default",
+  "textdomain": "wp-forms-blocks",
   "style": [
     "wp-block-formblox-form-submit-button"
   ]

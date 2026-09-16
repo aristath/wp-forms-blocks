@@ -22,7 +22,7 @@ const TEMPLATE = [
 		'formblox/form-input',
 		{
 			type: 'text',
-			label: __( 'Name' ),
+			label: __( 'Name', 'wp-forms-blocks' ),
 			required: true,
 		},
 	],
@@ -30,7 +30,7 @@ const TEMPLATE = [
 		'formblox/form-input',
 		{
 			type: 'email',
-			label: __( 'Email' ),
+			label: __( 'Email', 'wp-forms-blocks' ),
 			required: true,
 		},
 	],
@@ -38,7 +38,7 @@ const TEMPLATE = [
 		'formblox/form-input',
 		{
 			type: 'textarea',
-			label: __( 'Comment' ),
+			label: __( 'Comment', 'wp-forms-blocks' ),
 			required: true,
 		},
 	],

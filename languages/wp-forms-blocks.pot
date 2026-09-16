@@ -1,0 +1,400 @@
+# Copyright (C) 2026 Aristeidis Stathopoulos
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Forms Blocks 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wp-forms-blocks\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-15T12:18:02+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: wp-forms-blocks\n"
+
+#. Plugin Name of the plugin
+#: wp-forms-blocks.php
+msgid "WP Forms Blocks"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: wp-forms-blocks.php
+msgid "https://github.com/aristath/wp-forms-blocks"
+msgstr ""
+
+#. Description of the plugin
+#: wp-forms-blocks.php
+msgid "Block-editor forms with email, custom actions, comments, and privacy requests."
+msgstr ""
+
+#. Author of the plugin
+#: wp-forms-blocks.php
+msgid "Aristeidis Stathopoulos"
+msgstr ""
+
+#. Author URI of the plugin
+#: wp-forms-blocks.php
+msgid "https://aristath.github.io/"
+msgstr ""
+
+#. translators: %s: The request URI.
+#: src/form/index.php:86
+#, php-format
+msgid "Form submission from %1$s"
+msgstr ""
+
+#: src/form/index.php:111
+msgid "Form submission"
+msgstr ""
+
+#: src/form-input/edit.js:41
+#: src/form/edit.js:56
+msgid "Settings"
+msgstr ""
+
+#: src/form-input/edit.js:52
+#: src/form-input/edit.js:63
+msgid "Inline label"
+msgstr ""
+
+#: src/form-input/edit.js:78
+#: src/form-input/edit.js:86
+msgid "Required"
+msgstr ""
+
+#: src/form-input/edit.js:101
+#: src/form/index.js:25
+#: src/form/variations.js:26
+#: src/form/variations.js:73
+msgid "Name"
+msgstr ""
+
+#: src/form-input/edit.js:108
+msgid "Affects the \"name\" attribute of the input element, and is used as a name for the form submission results."
+msgstr ""
+
+#: src/form-input/edit.js:116
+msgid "Value"
+msgstr ""
+
+#: src/form-input/edit.js:121
+msgid "Sets the stored value for this hidden field."
+msgstr ""
+
+#: src/form-input/edit.js:139
+msgid "Label"
+msgstr ""
+
+#: src/form-input/edit.js:140
+msgid "Empty label"
+msgstr ""
+
+#: src/form-input/edit.js:143
+msgid "Type the label for this input"
+msgstr ""
+
+#: src/form-input/edit.js:156
+msgid "Hidden field"
+msgstr ""
+
+#: src/form-input/edit.js:179
+msgid "Optional placeholder text"
+msgstr ""
+
+#: src/form-input/edit.js:189
+msgid "Optional placeholder…"
+msgstr ""
+
+#: src/form-input/variations.js:6
+msgid "Text Input"
+msgstr ""
+
+#: src/form-input/variations.js:7
+msgid "A generic text input."
+msgstr ""
+
+#: src/form-input/variations.js:16
+msgid "Textarea Input"
+msgstr ""
+
+#: src/form-input/variations.js:17
+msgid "A textarea input to allow entering multiple lines of text."
+msgstr ""
+
+#: src/form-input/variations.js:28
+msgid "Checkbox Input"
+msgstr ""
+
+#: src/form-input/variations.js:29
+msgid "A simple checkbox input."
+msgstr ""
+
+#: src/form-input/variations.js:37
+msgid "Email Input"
+msgstr ""
+
+#: src/form-input/variations.js:38
+msgid "Used for email addresses."
+msgstr ""
+
+#: src/form-input/variations.js:46
+msgid "URL Input"
+msgstr ""
+
+#: src/form-input/variations.js:47
+msgid "Used for URLs."
+msgstr ""
+
+#: src/form-input/variations.js:55
+msgid "Telephone Input"
+msgstr ""
+
+#: src/form-input/variations.js:56
+msgid "Used for phone numbers."
+msgstr ""
+
+#: src/form-input/variations.js:64
+msgid "Number Input"
+msgstr ""
+
+#: src/form-input/variations.js:65
+msgid "A numeric input."
+msgstr ""
+
+#: src/form-input/variations.js:73
+msgid "Hidden Input"
+msgstr ""
+
+#: src/form-input/variations.js:75
+msgid "A hidden input field."
+msgstr ""
+
+#: src/form-submission-notification/edit.js:42
+msgid "Submission success notification"
+msgstr ""
+
+#: src/form-submission-notification/edit.js:46
+msgid "Submission error notification"
+msgstr ""
+
+#: src/form-submission-notification/index.js:17
+msgid "Enter the message you wish displayed for form submission error/success, and select the type of the message (success/error) from the block's options."
+msgstr ""
+
+#: src/form-submission-notification/variations.js:6
+msgid "Form Submission Success"
+msgstr ""
+
+#: src/form-submission-notification/variations.js:7
+msgid "Success message for form submissions."
+msgstr ""
+
+#: src/form-submission-notification/variations.js:19
+msgid "Your form has been submitted successfully."
+msgstr ""
+
+#: src/form-submission-notification/variations.js:37
+msgid "Form Submission Error"
+msgstr ""
+
+#: src/form-submission-notification/variations.js:38
+msgid "Error/failure message for form submissions."
+msgstr ""
+
+#: src/form-submission-notification/variations.js:50
+#: src/form/utils.js:34
+msgid "There was an error submitting your form."
+msgstr ""
+
+#: src/form-submit-button/index.js:19
+msgid "Submit"
+msgstr ""
+
+#: src/form/edit.js:61
+#: src/form/edit.js:70
+msgid "Submissions method"
+msgstr ""
+
+#: src/form/edit.js:77
+msgid "Send email"
+msgstr ""
+
+#: src/form/edit.js:84
+msgid "- Custom -"
+msgstr ""
+
+#: src/form/edit.js:97
+msgid "Select the method to use for form submissions. Additional options for the \"custom\" mode can be found in the \"Advanced\" section."
+msgstr ""
+
+#: src/form/edit.js:101
+#: src/form/edit.js:122
+msgid "Select the method to use for form submissions."
+msgstr ""
+
+#: src/form/edit.js:113
+msgid "Method"
+msgstr ""
+
+#: src/form/edit.js:129
+msgid "Form action"
+msgstr ""
+
+#: src/form/edit.js:136
+msgid "The URL where the form should be submitted."
+msgstr ""
+
+#: src/form/index.js:33
+#: src/form/variations.js:34
+#: src/form/variations.js:83
+msgid "Email"
+msgstr ""
+
+#: src/form/index.js:41
+#: src/form/variations.js:42
+#: src/form/variations.js:93
+msgid "Comment"
+msgstr ""
+
+#: src/form/utils.js:14
+msgid "Your form has been submitted successfully"
+msgstr ""
+
+#: src/form/variations.js:10
+msgid "Contact Form"
+msgstr ""
+
+#: src/form/variations.js:11
+msgid "A contact form for site visitors."
+msgstr ""
+
+#: src/form/variations.js:55
+msgid "Comment Form"
+msgstr ""
+
+#: src/form/variations.js:56
+msgid "A comment form for posts and pages."
+msgstr ""
+
+#: src/form/variations.js:106
+msgid "Privacy Request Form"
+msgstr ""
+
+#: src/form/variations.js:108
+msgid "A form to request data exports and/or deletion."
+msgstr ""
+
+#: src/form/variations.js:125
+msgid "To request an export or deletion of your personal data on this site, please fill-in the form below. You can define the type of request you wish to perform, and your email address. Once the form is submitted, you will receive a confirmation email with instructions on the next steps."
+msgstr ""
+
+#: src/form/variations.js:136
+msgid "Enter your email address."
+msgstr ""
+
+#: src/form/variations.js:146
+msgid "Request data export"
+msgstr ""
+
+#: src/form/variations.js:156
+msgid "Request data deletion"
+msgstr ""
+
+#: src/form-input/block.json
+msgctxt "block title"
+msgid "Input Field"
+msgstr ""
+
+#: src/form-input/block.json
+msgctxt "block description"
+msgid "The basic building block for forms."
+msgstr ""
+
+#: src/form-input/block.json
+msgctxt "block keyword"
+msgid "input"
+msgstr ""
+
+#: src/form-input/block.json
+#: src/form-submission-notification/block.json
+#: src/form-submit-button/block.json
+msgctxt "block keyword"
+msgid "form"
+msgstr ""
+
+#: src/form-submission-notification/block.json
+msgctxt "block title"
+msgid "Form Submission Notification"
+msgstr ""
+
+#: src/form-submission-notification/block.json
+msgctxt "block description"
+msgid "Provide a notification message after the form has been submitted."
+msgstr ""
+
+#: src/form-submission-notification/block.json
+msgctxt "block keyword"
+msgid "feedback"
+msgstr ""
+
+#: src/form-submission-notification/block.json
+msgctxt "block keyword"
+msgid "notification"
+msgstr ""
+
+#: src/form-submission-notification/block.json
+msgctxt "block keyword"
+msgid "message"
+msgstr ""
+
+#: src/form-submit-button/block.json
+msgctxt "block title"
+msgid "Form Submit Button"
+msgstr ""
+
+#: src/form-submit-button/block.json
+msgctxt "block description"
+msgid "A submission button for forms."
+msgstr ""
+
+#: src/form-submit-button/block.json
+msgctxt "block keyword"
+msgid "submit"
+msgstr ""
+
+#: src/form-submit-button/block.json
+msgctxt "block keyword"
+msgid "button"
+msgstr ""
+
+#: src/form/block.json
+msgctxt "block title"
+msgid "Form"
+msgstr ""
+
+#: src/form/block.json
+msgctxt "block description"
+msgid "A form."
+msgstr ""
+
+#: src/form/block.json
+msgctxt "block keyword"
+msgid "container"
+msgstr ""
+
+#: src/form/block.json
+msgctxt "block keyword"
+msgid "wrapper"
+msgstr ""
+
+#: src/form/block.json
+msgctxt "block keyword"
+msgid "row"
+msgstr ""
+
+#: src/form/block.json
+msgctxt "block keyword"
+msgid "section"
+msgstr ""

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+	bootstrap="tests/phpunit/bootstrap.php"
+	colors="true"
+	failOnWarning="true"
+	beStrictAboutOutputDuringTests="true"
+>
+	<testsuites>
+		<testsuite name="WP Forms Blocks PHP unit tests">
+			<directory suffix="Test.php">tests/phpunit</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>

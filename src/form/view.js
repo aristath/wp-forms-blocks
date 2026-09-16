@@ -9,11 +9,10 @@ try {
 document
 	.querySelectorAll( 'form.wp-block-formblox-form' )
 	.forEach( function ( form ) {
-		// Bail If the form settings not provided or the form is not using the mailto: action.
+		// Bail if the form settings are unavailable or this is not an email form.
 		if (
 			! formSettings ||
-			! form.action ||
-			! form.action.startsWith( 'mailto:' )
+			form.dataset.formbloxSubmissionMethod !== 'email'
 		) {
 			return;
 		}
@@ -31,11 +30,9 @@ document
 			const formData = Object.fromEntries(
 				new FormData( form ).entries()
 			);
-			formData.formAction = form.action;
 			formData._ajax_nonce = formSettings.nonce;
 			formData.action = formSettings.action;
 			formData._wp_http_referer = window.location.href;
-			formData.formAction = form.action;
 
 			try {
 				const response = await fetch( formSettings.ajaxUrl, {

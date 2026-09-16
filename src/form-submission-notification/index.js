@@ -15,7 +15,8 @@ const TEMPLATE = [
 		'core/paragraph',
 		{
 			content: __(
-				"Enter the message you wish displayed for form submission error/success, and select the type of the message (success/error) from the block's options."
+				"Enter the message you wish displayed for form submission error/success, and select the type of the message (success/error) from the block's options.",
+				'wp-forms-blocks'
 			),
 		},
 	],

@@ -140,7 +140,7 @@ describe( 'block editor components', () => {
 		container.remove();
 	} );
 
-	test( 'form editor exposes and applies every email setting', () => {
+	test( 'form editor sends email to the site administrator without a recipient control', () => {
 		const setAttributes = jest.fn();
 		mockState.block = { innerBlocks: [] };
 		act( () => {
@@ -148,7 +148,6 @@ describe( 'block editor components', () => {
 				<FormEdit
 					attributes={ {
 						submissionMethod: 'email',
-						email: '',
 						action: undefined,
 						method: 'post',
 					} }
@@ -173,37 +172,18 @@ describe( 'block editor components', () => {
 		expect(
 			getControl( 'toolsPanelItems', 'Submissions method' ).hasValue()
 		).toBe( false );
-		expect(
-			getControl(
-				'toolsPanelItems',
-				'Email for form submissions'
-			).hasValue()
-		).toBe( false );
-
 		getControl( 'selectControls', 'Submissions method' ).onChange(
 			'custom'
 		);
-		getControl( 'textControls', 'Email for form submissions' ).onChange(
-			'forms@example.com'
-		);
 		getControl( 'toolsPanelItems', 'Submissions method' ).onDeselect();
-		getControl(
-			'toolsPanelItems',
-			'Email for form submissions'
-		).onDeselect();
 		mockCaptured.toolsPanels[ 0 ].resetAll();
 
 		expect( setAttributes.mock.calls ).toEqual( [
 			[ { submissionMethod: 'custom' } ],
-			[ { email: 'forms@example.com' } ],
-			[ { action: 'mailto:forms@example.com' } ],
-			[ { method: 'post' } ],
 			[ { submissionMethod: 'email' } ],
-			[ { email: undefined, action: undefined, method: 'post' } ],
 			[
 				{
 					submissionMethod: 'email',
-					email: undefined,
 					action: undefined,
 					method: 'post',
 				},
@@ -219,7 +199,6 @@ describe( 'block editor components', () => {
 				<FormEdit
 					attributes={ {
 						submissionMethod: 'custom',
-						email: 'unused@example.com',
 						action: 'https://example.com/submit',
 						method: 'get',
 					} }
@@ -238,9 +217,6 @@ describe( 'block editor components', () => {
 		expect(
 			getControl( 'toolsPanelItems', 'Submissions method' ).hasValue()
 		).toBe( true );
-		expect(
-			getControl( 'textControls', 'Email for form submissions' )
-		).toBeUndefined();
 		getControl( 'selectControls', 'Method' ).onChange( 'post' );
 		getControl( 'textControls', 'Form action' ).onChange(
 			'https://example.com/new'

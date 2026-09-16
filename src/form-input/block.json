@@ -7,7 +7,7 @@
 	"ancestor": [ "formblox/form" ],
 	"description": "The basic building block for forms.",
 	"keywords": [ "input", "form" ],
-	"textdomain": "default",
+	"textdomain": "wp-forms-blocks",
 	"attributes": {
 		"type": {
 			"type": "string",

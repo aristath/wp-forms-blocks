@@ -2,17 +2,19 @@
 /**
  * Modifies the wp_kses_allowed_html array.
  *
- * @package gutenberg
+ * @package WPFormsBlocks
  */
 
 namespace WPFormsBlocks;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Add the form elements to the allowed tags array.
  *
- * @param array $allowedtags The allowed tags.
+ * @param array<string, mixed> $allowedtags The allowed tags.
  *
- * @return array The allowed tags.
+ * @return array<string, mixed> The allowed tags.
  */
 function gutenberg_kses_allowed_html( $allowedtags ) {
 	$allowedtags['input'] = array(

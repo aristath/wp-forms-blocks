@@ -3,8 +3,11 @@ import { __ } from '@wordpress/i18n';
 const variations = [
 	{
 		name: 'form-submission-success',
-		title: __( 'Form Submission Success' ),
-		description: __( 'Success message for form submissions.' ),
+		title: __( 'Form Submission Success', 'wp-forms-blocks' ),
+		description: __(
+			'Success message for form submissions.',
+			'wp-forms-blocks'
+		),
 		attributes: {
 			type: 'success',
 		},
@@ -13,7 +16,10 @@ const variations = [
 			[
 				'core/paragraph',
 				{
-					content: __( 'Your form has been submitted successfully.' ),
+					content: __(
+						'Your form has been submitted successfully.',
+						'wp-forms-blocks'
+					),
 					backgroundColor: '#00D084',
 					textColor: '#000000',
 					style: {
@@ -28,8 +34,11 @@ const variations = [
 	},
 	{
 		name: 'form-submission-error',
-		title: __( 'Form Submission Error' ),
-		description: __( 'Error/failure message for form submissions.' ),
+		title: __( 'Form Submission Error', 'wp-forms-blocks' ),
+		description: __(
+			'Error/failure message for form submissions.',
+			'wp-forms-blocks'
+		),
 		attributes: {
 			type: 'error',
 		},
@@ -38,7 +47,10 @@ const variations = [
 			[
 				'core/paragraph',
 				{
-					content: __( 'There was an error submitting your form.' ),
+					content: __(
+						'There was an error submitting your form.',
+						'wp-forms-blocks'
+					),
 					backgroundColor: '#CF2E2E',
 					textColor: '#FFFFFF',
 					style: {

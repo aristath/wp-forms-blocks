@@ -4,7 +4,7 @@ set -euo pipefail
 
 test_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 plugin_dir=$(cd "$test_dir/.." && pwd)
-wp_root=$(cd "$plugin_dir/../../.." && pwd)
+wp_root=${WP_ROOT_DIR:-$(cd "$plugin_dir/../../.." && pwd)}
 database_dir=$(mktemp -d /tmp/wp-forms-blocks-test.XXXXXX)
 
 cleanup() {

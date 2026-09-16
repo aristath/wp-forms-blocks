@@ -2,15 +2,17 @@
 /**
  * Server-side rendering of the `formblox/form-input` block.
  *
- * @package WordPress
+ * @package WPFormsBlocks
  */
 
 namespace WPFormsBlocks;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Renders the `formblox/form-input` block on server.
  *
- * @param array  $attributes The block attributes.
+ * @param array<string, mixed> $attributes The block attributes.
  * @param string $content The saved content.
  *
  * @return string The content of the block being rendered.
@@ -34,6 +36,8 @@ function render_block_formblox_form_input( $attributes, $content ) {
 
 /**
  * Registers the `formblox/form-input` block on server.
+ *
+ * @return void
  */
 function register_block_formblox_form_input() {
 	register_block_type_from_metadata(

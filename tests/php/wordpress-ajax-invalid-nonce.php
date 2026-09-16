@@ -5,11 +5,11 @@
  * @package WPFormsBlocks
  */
 
-$_POST = array(
+$_POST    = array(
 	'action'           => 'formblox_form_email_submit',
 	'_ajax_nonce'      => 'invalid',
 	'_wp_http_referer' => '/contact/',
-	'formAction'       => 'mailto:recipient@example.com',
+	'formAction'       => 'mailto:attacker-controlled@example.net',
 );
 $_REQUEST = $_POST;
 

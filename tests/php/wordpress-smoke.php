@@ -41,8 +41,8 @@ foreach ( array( 'core/form', 'core/form-input', 'core/form-submit-button', 'cor
 wp_forms_blocks_integration_assert(
 	array(
 		'dependencies' => array(),
-		'version'      => WP_FORMS_BLOCKS_VERSION,
-	) === wp_forms_blocks_get_asset( 'does-not-exist' ),
+		'version'      => FORMBLOX_VERSION,
+	) === formblox_get_asset( 'does-not-exist' ),
 	'Asset manifest fallback changed.'
 );
 
@@ -102,14 +102,19 @@ wp_forms_blocks_integration_assert(
 
 $email_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
-		'action' => 'mailto:recipient@example.com',
-		'method' => 'post',
+		'submissionMethod' => 'email',
+		'action'           => 'mailto:attacker-controlled@example.net',
+		'method'           => 'post',
 	),
 	'<form class="wp-block-formblox-form" enctype="text/plain"><input name="message"></form>'
 );
 wp_forms_blocks_integration_assert(
-	false !== strpos( $email_form, 'action="mailto:recipient@example.com"' ),
-	'Email form action was changed from the Gutenberg behavior.'
+	false !== strpos( $email_form, 'action=""' ),
+	'Email form retained a client-controlled action.'
+);
+wp_forms_blocks_integration_assert(
+	false !== strpos( $email_form, 'data-formblox-submission-method="email"' ),
+	'Email form is missing its front-end submission-method marker.'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $email_form, 'method="post"' ),
@@ -141,8 +146,9 @@ wp_forms_blocks_integration_assert(
 
 $comment_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
-		'action' => '{SITE_URL}/wp-comments-post.php',
-		'method' => 'post',
+		'submissionMethod' => 'custom',
+		'action'           => '{SITE_URL}/wp-comments-post.php',
+		'method'           => 'post',
 	),
 	'<form class="wp-block-formblox-form"></form>'
 );
@@ -157,14 +163,20 @@ wp_forms_blocks_integration_assert(
 
 $custom_form = \WPFormsBlocks\render_block_formblox_form(
 	array(
-		'action' => '{ADMIN_URL}admin-post.php',
-		'method' => 'get',
+		'submissionMethod' => 'custom',
+		'action'           => '{ADMIN_URL}admin-post.php',
+		'method'           => 'get',
 	),
 	'<form class="wp-block-formblox-form"></form>'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $custom_form, admin_url( 'admin-post.php' ) ),
 	'Custom form admin URL placeholder was not expanded.'
+);
+wp_forms_blocks_integration_assert(
+	false === strpos( $custom_form, 'data-formblox-submission-method="email"' )
+		&& false !== strpos( $custom_form, 'data-formblox-submission-method="custom"' ),
+	'Custom form has an incorrect submission-method marker.'
 );
 wp_forms_blocks_integration_assert(
 	false !== strpos( $custom_form, 'method="get"' ),
@@ -181,7 +193,10 @@ wp_forms_blocks_integration_assert(
 );
 
 $non_string_action_form = \WPFormsBlocks\render_block_formblox_form(
-	array( 'action' => array( 'invalid' ) ),
+	array(
+		'submissionMethod' => 'custom',
+		'action'           => array( 'invalid' ),
+	),
 	'<form class="wp-block-formblox-form"></form>'
 );
 wp_forms_blocks_integration_assert(

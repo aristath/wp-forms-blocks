@@ -9,7 +9,7 @@ It provides:
 - Form Submit Button
 - Form Submission Notification
 - Contact Form, Comment Form, and Privacy Request Form variations
-- Email and custom-URL submission methods
+- Email-to-site-administrator and custom-URL submission methods
 
 A newly inserted Form uses the default Contact Form variation. It starts with the original success and error notifications, Name, Email, and Comment fields, and a Submit button. Comment Form and Privacy Request Form are available as additional variations.
 
@@ -19,29 +19,33 @@ The standalone blocks use the plugin-owned `formblox` namespace: `formblox/form`
 
 ```sh
 pnpm install --ignore-scripts
-pnpm run build
-pnpm run lint:js
-pnpm run lint:css
-pnpm run lint:php
-pnpm run test:unit
-pnpm run test:coverage
-pnpm run test:wordpress
-pnpm run test:e2e
+composer install
+npm run build
+npm run lint
+npm run test:unit
+npm run test:php
+npm run test:coverage
+npm run test:wordpress
+npm run test:e2e
 # Or run every test suite:
-pnpm test
+npm test
 ```
 
-`test:unit` covers block registration, metadata, templates, every variation, editor controls and callbacks, current save output, every canonical current-format Gutenberg serialization fixture, front-end submission outcomes, and shared hooks. `test:coverage` enforces at least 95% statement/line coverage and 90% branch/function coverage across the executable ported JavaScript.
+`lint` runs WordPress Prettier checks, ESLint, Stylelint, Markdownlint, package metadata validation, translation-catalog validation, Lefthook configuration validation, PHP syntax checks, PHPCS with WPCS and PHPCompatibilityWP, and PHPStan. `npm run format` applies the corresponding JavaScript and PHP formatters. Lefthook gates every commit on the complete lint, reproducible-build, Plugin Check, JavaScript coverage, PHPUnit, WordPress integration, and Playwright suites. See [CONTRIBUTING.md](CONTRIBUTING.md) for individual commands and the pre-commit/CI contract.
+
+`test:unit` covers block registration, metadata, templates, every variation, editor controls and callbacks, current save output, every canonical current-format Gutenberg serialization fixture, front-end submission outcomes, and shared hooks. `test:php` covers isolated PHP callbacks and hook registration. `test:coverage` enforces at least 95% statement/line coverage and 90% branch/function coverage across the executable ported JavaScript.
 
 `test:wordpress` creates a disposable SQLite database alongside the local WordPress checkout and covers asset and module registration, rendering branches, successful and failed email handling, custom actions, comments, visibility permissions, notification filtering, privacy requests, and KSES. It never uses the development site's database.
 
 `test:e2e` launches another disposable local WordPress/SQLite instance on an available port and drives Chromium through the real editor and front end. It verifies the default Contact Form variation and its complete template, block insertion and persistence, every field type, successful and failed submissions, custom browser submissions, logged-in and logged-out visibility, both privacy-request workflows, and comment submission. The runner requires the plugin to be located inside a local WordPress checkout, plus PHP, WP-CLI, and Playwright's Chromium browser (`pnpm exec playwright install chromium`).
 
+`lint:plugin` builds the release archive, downloads the official WordPress Plugin Check plugin, and checks the extracted distributable in a disposable WordPress/SQLite installation. It does not scan development-only files, touch the development database, or install Plugin Check permanently.
+
 Built assets are committed so a checkout of a release can be installed directly as a WordPress plugin. See [docs/port-audit.md](docs/port-audit.md) for the file-by-file upstream audit and intentional standalone changes.
 
-## Security note
+## Email submissions
 
-This is a faithful port of experimental Gutenberg code, including its original email and privacy-request behavior. In particular, the email AJAX handler accepts the form's `mailto:` destination from the submitted request. That behavior should be reviewed before using the block on an untrusted public site.
+Email forms always send submissions to the Administration Email Address configured in WordPress. Visitors cannot select or override the recipient. Individual forms can still use different fields and layouts; they share the site's administrative destination.
 
 ## History
 

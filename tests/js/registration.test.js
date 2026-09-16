@@ -58,6 +58,7 @@ describe( 'standalone block registration contracts', () => {
 				'core/columns',
 			],
 		} );
+		expect( formMetadata.attributes ).not.toHaveProperty( 'email' );
 		expect( inputMetadata ).toMatchObject( {
 			name: 'formblox/form-input',
 			ancestor: [ 'formblox/form' ],

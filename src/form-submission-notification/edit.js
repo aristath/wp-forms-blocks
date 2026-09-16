@@ -39,8 +39,14 @@ const Edit = ( { attributes, clientId } ) => {
 	return (
 		<div
 			{ ...innerBlocksProps }
-			data-message-success={ __( 'Submission success notification' ) }
-			data-message-error={ __( 'Submission error notification' ) }
+			data-message-success={ __(
+				'Submission success notification',
+				'wp-forms-blocks'
+			) }
+			data-message-error={ __(
+				'Submission error notification',
+				'wp-forms-blocks'
+			) }
 		/>
 	);
 };

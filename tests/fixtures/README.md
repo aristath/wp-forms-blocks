@@ -1,6 +1,6 @@
 # Gutenberg serialization fixtures
 
-`blocks/` contains every current-format form-block fixture copied byte-for-byte from the official Gutenberg `v23.9.1` tag (`c29617a19a0197efdf3f53a820833c2d68c0b405`):
+`blocks/` contains every current-format form-block fixture derived from the official Gutenberg `v23.9.1` tag (`c29617a19a0197efdf3f53a820833c2d68c0b405`) and systematically rewritten from the experimental `core/form*` names to the standalone `formblox/*` namespace:
 
 - 7 fixture cases
 - 4 files per case: input HTML, parser JSON, block JSON, and expected serialized HTML

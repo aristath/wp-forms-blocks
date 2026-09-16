@@ -1,0 +1,41 @@
+{
+	"name": "aristath/wp-forms-blocks",
+	"description": "Development tools for the WP Forms Blocks plugin.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"brain/monkey": "^2.7",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.1",
+		"php-parallel-lint/php-parallel-lint": "^1.4",
+		"phpcompatibility/phpcompatibility-wp": "^2.1.8",
+		"phpstan/phpstan": "^2.1",
+		"phpunit/phpunit": "^9.6.36",
+		"squizlabs/php_codesniffer": "^3.13.6",
+		"szepeviktor/phpstan-wordpress": "^2.0.4",
+		"wp-coding-standards/wpcs": "^3.4.1",
+		"yoast/phpunit-polyfills": "^3.1.2"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"sort-packages": true
+	},
+	"scripts": {
+		"analyse": "phpstan analyse --configuration=phpstan.neon.dist --no-progress --memory-limit=1G",
+		"check": [
+			"@lint",
+			"@analyse",
+			"@test"
+		],
+		"format": "phpcbf --standard=phpcs.xml.dist --report-summary --report-source",
+		"lint": [
+			"parallel-lint --exclude build --exclude node_modules --exclude vendor .",
+			"phpcs --standard=phpcs.xml.dist"
+		],
+		"test": "phpunit --configuration=phpunit.xml.dist"
+	}
+}

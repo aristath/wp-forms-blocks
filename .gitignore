@@ -1,5 +1,11 @@
 node_modules/
+vendor/
+.cache/
+.phpcs-cache
+.phpunit.result.cache
 artifacts/
 coverage/
 .DS_Store
 npm-debug.log*
+/plugin-check-build/
+/wp-forms-blocks.zip

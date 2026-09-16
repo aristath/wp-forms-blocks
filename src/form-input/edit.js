@@ -38,7 +38,7 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 			{ 'hidden' !== type && (
 				<InspectorControls>
 					<ToolsPanel
-						label={ __( 'Settings' ) }
+						label={ __( 'Settings', 'wp-forms-blocks' ) }
 						resetAll={ () => {
 							setAttributes( {
 								inlineLabel: false,
@@ -49,7 +49,10 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 					>
 						{ 'checkbox' !== type && (
 							<ToolsPanelItem
-								label={ __( 'Inline label' ) }
+								label={ __(
+									'Inline label',
+									'wp-forms-blocks'
+								) }
 								hasValue={ () => !! inlineLabel }
 								onDeselect={ () =>
 									setAttributes( { inlineLabel: false } )
@@ -57,7 +60,10 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 								isShownByDefault
 							>
 								<CheckboxControl
-									label={ __( 'Inline label' ) }
+									label={ __(
+										'Inline label',
+										'wp-forms-blocks'
+									) }
 									checked={ inlineLabel }
 									onChange={ ( newVal ) => {
 										setAttributes( {
@@ -69,7 +75,7 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 						) }
 
 						<ToolsPanelItem
-							label={ __( 'Required' ) }
+							label={ __( 'Required', 'wp-forms-blocks' ) }
 							hasValue={ () => !! required }
 							onDeselect={ () =>
 								setAttributes( { required: false } )
@@ -77,7 +83,7 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 							isShownByDefault
 						>
 							<CheckboxControl
-								label={ __( 'Required' ) }
+								label={ __( 'Required', 'wp-forms-blocks' ) }
 								checked={ required }
 								onChange={ ( newVal ) => {
 									setAttributes( {
@@ -92,7 +98,7 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 			<InspectorControls group="advanced">
 				<TextControl
 					autoComplete="off"
-					label={ __( 'Name' ) }
+					label={ __( 'Name', 'wp-forms-blocks' ) }
 					value={ name }
 					onChange={ ( newVal ) => {
 						setAttributes( {
@@ -100,19 +106,21 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 						} );
 					} }
 					help={ __(
-						'Affects the "name" attribute of the input element, and is used as a name for the form submission results.'
+						'Affects the "name" attribute of the input element, and is used as a name for the form submission results.',
+						'wp-forms-blocks'
 					) }
 				/>
 				{ 'hidden' === type && (
 					<TextControl
 						autoComplete="off"
-						label={ __( 'Value' ) }
+						label={ __( 'Value', 'wp-forms-blocks' ) }
 						value={ value }
 						onChange={ ( newVal ) =>
 							setAttributes( { value: newVal } )
 						}
 						help={ __(
-							'Sets the stored value for this hidden field.'
+							'Sets the stored value for this hidden field.',
+							'wp-forms-blocks'
 						) }
 					/>
 				) }
@@ -126,9 +134,16 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 			className="wp-block-formblox-form-input__label-content"
 			value={ label }
 			onChange={ ( newLabel ) => setAttributes( { label: newLabel } ) }
-			aria-label={ label ? __( 'Label' ) : __( 'Empty label' ) }
+			aria-label={
+				label
+					? __( 'Label', 'wp-forms-blocks' )
+					: __( 'Empty label', 'wp-forms-blocks' )
+			}
 			data-empty={ ! label }
-			placeholder={ __( 'Type the label for this input' ) }
+			placeholder={ __(
+				'Type the label for this input',
+				'wp-forms-blocks'
+			) }
 		/>
 	);
 
@@ -138,7 +153,7 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 				{ controls }
 				<span
 					className="wp-block-formblox-form-input__label is-input-hidden"
-					data-message={ __( 'Hidden field' ) }
+					data-message={ __( 'Hidden field', 'wp-forms-blocks' ) }
 				/>
 			</div>
 		);
@@ -161,12 +176,17 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 						colorProps.className,
 						borderProps.className
 					) }
-					aria-label={ __( 'Optional placeholder text' ) }
+					aria-label={ __(
+						'Optional placeholder text',
+						'wp-forms-blocks'
+					) }
 					// We hide the placeholder field's placeholder when there is a value. This
 					// stops screen readers from reading the placeholder field's placeholder
 					// which is confusing.
 					placeholder={
-						placeholder ? undefined : __( 'Optional placeholder…' )
+						placeholder
+							? undefined
+							: __( 'Optional placeholder…', 'wp-forms-blocks' )
 					}
 					value={ placeholder }
 					onChange={ ( event ) =>

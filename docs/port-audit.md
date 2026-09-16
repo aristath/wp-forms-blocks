@@ -32,8 +32,13 @@ The maintained differences from Gutenberg are limited to:
 12. The standalone product adds a default Contact Form variation and removes the historical `Experimental` prefix from the Comment Form and Privacy Request Form titles. Their active-state checks use form attributes so each variation resolves distinctly.
 13. The four block manifests and generated block documentation no longer mark the blocks as experimental; the experiment status applied to their former Gutenberg lifecycle, not to this standalone product.
 14. The plugin blocks use `formblox/form`, `formblox/form-input`, `formblox/form-submit-button`, and `formblox/form-submission-notification`. The same namespace scopes their generated classes, PHP callbacks and filters, editor hook, AJAX action and nonce, result query parameter, style handles, and view-module ID. Genuine WordPress child blocks retain their `core/*` names.
+15. Email forms no longer expose a configurable `mailto:` recipient or trust the request's `formAction`. They are identified by a rendered submission-method marker and always send to WordPress's server-side Administration Email Address. This is an intentional security deviation from the upstream experiment.
+16. Standalone localization uses the plugin's `wp-forms-blocks` text domain in manifests and translation calls, connects editor script translations, and ships a generated POT file.
+17. Shipped PHP entry files have direct-access guards, and standalone global bootstrap identifiers use the plugin-owned `formblox` prefix. These hardening changes do not alter form behavior.
+18. PHP documentation was normalized for WPCS and static analysis. The tag-processor call uses the modern array query accepted by the same WordPress API instead of its deprecated string shorthand.
+19. Repository-only quality infrastructure adds Gutenberg-aligned Prettier, ESLint, Stylelint, Markdownlint, PHPCS/WPCS, PHPCompatibilityWP, PHPStan, PHPUnit, Plugin Check, a complete Lefthook commit gate, dependency updates, and CI. It is excluded from the production archive and does not alter runtime behavior.
 
-The input and notification variation labels, markup structure, render behavior, email transport, privacy processing, KSES allowlist, view-module data shape, and front-end submission behavior otherwise remain unchanged.
+The input and notification variation labels, markup structure, privacy processing, KSES allowlist, and view-module data shape otherwise remain unchanged.
 
 ## Tests
 
@@ -41,6 +46,6 @@ The input and notification variation labels, markup structure, render behavior, 
 
 The unit suite additionally covers the metadata and templates for all four blocks, every variation and activation branch, editor rendering and every settings callback, current save branches, shared hooks, and all front-end response outcomes. Coverage gates require at least 95% statements/lines and 90% branches/functions across the executable ported JavaScript.
 
-The standalone WordPress integration runner uses a disposable SQLite database and checks asset/module registration plus the original PHP behavior for rendering, successful and failed email handling, comments, custom actions, visibility permissions, notifications, privacy requests, and KSES.
+The standalone WordPress integration runner uses a disposable SQLite database and checks asset/module registration, rendering, administrator-only email delivery, recipient-override rejection, successful and failed email handling, comments, custom actions, visibility permissions, notifications, privacy requests, and KSES.
 
 The Playwright suite boots a separate disposable WordPress/SQLite site and verifies seven complete browser workflows: default Contact Form variation insertion and round-trip persistence, all field types and successful email submission, failed AJAX submission, a custom method/action submission, logged-in/logged-out visibility, both privacy-request types, and comment submission. Neither integration runner touches the development site's database.

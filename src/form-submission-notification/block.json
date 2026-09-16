@@ -7,7 +7,7 @@
 	"ancestor": [ "formblox/form" ],
 	"description": "Provide a notification message after the form has been submitted.",
 	"keywords": [ "form", "feedback", "notification", "message" ],
-	"textdomain": "default",
+	"textdomain": "wp-forms-blocks",
 	"icon": "feedback",
 	"attributes": {
 		"type": {

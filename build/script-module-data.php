@@ -7,11 +7,13 @@
 
 namespace WPFormsBlocks;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Additional data to expose to the view script module in the Form block.
  *
- * @param array $data Existing script module data.
- * @return array The script module data.
+ * @param array<string, mixed> $data Existing script module data.
+ * @return array<string, mixed> The script module data.
  */
 function formblox_form_view_script_module( $data ) {
 	$data['nonce']   = wp_create_nonce( 'formblox-form' );

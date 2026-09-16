@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 add_filter(
 	'pre_wp_mail',
-	static function ( $return, $attributes ) {
+	static function ( $pre_wp_mail, $attributes ) {
 		update_option( 'wp_forms_blocks_e2e_last_mail', $attributes, false );
 		return 'failure' === get_option( 'wp_forms_blocks_e2e_mail_mode', 'success' ) ? false : true;
 	},

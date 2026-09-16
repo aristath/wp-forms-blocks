@@ -5,11 +5,11 @@
  * @package WPFormsBlocks
  */
 
-$_POST = array(
+$_POST    = array(
 	'action'           => 'formblox_form_email_submit',
 	'_ajax_nonce'      => wp_create_nonce( 'formblox-form' ),
 	'_wp_http_referer' => '/contact/',
-	'formAction'       => 'mailto:recipient@example.com',
+	'formAction'       => 'mailto:attacker-controlled@example.net',
 	'name'             => 'Ada Lovelace',
 	'message'          => '<b>Hello</b>',
 );
@@ -18,8 +18,11 @@ $_REQUEST = $_POST;
 add_filter(
 	'pre_wp_mail',
 	static function ( $preempt, $attributes ) {
-		if ( 'recipient@example.com' !== $attributes['to'] ) {
-			throw new RuntimeException( 'The port changed the Gutenberg formAction recipient.' );
+		if ( get_option( 'admin_email' ) !== $attributes['to'] ) {
+			throw new RuntimeException( 'Email submissions must go to the WordPress administration email.' );
+		}
+		if ( 'attacker-controlled@example.net' === $attributes['to'] ) {
+			throw new RuntimeException( 'The request overrode the server-controlled recipient.' );
 		}
 		if ( false === strpos( $attributes['message'], 'name: Ada Lovelace</br>' ) ) {
 			throw new RuntimeException( 'The port changed Gutenberg email field formatting.' );

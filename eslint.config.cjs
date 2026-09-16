@@ -4,6 +4,10 @@ module.exports = [
 	...config,
 	{
 		rules: {
+			'@wordpress/i18n-text-domain': [
+				'error',
+				{ allowedTextDomain: 'wp-forms-blocks' },
+			],
 			// These blocks still depend on APIs that WordPress exports under
 			// experimental aliases. Keep the dependency explicit until stable
 			// aliases are available in every supported WordPress release.

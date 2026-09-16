@@ -22,13 +22,12 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 	const resetAllSettings = () => {
 		setAttributes( {
 			submissionMethod: 'email',
-			email: undefined,
 			action: undefined,
 			method: 'post',
 		} );
 	};
 
-	const { action, method, email, submissionMethod } = attributes;
+	const { action, method, submissionMethod } = attributes;
 	const blockProps = useBlockProps();
 
 	const { hasInnerBlocks } = useSelect(
@@ -54,12 +53,12 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 			<InspectorControls>
 				<ToolsPanel
 					dropdownMenuProps={ dropdownMenuProps }
-					label={ __( 'Settings' ) }
+					label={ __( 'Settings', 'wp-forms-blocks' ) }
 					resetAll={ resetAllSettings }
 				>
 					<ToolsPanelItem
 						hasValue={ () => submissionMethod !== 'email' }
-						label={ __( 'Submissions method' ) }
+						label={ __( 'Submissions method', 'wp-forms-blocks' ) }
 						onDeselect={ () =>
 							setAttributes( {
 								submissionMethod: 'email',
@@ -68,15 +67,24 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 						isShownByDefault
 					>
 						<SelectControl
-							label={ __( 'Submissions method' ) }
+							label={ __(
+								'Submissions method',
+								'wp-forms-blocks'
+							) }
 							options={ [
 								// TODO: Allow plugins to add their own submission methods.
 								{
-									label: __( 'Send email' ),
+									label: __(
+										'Send email',
+										'wp-forms-blocks'
+									),
 									value: 'email',
 								},
 								{
-									label: __( '- Custom -' ),
+									label: __(
+										'- Custom -',
+										'wp-forms-blocks'
+									),
 									value: 'custom',
 								},
 							] }
@@ -87,52 +95,22 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 							help={
 								submissionMethod === 'custom'
 									? __(
-											'Select the method to use for form submissions. Additional options for the "custom" mode can be found in the "Advanced" section.'
+											'Select the method to use for form submissions. Additional options for the "custom" mode can be found in the "Advanced" section.',
+											'wp-forms-blocks'
 									  )
 									: __(
-											'Select the method to use for form submissions.'
+											'Select the method to use for form submissions.',
+											'wp-forms-blocks'
 									  )
 							}
 						/>
 					</ToolsPanelItem>
-					{ submissionMethod === 'email' && (
-						<ToolsPanelItem
-							hasValue={ () => !! email }
-							label={ __( 'Email for form submissions' ) }
-							onDeselect={ () =>
-								setAttributes( {
-									email: undefined,
-									action: undefined,
-									method: 'post',
-								} )
-							}
-							isShownByDefault
-						>
-							<TextControl
-								autoComplete="off"
-								label={ __( 'Email for form submissions' ) }
-								value={ email || '' }
-								required
-								onChange={ ( value ) => {
-									setAttributes( { email: value } );
-									setAttributes( {
-										action: `mailto:${ value }`,
-									} );
-									setAttributes( { method: 'post' } );
-								} }
-								help={ __(
-									'The email address where form submissions will be sent. Separate multiple email addresses with a comma.'
-								) }
-								type="email"
-							/>
-						</ToolsPanelItem>
-					) }
 				</ToolsPanel>
 			</InspectorControls>
 			{ submissionMethod !== 'email' && (
 				<InspectorControls group="advanced">
 					<SelectControl
-						label={ __( 'Method' ) }
+						label={ __( 'Method', 'wp-forms-blocks' ) }
 						options={ [
 							{ label: 'Get', value: 'get' },
 							{ label: 'Post', value: 'post' },
@@ -142,12 +120,13 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 							setAttributes( { method: value } )
 						}
 						help={ __(
-							'Select the method to use for form submissions.'
+							'Select the method to use for form submissions.',
+							'wp-forms-blocks'
 						) }
 					/>
 					<TextControl
 						autoComplete="off"
-						label={ __( 'Form action' ) }
+						label={ __( 'Form action', 'wp-forms-blocks' ) }
 						value={ action }
 						onChange={ ( newVal ) => {
 							setAttributes( {
@@ -155,7 +134,8 @@ const Edit = ( { attributes, setAttributes, clientId } ) => {
 							} );
 						} }
 						help={ __(
-							'The URL where the form should be submitted.'
+							'The URL where the form should be submitted.',
+							'wp-forms-blocks'
 						) }
 						type="url"
 					/>

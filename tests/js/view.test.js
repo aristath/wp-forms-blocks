@@ -4,7 +4,11 @@ const settings = {
 	action: 'formblox_form_email_submit',
 };
 
-const renderDocument = ( action, includeSettings = true ) => {
+const renderDocument = (
+	submissionMethod,
+	includeSettings = true,
+	action = ''
+) => {
 	document.body.innerHTML = `
 		${
 			includeSettings
@@ -13,7 +17,7 @@ const renderDocument = ( action, includeSettings = true ) => {
 				  ) }</script>`
 				: ''
 		}
-		<form class="wp-block-formblox-form" action="${ action }">
+		<form class="wp-block-formblox-form" action="${ action }" data-formblox-submission-method="${ submissionMethod }">
 			<input name="message" value="Hello">
 		</form>
 	`;
@@ -39,8 +43,8 @@ describe( 'Gutenberg form view module', () => {
 		global.fetch = jest.fn( () => new Promise( () => {} ) );
 	} );
 
-	test( 'submits mailto forms with the original module-data contract', async () => {
-		renderDocument( 'mailto:recipient@example.com' );
+	test( 'submits email forms without a client-controlled recipient', async () => {
+		renderDocument( 'email' );
 		loadViewModule();
 
 		const event = submit();
@@ -57,33 +61,34 @@ describe( 'Gutenberg form view module', () => {
 		const body = new URLSearchParams( request.body );
 		expect( body.get( 'action' ) ).toBe( settings.action );
 		expect( body.get( '_ajax_nonce' ) ).toBe( settings.nonce );
-		expect( body.get( 'formAction' ) ).toBe(
-			'mailto:recipient@example.com'
-		);
+		expect( body.has( 'formAction' ) ).toBe( false );
 		expect( body.get( 'message' ) ).toBe( 'Hello' );
 	} );
 
 	test.each( [
-		[ 'custom actions', 'https://example.com/custom', true ],
-		[ 'missing module data', 'mailto:recipient@example.com', false ],
-	] )( 'leaves %s to normal browser submission', ( label, action, data ) => {
-		renderDocument( action, data );
-		loadViewModule();
+		[ 'custom actions', 'custom', true, 'https://example.com/custom' ],
+		[ 'missing module data', 'email', false, '' ],
+	] )(
+		'leaves %s to normal browser submission',
+		( label, method, data, action ) => {
+			renderDocument( method, data, action );
+			loadViewModule();
 
-		const event = new Event( 'submit', {
-			bubbles: true,
-			cancelable: true,
-		} );
-		document.querySelector( 'form' ).dispatchEvent( event );
+			const event = new Event( 'submit', {
+				bubbles: true,
+				cancelable: true,
+			} );
+			document.querySelector( 'form' ).dispatchEvent( event );
 
-		expect( event.defaultPrevented ).toBe( false );
-		expect( global.fetch ).not.toHaveBeenCalled();
-	} );
+			expect( event.defaultPrevented ).toBe( false );
+			expect( global.fetch ).not.toHaveBeenCalled();
+		}
+	);
 
 	test( 'ignores malformed module data', () => {
 		document.body.innerHTML = `
 			<script id="wp-script-module-data-@formblox/form/view" type="application/json">not-json</script>
-			<form class="wp-block-formblox-form" action="mailto:recipient@example.com"></form>
+			<form class="wp-block-formblox-form" data-formblox-submission-method="email"></form>
 		`;
 		loadViewModule();
 
@@ -91,14 +96,14 @@ describe( 'Gutenberg form view module', () => {
 		expect( global.fetch ).not.toHaveBeenCalled();
 	} );
 
-	test( 'enhances every mailto form on a page and no unrelated form', async () => {
+	test( 'enhances every email form on a page and no unrelated form', async () => {
 		document.body.innerHTML = `
 			<script id="wp-script-module-data-@formblox/form/view" type="application/json">${ JSON.stringify(
 				settings
 			) }</script>
-			<form id="first" class="wp-block-formblox-form" action="mailto:first@example.com"><input name="value" value="first"></form>
-			<form id="second" class="wp-block-formblox-form" action="mailto:second@example.com"><input name="value" value="second"></form>
-			<form id="other" action="mailto:other@example.com"></form>
+			<form id="first" class="wp-block-formblox-form" data-formblox-submission-method="email"><input name="value" value="first"><input name="formAction" value="mailto:attacker-controlled@example.net"></form>
+			<form id="second" class="wp-block-formblox-form" data-formblox-submission-method="email"><input name="value" value="second"></form>
+			<form id="other" class="wp-block-formblox-form" data-formblox-submission-method="custom" action="https://example.com/custom"></form>
 		`;
 		loadViewModule();
 
@@ -123,11 +128,11 @@ describe( 'Gutenberg form view module', () => {
 			new URLSearchParams( global.fetch.mock.calls[ 0 ][ 1 ].body ).get(
 				'formAction'
 			)
-		).toBe( 'mailto:first@example.com' );
+		).toBe( 'mailto:attacker-controlled@example.net' );
 		expect(
-			new URLSearchParams( global.fetch.mock.calls[ 1 ][ 1 ].body ).get(
+			new URLSearchParams( global.fetch.mock.calls[ 1 ][ 1 ].body ).has(
 				'formAction'
 			)
-		).toBe( 'mailto:second@example.com' );
+		).toBe( false );
 	} );
 } );

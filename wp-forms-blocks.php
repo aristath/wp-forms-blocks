@@ -17,18 +17,18 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WP_FORMS_BLOCKS_VERSION', '0.1.0' );
-define( 'WP_FORMS_BLOCKS_FILE', __FILE__ );
-define( 'WP_FORMS_BLOCKS_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WP_FORMS_BLOCKS_URL', plugin_dir_url( __FILE__ ) );
+define( 'FORMBLOX_VERSION', '0.1.0' );
+define( 'FORMBLOX_FILE', __FILE__ );
+define( 'FORMBLOX_DIR', plugin_dir_path( __FILE__ ) );
+define( 'FORMBLOX_URL', plugin_dir_url( __FILE__ ) );
 
-require_once WP_FORMS_BLOCKS_DIR . 'includes/assets.php';
-require_once WP_FORMS_BLOCKS_DIR . 'build/script-module-data.php';
-require_once WP_FORMS_BLOCKS_DIR . 'build/kses-allowed-html.php';
-require_once WP_FORMS_BLOCKS_DIR . 'build/form/index.php';
-require_once WP_FORMS_BLOCKS_DIR . 'build/form-input/index.php';
-require_once WP_FORMS_BLOCKS_DIR . 'build/form-submit-button/index.php';
-require_once WP_FORMS_BLOCKS_DIR . 'build/form-submission-notification/index.php';
+require_once FORMBLOX_DIR . 'includes/assets.php';
+require_once FORMBLOX_DIR . 'build/script-module-data.php';
+require_once FORMBLOX_DIR . 'build/kses-allowed-html.php';
+require_once FORMBLOX_DIR . 'build/form/index.php';
+require_once FORMBLOX_DIR . 'build/form-input/index.php';
+require_once FORMBLOX_DIR . 'build/form-submit-button/index.php';
+require_once FORMBLOX_DIR . 'build/form-submission-notification/index.php';
 
-add_action( 'init', 'wp_forms_blocks_register_assets', 5 );
-add_action( 'enqueue_block_editor_assets', 'wp_forms_blocks_enqueue_editor_assets' );
+add_action( 'init', 'formblox_register_assets', 5 );
+add_action( 'enqueue_block_editor_assets', 'formblox_enqueue_editor_assets' );

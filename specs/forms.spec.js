@@ -30,7 +30,7 @@ const inputBlocks = [
 	)
 	.join( '\n\n' );
 
-const formContent = `<!-- wp:formblox/form {"email":"recipient@example.com","action":"mailto:recipient@example.com"} -->
+const formContent = `<!-- wp:formblox/form -->
 <form class="wp-block-formblox-form" enctype="text/plain">
 ${ successNotification }
 
@@ -286,9 +286,10 @@ test.describe( 'WP Forms Blocks', () => {
 
 		await page.goto( post.link );
 		const form = page.locator( 'form.wp-block-formblox-form' );
+		await expect( form ).toHaveAttribute( 'action', '' );
 		await expect( form ).toHaveAttribute(
-			'action',
-			'mailto:recipient@example.com'
+			'data-formblox-submission-method',
+			'email'
 		);
 		for ( const type of [
 			'text',
@@ -316,6 +317,13 @@ test.describe( 'WP Forms Blocks', () => {
 			.locator( '[name="message"]' )
 			.fill( 'Hello from Playwright' );
 		await form.locator( '[name="consent"]' ).check();
+		await form.evaluate( ( element ) => {
+			const forgedRecipient = document.createElement( 'input' );
+			forgedRecipient.type = 'hidden';
+			forgedRecipient.name = 'formAction';
+			forgedRecipient.value = 'mailto:attacker-controlled@example.net';
+			element.appendChild( forgedRecipient );
+		} );
 		await form.getByRole( 'button', { name: 'Submit' } ).click();
 
 		await expect( page ).toHaveURL( /[?&]formblox-form-result=success/ );
@@ -325,7 +333,7 @@ test.describe( 'WP Forms Blocks', () => {
 		const mail = await requestUtils.rest( {
 			path: '/wp-forms-blocks-test/v1/mail',
 		} );
-		expect( mail.to ).toBe( 'recipient@example.com' );
+		expect( mail.to ).toBe( 'admin@example.com' );
 		expect( mail.subject ).toBe( 'Form submission' );
 		expect( mail.message ).toContain( 'full-name: Ada Lovelace</br>' );
 		expect( mail.message ).toContain(
@@ -374,8 +382,8 @@ test.describe( 'WP Forms Blocks', () => {
 	} ) => {
 		const customContent = formContent
 			.replace(
-				'{"email":"recipient@example.com","action":"mailto:recipient@example.com"}',
-				'{"submissionMethod":"custom","method":"post","action":"/custom-endpoint"}'
+				'<!-- wp:formblox/form -->',
+				'<!-- wp:formblox/form {"submissionMethod":"custom","method":"post","action":"/custom-endpoint"} -->'
 			)
 			.replace( 'enctype="text/plain"', '' );
 		const post = await requestUtils.createPost( {

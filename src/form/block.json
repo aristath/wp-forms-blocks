@@ -15,7 +15,7 @@
 	],
 	"description": "A form.",
 	"keywords": [ "container", "wrapper", "row", "section" ],
-	"textdomain": "default",
+	"textdomain": "wp-forms-blocks",
 	"attributes": {
 		"submissionMethod": {
 			"type": "string",
@@ -26,9 +26,6 @@
 			"default": "post"
 		},
 		"action": {
-			"type": "string"
-		},
-		"email": {
 			"type": "string"
 		}
 	},

@@ -7,8 +7,12 @@
 
 namespace WPFormsBlocks;
 
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Registers the `formblox/form-submit-button` block on server.
+ *
+ * @return void
  */
 function register_block_formblox_form_submit_button() {
 	register_block_type_from_metadata( __DIR__ );

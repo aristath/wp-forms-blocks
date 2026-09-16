@@ -9,6 +9,6 @@
 	"allowedBlocks": [ "core/buttons", "core/button" ],
 	"description": "A submission button for forms.",
 	"keywords": [ "submit", "button", "form" ],
-	"textdomain": "default",
+	"textdomain": "wp-forms-blocks",
 	"style": [ "wp-block-formblox-form-submit-button" ]
 }

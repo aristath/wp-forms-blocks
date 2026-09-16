@@ -1,0 +1,17 @@
+includes:
+  - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+  level: 6
+  parallel:
+    maximumNumberOfProcesses: 2
+  bootstrapFiles:
+    - tests/phpstan/bootstrap.php
+  paths:
+    - wp-forms-blocks.php
+    - includes
+    - src
+  excludePaths:
+    analyse:
+      - build
+  treatPhpDocTypesAsCertain: false

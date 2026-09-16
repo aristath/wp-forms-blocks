@@ -16,7 +16,7 @@ const TEMPLATE = [
 			[
 				'core/button',
 				{
-					text: __( 'Submit' ),
+					text: __( 'Submit', 'wp-forms-blocks' ),
 					tagName: 'button',
 					type: 'submit',
 				},

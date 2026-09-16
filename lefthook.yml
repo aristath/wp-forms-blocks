@@ -1,0 +1,12 @@
+assert_lefthook_installed: true
+
+output:
+    - meta
+    - execution
+    - success
+    - failure
+
+pre-commit:
+    commands:
+        code-quality-and-tests:
+            run: npm run gate:commit

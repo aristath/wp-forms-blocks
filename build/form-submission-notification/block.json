@@ -14,7 +14,7 @@
     "notification",
     "message"
   ],
-  "textdomain": "default",
+  "textdomain": "wp-forms-blocks",
   "icon": "feedback",
   "attributes": {
     "type": {

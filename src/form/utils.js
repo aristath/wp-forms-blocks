@@ -11,7 +11,10 @@ export const formSubmissionNotificationSuccess = [
 			{
 				content:
 					'<mark style="background-color:rgba(0, 0, 0, 0);color:#345C00" class="has-inline-color">' +
-					__( 'Your form has been submitted successfully' ) +
+					__(
+						'Your form has been submitted successfully',
+						'wp-forms-blocks'
+					) +
 					'</mark>',
 			},
 		],
@@ -28,7 +31,10 @@ export const formSubmissionNotificationError = [
 			{
 				content:
 					'<mark style="background-color:rgba(0, 0, 0, 0);color:#CF2E2E" class="has-inline-color">' +
-					__( 'There was an error submitting your form.' ) +
+					__(
+						'There was an error submitting your form.',
+						'wp-forms-blocks'
+					) +
 					'</mark>',
 			},
 		],
