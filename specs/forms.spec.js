@@ -338,8 +338,9 @@ test.describe( 'WP Forms Blocks', () => {
 		await form.locator( '[name="guests"]' ).fill( '2' );
 		await form
 			.locator( '[name="message"]' )
-			.fill( 'Hello from Playwright' );
+			.fill( 'Hello <b>from</b>\nPlaywright' );
 		await form.locator( '[name="consent"]' ).check();
+		const sourceUrl = page.url();
 		await form.evaluate( ( element ) => {
 			const forgedRecipient = document.createElement( 'input' );
 			forgedRecipient.type = 'hidden';
@@ -358,11 +359,24 @@ test.describe( 'WP Forms Blocks', () => {
 		} );
 		expect( mail.to ).toBe( 'admin@example.com' );
 		expect( mail.subject ).toBe( 'Form submission' );
-		expect( mail.message ).toContain( 'full-name: Ada Lovelace</br>' );
-		expect( mail.message ).toContain(
-			'message: Hello from Playwright</br>'
+		expect( mail.headers ).toEqual( [
+			'Content-Type: text/plain; charset=UTF-8',
+		] );
+		expect( mail.message ).toBe(
+			`Form submission from WP Forms Blocks E2E
+Source: ${ sourceUrl }
+
+full-name: Ada Lovelace
+email: ada@example.com
+website: https://example.com
+phone: +30 210 000 0000
+guests: 2
+message: Hello from
+Playwright
+consent: on
+source: e2e
+`
 		);
-		expect( mail.message ).toContain( 'source: e2e</br>' );
 	} );
 
 	test( 'shows the error notification when the AJAX endpoint fails', async ( {

@@ -8,15 +8,15 @@ Upstream comparison baseline: Gutenberg `v23.9.1` (`c29617a19a0197efdf3f53a82083
 
 The standalone port is substantially faithful to the final Gutenberg experiment, but it is not ready to be treated as a production forms product without further changes.
 
-The audit found 14 issues. Subsequent verification narrowed finding 10 to three low-severity inconsistencies, and administrator-recipient, response-contract, privacy-request, field-behavior, asset, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, 10, 11, and 14, leaving 6 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
+The audit found 14 issues. Subsequent verification narrowed finding 10 to three low-severity inconsistencies, and administrator-recipient, response-contract, privacy-request, field-behavior, asset, email-format, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, 10, 11, 12, and 14, leaving 5 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
 
 | Severity | Original | Resolved | Open |
 | --- | ---: | ---: | ---: |
 | Critical | 1 | 1 | 0 |
 | High | 8 | 4 | 4 |
-| Medium | 3 | 1 | 2 |
+| Medium | 3 | 2 | 1 |
 | Low | 2 | 2 | 0 |
-| Total | 14 | 8 | 6 |
+| Total | 14 | 9 | 5 |
 
 Most runtime defects are inherited from the rejected Gutenberg experiment. That provenance explains why they exist, but it does not make them appropriate for a standalone product. The plugin-boundary work should remain as small and auditable as possible while correcting security, correctness, localization, testing, and release-readiness problems.
 
@@ -305,7 +305,7 @@ Resolution:
 
 Provenance: the class/spread problem was inherited; the duplicate shared handles came from the standalone asset adapter. Both are now corrected without changing serialized block markup.
 
-### 12. Medium: email content mixes HTML markup with the default plain-text mail format
+### 12. Medium, resolved: email content mixed HTML markup with the default plain-text mail format
 
 Evidence:
 
@@ -319,7 +319,13 @@ Required change:
 - If HTML email is a product requirement, use valid `<br>` markup, set the content type explicitly and locally, and tightly constrain user-controlled markup.
 - Add exact tests for the chosen content type, line endings, escaping, and multi-line fields.
 
-Provenance: inherited from Gutenberg.
+Resolution:
+
+- Contact-form notifications now contain plain text only: the site name and source URL are separate lines, fields use newline separators, submitted markup is stripped with WordPress's textarea sanitizer, and multiline values remain multiline.
+- `wp_mail()` receives an explicit `Content-Type: text/plain` header using the site's configured character set.
+- PHPUnit checks the exact body and headers on the failure path. Isolated WordPress and Playwright coverage check the complete delivered body, HTML stripping, multiline preservation, source URL, subject, recipient, and content-type header.
+
+Provenance: the HTML/plain-text mismatch and malformed `</br>` separators were inherited from Gutenberg. The standalone product now deliberately uses a fully plain-text message while retaining the existing email-content filter.
 
 ### 13. Medium: submission feedback lacks essential accessibility and interaction states
 

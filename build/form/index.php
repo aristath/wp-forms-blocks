@@ -126,17 +126,25 @@ function block_formblox_form_send_email() {
 	$params = wp_unslash( $_POST );
 	// Start building the email content.
 	$content = sprintf(
-		/* translators: %s: The request URI. */
-		__( 'Form submission from %1$s', 'wp-forms-blocks' ) . '</br>',
-		'<a href="' . esc_url( get_site_url( null, $params['_wp_http_referer'] ) ) . '">' . get_bloginfo( 'name' ) . '</a>'
-	);
+		/* translators: %s: The site name. */
+		__( 'Form submission from %1$s', 'wp-forms-blocks' ),
+		sanitize_text_field( get_bloginfo( 'name' ) )
+	) . "\n";
+	$content .= sprintf(
+		/* translators: %s: The page URL containing the form. */
+		__( 'Source: %1$s', 'wp-forms-blocks' ),
+		esc_url_raw( $params['_wp_http_referer'] )
+	) . "\n\n";
 
 	$skip_fields = array( 'formAction', '_ajax_nonce', 'action', '_wp_http_referer' );
 	foreach ( $params as $key => $value ) {
 		if ( in_array( $key, $skip_fields, true ) ) {
 			continue;
 		}
-		$content .= sanitize_key( $key ) . ': ' . wp_kses_post( $value ) . '</br>';
+		if ( ! is_scalar( $value ) ) {
+			continue;
+		}
+		$content .= sanitize_key( $key ) . ': ' . sanitize_textarea_field( (string) $value ) . "\n";
 	}
 
 	// Filter the email content.
@@ -153,7 +161,8 @@ function block_formblox_form_send_email() {
 	$result = wp_mail(
 		$recipient,
 		__( 'Form submission', 'wp-forms-blocks' ),
-		$content
+		$content,
+		array( 'Content-Type: text/plain; charset=' . get_bloginfo( 'charset' ) )
 	);
 
 	if ( ! $result ) {

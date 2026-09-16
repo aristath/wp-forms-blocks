@@ -108,29 +108,39 @@ final class CallbacksTest extends TestCase {
 	 * Mail transport failures return an HTTP 500 JSON error.
 	 */
 	public function test_mail_failure_returns_http_500_json_error(): void {
-		$_POST = array(
+		$_POST            = array(
 			'_wp_http_referer' => '/contact/',
 			'message'          => 'Expected failure',
+			'unsupported'      => array( 'ignored' ),
 		);
+		$expected_content = "Form submission from Example\nSource: /contact/\n\nmessage: Expected failure\n";
 
 		Functions\expect( 'check_ajax_referer' )->once()->with( 'formblox-form' );
 		Functions\when( 'wp_unslash' )->returnArg();
 		Functions\when( '__' )->returnArg();
-		Functions\when( 'get_site_url' )->justReturn( 'https://example.com/contact/' );
-		Functions\when( 'esc_url' )->returnArg();
-		Functions\when( 'get_bloginfo' )->justReturn( 'Example' );
-		Functions\when( 'sanitize_key' )->returnArg();
-		Functions\when( 'wp_kses_post' )->returnArg();
-		Functions\when( 'apply_filters' )->alias(
-			static function ( $hook, $value ) {
-				return $value;
+		Functions\when( 'esc_url_raw' )->returnArg();
+		Functions\when( 'get_bloginfo' )->alias(
+			static function ( $show ) {
+				return 'charset' === $show ? 'UTF-8' : 'Example';
 			}
 		);
+		Functions\when( 'sanitize_text_field' )->returnArg();
+		Functions\when( 'sanitize_key' )->returnArg();
+		Functions\when( 'sanitize_textarea_field' )->returnArg();
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'render_block_formblox_form_email_content', $expected_content, $_POST )
+			->andReturn( $expected_content );
 		Functions\when( 'get_option' )->justReturn( 'admin@example.com' );
 		Functions\when( 'is_email' )->justReturn( true );
 		Functions\expect( 'wp_mail' )
 			->once()
-			->with( 'admin@example.com', 'Form submission', \Mockery::type( 'string' ) )
+			->with(
+				'admin@example.com',
+				'Form submission',
+				$expected_content,
+				array( 'Content-Type: text/plain; charset=UTF-8' )
+			)
 			->andReturn( false );
 		Functions\expect( 'wp_send_json_error' )
 			->once()
