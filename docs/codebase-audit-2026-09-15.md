@@ -8,15 +8,15 @@ Upstream comparison baseline: Gutenberg `v23.9.1` (`c29617a19a0197efdf3f53a82083
 
 The standalone port is substantially faithful to the final Gutenberg experiment, but it is not ready to be treated as a production forms product without further changes.
 
-The audit found 14 confirmed issues. Subsequent administrator-recipient, response-contract, localization, and documentation changes resolve findings 1, 2, 7, 8, and 14, leaving 9 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
+The audit found 14 confirmed issues. Subsequent administrator-recipient, response-contract, privacy-request, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, and 14, leaving 8 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
 
 | Severity | Original | Resolved | Open |
 | --- | ---: | ---: | ---: |
 | Critical | 1 | 1 | 0 |
-| High | 8 | 3 | 5 |
+| High | 8 | 4 | 4 |
 | Medium | 4 | 0 | 4 |
 | Low | 1 | 1 | 0 |
-| Total | 14 | 5 | 9 |
+| Total | 14 | 6 | 8 |
 
 Most runtime defects are inherited from the rejected Gutenberg experiment. That provenance explains why they exist, but it does not make them appropriate for a standalone product. The plugin-boundary work should remain as small and auditable as possible while correcting security, correctness, localization, testing, and release-readiness problems.
 
@@ -39,7 +39,7 @@ Post-audit quality remediation was then verified with the complete repository ch
 - `npm run lint` passed Prettier, ESLint, Stylelint, Markdownlint, package metadata, POT freshness, PHP syntax, PHPCS/WPCS/PHPCompatibilityWP, and PHPStan level 6.
 - `npm run lint:plugin` produced no findings while checking the extracted production archive with all experimental checks enabled. The established product-name-only `trademarked_term` code is explicitly ignored.
 - JavaScript unit coverage passed 45 tests across 7 suites with 100% statements, functions, and lines and 98.8% branches.
-- PHPUnit passed 10 tests with 24 assertions; the isolated WordPress integration suite passed; and all 7 Playwright workflows passed on both the declared minimum WordPress 7.0 and current WordPress 7.1.
+- PHPUnit passed 13 tests with 29 assertions; the isolated WordPress integration suite passed; and all 8 Playwright workflows passed on the current WordPress release. The changed workflows were also verified against the declared minimum WordPress 7.0.
 - Frozen pnpm installation, strict Composer manifest validation, production build, archive generation, and archive-content inspection all passed.
 
 Passing tests do not invalidate the remaining findings below. Several tests deliberately preserve the upstream experiment's behavior.
@@ -142,7 +142,7 @@ Required change:
 
 Provenance: inherited from Gutenberg. Removing the Gutenberg experiment guard made this filter always active whenever the standalone plugin is active.
 
-### 5. High: privacy-request email failures are ignored and reported as success
+### 5. High, resolved: privacy-request email failures were ignored and reported as success
 
 Evidence:
 
@@ -160,7 +160,15 @@ Required change:
 - Bind privacy submissions to a specific rendered form and validate a purpose-specific token.
 - Test mail failure, duplicate requests, partial success when two actions are requested, malformed email values, and retry behavior.
 
-Provenance: inherited from Gutenberg.
+Resolution:
+
+- Each rendered privacy form receives a unique UUID and a nonce scoped to that form instance and the privacy-request purpose. The handler ignores generic, missing, malformed, or incorrectly tokened POST data.
+- The handler now treats an action as performed only when `wp_send_user_request()` returns `true`.
+- When confirmation mail fails, the created request is changed to `request-failed` and its unusable confirmation key is cleared. This preserves an audit trail without blocking a fresh request; if the failed state cannot be persisted, the unusable request is deleted instead.
+- A mixed two-action result shows the error notification while retaining the successful action as pending and the failed action as failed.
+- PHPUnit, isolated WordPress integration, and Playwright tests cover token enforcement, distinct form identities, complete success, complete failure, duplicate pending requests, malformed email, partial failure, cleanup fallback, and a successful retry after mail failure.
+
+Provenance: inherited from Gutenberg, then deliberately corrected for standalone-product correctness and request binding.
 
 ### 6. High: submission notifications are forgeable and not associated with a form instance
 
@@ -235,7 +243,7 @@ Evidence:
 - JavaScript has enforced coverage thresholds, and a PHPUnit suite now covers isolated PHP callbacks and hook registration. PHP line coverage is not yet collected.
 - The WordPress integration suite still uses WP-CLI evaluation scripts and does not yet convert every warning or notice into a hard test failure.
 - The browser and WordPress integration suites now exercise the real PHP mail-failure contract.
-- There are no tests for malformed/nested input, resource limits, KSES contexts, privacy mail failure, multiple-form correlation, notification forgery, accessibility announcements, repeated field names, or archive activation.
+- There are no tests for malformed/nested email-form input, resource limits, KSES contexts, multiple-form notification correlation, notification forgery, accessibility announcements, repeated field names, or archive activation.
 - PHPCS with WPCS and PHPCompatibilityWP, PHPStan level 6, official Plugin Check, Prettier, ESLint, Stylelint, Markdownlint, translation validation, and Lefthook are now configured and passing. Lefthook gates every commit on all checks, a reproducible build, and every test suite.
 - GitHub Actions now runs JavaScript coverage, PHP 7.4/8.5 lint/static-analysis/unit matrices, isolated WordPress 7.0/current integration and Playwright suites, build reproducibility, and Plugin Check against the release archive.
 
@@ -363,7 +371,7 @@ Provenance: standalone documentation drift.
 
 1. Add strict request validation, limits, throttling, and spam controls.
 2. Correct the KSES filter and add context-specific tests.
-3. Correct and bind privacy/result workflows to individual forms.
+3. Correct and bind result notifications to individual forms.
 4. Complete or remove unsupported field behavior.
 5. Correct styles, email formatting, and accessibility.
 

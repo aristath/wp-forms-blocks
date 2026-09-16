@@ -11,6 +11,8 @@ use Brain\Monkey;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 use function WPFormsBlocks\block_formblox_form_extra_fields_comment_form;
+use function WPFormsBlocks\block_formblox_form_mark_privacy_request_failed;
+use function WPFormsBlocks\block_formblox_form_privacy_form;
 use function WPFormsBlocks\block_formblox_form_send_email;
 use function WPFormsBlocks\formblox_form_view_script_module;
 use function WPFormsBlocks\gutenberg_kses_allowed_html;
@@ -138,6 +140,95 @@ final class CallbacksTest extends TestCase {
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'JSON error response sent.' );
 		block_formblox_form_send_email();
+	}
+
+	/**
+	 * Privacy submissions without their rendered form token are ignored.
+	 */
+	public function test_privacy_submission_requires_rendered_form_token(): void {
+		$_POST        = array(
+			'wp-action'            => 'wp_privacy_send_request',
+			'wp-privacy-request'   => '1',
+			'email'                => 'privacy@example.com',
+			'export_personal_data' => '1',
+		);
+		$filter_count = count( $GLOBALS['wp_forms_blocks_test_filters'] );
+
+		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\expect( 'wp_create_user_request' )->never();
+
+		block_formblox_form_privacy_form();
+
+		$this->assertCount( $filter_count, $GLOBALS['wp_forms_blocks_test_filters'] );
+	}
+
+	/**
+	 * Privacy mail failures become failed requests and error notifications.
+	 */
+	public function test_privacy_mail_failure_is_recorded_as_an_error(): void {
+		$_POST        = array(
+			'wp-action'                => 'wp_privacy_send_request',
+			'wp-privacy-request'       => '1',
+			'email'                    => 'privacy@example.com',
+			'export_personal_data'     => '1',
+			'formblox-privacy-form-id' => 'formblox-privacy-00000000-0000-4000-8000-000000000001',
+			'formblox-privacy-nonce'   => 'valid-nonce',
+		);
+		$filter_count = count( $GLOBALS['wp_forms_blocks_test_filters'] );
+
+		Functions\when( 'wp_unslash' )->returnArg();
+		Functions\expect( 'wp_verify_nonce' )
+			->once()
+			->with( 'valid-nonce', 'formblox-privacy-request:formblox-privacy-00000000-0000-4000-8000-000000000001' )
+			->andReturn( 1 );
+		Functions\when( '_wp_privacy_action_request_types' )->justReturn( array( 'export_personal_data' ) );
+		Functions\expect( 'wp_create_user_request' )
+			->once()
+			->with( 'privacy@example.com', 'export_personal_data' )
+			->andReturn( 55 );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\expect( 'wp_send_user_request' )->once()->with( 55 )->andReturn( false );
+		Functions\expect( 'wp_update_post' )
+			->once()
+			->with(
+				array(
+					'ID'            => 55,
+					'post_status'   => 'request-failed',
+					'post_password' => '',
+				),
+				true
+			)
+			->andReturn( 55 );
+		Functions\expect( 'wp_delete_post' )->never();
+
+		block_formblox_form_privacy_form();
+
+		$this->assertCount( $filter_count + 1, $GLOBALS['wp_forms_blocks_test_filters'] );
+		$notification_filter = $GLOBALS['wp_forms_blocks_test_filters'][ $filter_count ]['callback'];
+		$this->assertFalse( $notification_filter( false, array( 'type' => 'success' ) ) );
+		$this->assertTrue( $notification_filter( false, array( 'type' => 'error' ) ) );
+	}
+
+	/**
+	 * A request is deleted when its failed state cannot be persisted.
+	 */
+	public function test_unpersistable_privacy_failure_is_deleted(): void {
+		Functions\expect( 'wp_update_post' )
+			->once()
+			->with(
+				array(
+					'ID'            => 55,
+					'post_status'   => 'request-failed',
+					'post_password' => '',
+				),
+				true
+			)
+			->andReturn( 0 );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\expect( 'wp_delete_post' )->once()->with( 55, true );
+
+		block_formblox_form_mark_privacy_request_failed( 55 );
+		$this->addToAssertionCount( 1 );
 	}
 
 	/**

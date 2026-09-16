@@ -510,6 +510,71 @@ test.describe( 'WP Forms Blocks', () => {
 		);
 	} );
 
+	test( 'reports a privacy email failure and allows a successful retry', async ( {
+		page,
+		requestUtils,
+	} ) => {
+		await requestUtils.rest( {
+			path: '/wp-forms-blocks-test/v1/mail-mode',
+			method: 'POST',
+			data: { mode: 'failure' },
+		} );
+		const post = await requestUtils.createPost( {
+			title: 'Privacy form mail failure',
+			content: privacyContent,
+			status: 'publish',
+		} );
+		const email = 'privacy-failure-e2e@example.com';
+
+		await page.goto( post.link );
+		let form = page.locator( '#gdpr-form' );
+		await form.locator( '[name="email"]' ).fill( email );
+		await form.locator( '[name="export_personal_data"]' ).check();
+		await form
+			.getByRole( 'button', { name: 'Submit privacy request' } )
+			.click();
+
+		await expect( page.getByText( 'Submission failed' ) ).toBeVisible();
+		await expect( page.getByText( 'Submission succeeded' ) ).toHaveCount(
+			0
+		);
+		let requests = await requestUtils.rest( {
+			path: '/wp-forms-blocks-test/v1/privacy-requests',
+		} );
+		expect(
+			requests.filter( ( request ) => request.email === email )
+		).toEqual( [
+			expect.objectContaining( {
+				action: 'export_personal_data',
+				status: 'request-failed',
+			} ),
+		] );
+
+		await requestUtils.rest( {
+			path: '/wp-forms-blocks-test/v1/mail-mode',
+			method: 'POST',
+			data: { mode: 'success' },
+		} );
+		form = page.locator( '#gdpr-form' );
+		await form.locator( '[name="email"]' ).fill( email );
+		await form.locator( '[name="export_personal_data"]' ).check();
+		await form
+			.getByRole( 'button', { name: 'Submit privacy request' } )
+			.click();
+
+		await expect( page.getByText( 'Submission succeeded' ) ).toBeVisible();
+		await expect( page.getByText( 'Submission failed' ) ).toHaveCount( 0 );
+		requests = await requestUtils.rest( {
+			path: '/wp-forms-blocks-test/v1/privacy-requests',
+		} );
+		expect(
+			requests
+				.filter( ( request ) => request.email === email )
+				.map( ( request ) => request.status )
+				.sort()
+		).toEqual( [ 'request-failed', 'request-pending' ] );
+	} );
+
 	test( 'submits the comment-form workflow with its injected post ID', async ( {
 		page,
 		requestUtils,

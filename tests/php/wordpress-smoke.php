@@ -129,6 +129,10 @@ wp_forms_blocks_integration_assert(
 	'Plugin-specific hidden fields were injected into the Gutenberg markup.'
 );
 wp_forms_blocks_integration_assert(
+	false === strpos( $email_form, 'formblox-privacy-nonce' ),
+	'Privacy request fields were injected into a non-privacy form.'
+);
+wp_forms_blocks_integration_assert(
 	in_array( '@formblox/form/view', wp_script_modules()->get_queue(), true ),
 	'Form rendering did not enqueue the original Gutenberg view-module ID.'
 );
@@ -216,6 +220,53 @@ remove_filter( 'render_block_formblox_form_extra_fields', $extra_field_callback,
 wp_forms_blocks_integration_assert(
 	false !== strpos( $filtered_form, 'name="filtered" value="yes"' ),
 	'Form extra-field extension point changed.'
+);
+
+$privacy_markup    = '<form class="wp-block-formblox-form"><input type="hidden" name="wp-action" value="wp_privacy_send_request"><input type="hidden" name="wp-privacy-request" value="1"></form>';
+$privacy_form      = \WPFormsBlocks\render_block_formblox_form(
+	array(
+		'submissionMethod' => 'custom',
+		'action'           => '',
+		'method'           => 'post',
+	),
+	$privacy_markup
+);
+$privacy_fields    = array();
+$privacy_processor = new WP_HTML_Tag_Processor( $privacy_form );
+while ( $privacy_processor->next_tag( array( 'tag_name' => 'input' ) ) ) {
+	$field_name = $privacy_processor->get_attribute( 'name' );
+	if ( is_string( $field_name ) ) {
+		$privacy_fields[ $field_name ] = $privacy_processor->get_attribute( 'value' );
+	}
+}
+wp_forms_blocks_integration_assert(
+	isset( $privacy_fields['formblox-privacy-form-id'], $privacy_fields['formblox-privacy-nonce'] ),
+	'Privacy form did not receive its instance ID and purpose-specific nonce.'
+);
+wp_forms_blocks_integration_assert(
+	(bool) preg_match( '/^formblox-privacy-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $privacy_fields['formblox-privacy-form-id'] ),
+	'Privacy form received a malformed instance ID.'
+);
+wp_forms_blocks_integration_assert(
+	(bool) wp_verify_nonce(
+		$privacy_fields['formblox-privacy-nonce'],
+		'formblox-privacy-request:' . $privacy_fields['formblox-privacy-form-id']
+	),
+	'Privacy form nonce is not bound to its rendered instance.'
+);
+
+$second_privacy_form      = \WPFormsBlocks\render_block_formblox_form( array( 'submissionMethod' => 'custom' ), $privacy_markup );
+$second_privacy_processor = new WP_HTML_Tag_Processor( $second_privacy_form );
+$second_privacy_form_id   = null;
+while ( $second_privacy_processor->next_tag( array( 'tag_name' => 'input' ) ) ) {
+	if ( 'formblox-privacy-form-id' === $second_privacy_processor->get_attribute( 'name' ) ) {
+		$second_privacy_form_id = $second_privacy_processor->get_attribute( 'value' );
+		break;
+	}
+}
+wp_forms_blocks_integration_assert(
+	is_string( $second_privacy_form_id ) && $privacy_fields['formblox-privacy-form-id'] !== $second_privacy_form_id,
+	'Each rendered privacy form must receive a distinct instance ID.'
 );
 
 wp_forms_blocks_integration_assert(

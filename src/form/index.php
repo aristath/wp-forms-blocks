@@ -42,12 +42,56 @@ function render_block_formblox_form( $attributes, $content ) {
 	$processed_content->set_attribute( 'method', $method );
 
 	$extra_fields = apply_filters( 'render_block_formblox_form_extra_fields', '', $attributes );
+	if ( block_formblox_form_is_privacy_form( $content ) ) {
+		$form_id       = 'formblox-privacy-' . wp_generate_uuid4();
+		$extra_fields .= sprintf(
+			'<input type="hidden" name="formblox-privacy-form-id" value="%1$s"><input type="hidden" name="formblox-privacy-nonce" value="%2$s">',
+			esc_attr( $form_id ),
+			esc_attr( wp_create_nonce( 'formblox-privacy-request:' . $form_id ) )
+		);
+	}
 
 	return str_replace(
 		'</form>',
 		$extra_fields . '</form>',
 		$processed_content->get_updated_html()
 	);
+}
+
+/**
+ * Determines whether rendered form markup is a privacy-request form.
+ *
+ * @param string $content The saved form markup.
+ *
+ * @return bool Whether both privacy-request marker fields are present.
+ */
+function block_formblox_form_is_privacy_form( $content ) {
+	$processor       = new \WP_HTML_Tag_Processor( $content );
+	$has_action      = false;
+	$has_request     = false;
+	$expected_fields = array(
+		'wp-action'          => 'wp_privacy_send_request',
+		'wp-privacy-request' => '1',
+	);
+
+	while ( $processor->next_tag( array( 'tag_name' => 'input' ) ) ) {
+		$name = $processor->get_attribute( 'name' );
+		if ( ! is_string( $name ) || ! isset( $expected_fields[ $name ] ) ) {
+			continue;
+		}
+
+		if ( $expected_fields[ $name ] !== $processor->get_attribute( 'value' ) ) {
+			continue;
+		}
+
+		if ( 'wp-action' === $name ) {
+			$has_action = true;
+		} else {
+			$has_request = true;
+		}
+	}
+
+	return $has_action && $has_request;
 }
 
 /**
@@ -121,21 +165,48 @@ add_action( 'wp_ajax_formblox_form_email_submit', __NAMESPACE__ . '\\block_formb
 add_action( 'wp_ajax_nopriv_formblox_form_email_submit', __NAMESPACE__ . '\\block_formblox_form_send_email' );
 
 /**
+ * Marks a privacy request as failed without leaving it able to block retries.
+ *
+ * @param int $request_id The privacy request post ID.
+ *
+ * @return void
+ */
+function block_formblox_form_mark_privacy_request_failed( $request_id ) {
+	$failed = wp_update_post(
+		array(
+			'ID'            => $request_id,
+			'post_status'   => 'request-failed',
+			'post_password' => '',
+		),
+		true
+	);
+	if ( is_wp_error( $failed ) || ! $failed ) {
+		wp_delete_post( $request_id, true );
+	}
+}
+
+/**
  * Send the data export/remove request if the form is a privacy-request form.
  *
  * @return void
  */
 function block_formblox_form_privacy_form() {
 	// Get the POST data.
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public privacy requests are confirmed by email through the WordPress privacy-request API.
-	$params = wp_unslash( $_POST );
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The submitted nonce is extracted and verified below before any request is processed.
+	$params  = wp_unslash( $_POST );
+	$form_id = $params['formblox-privacy-form-id'] ?? null;
+	$nonce   = $params['formblox-privacy-nonce'] ?? null;
 
-	// Bail early if not a form submission, or if the nonce is not valid.
+	// Bail early if the submission is not tied to a rendered privacy form.
 	if ( empty( $params['wp-action'] )
 		|| 'wp_privacy_send_request' !== $params['wp-action']
 		|| empty( $params['wp-privacy-request'] )
 		|| '1' !== $params['wp-privacy-request']
 		|| empty( $params['email'] )
+		|| ! is_string( $form_id )
+		|| 1 !== preg_match( '/^formblox-privacy-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $form_id )
+		|| ! is_string( $nonce )
+		|| ! wp_verify_nonce( $nonce, 'formblox-privacy-request:' . $form_id )
 	) {
 		return;
 	}
@@ -162,13 +233,23 @@ function block_formblox_form_privacy_form() {
 		$request_id = wp_create_user_request( $params['email'], $action_name );
 
 		// Bail early if the request ID is invalid.
-		if ( is_wp_error( $request_id ) ) {
+		if ( is_wp_error( $request_id ) || ! $request_id ) {
 			$actions_errored[] = $action_name;
 			continue;
 		}
 
 		// Send the request email.
-		wp_send_user_request( $request_id );
+		$email_sent = wp_send_user_request( $request_id );
+		if ( true !== $email_sent ) {
+			// A pending request blocks retries. Keep an auditable failed request,
+			// but clear its unusable confirmation key so a retry can create a
+			// fresh request. Fall back to deletion if the state cannot be saved.
+			block_formblox_form_mark_privacy_request_failed( $request_id );
+
+			$actions_errored[] = $action_name;
+			continue;
+		}
+
 		$actions_performed[] = $action_name;
 	}
 
