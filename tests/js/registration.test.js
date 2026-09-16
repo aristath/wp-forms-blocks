@@ -141,6 +141,9 @@ describe( 'standalone block registration contracts', () => {
 			{ type: 'number' },
 			{ type: 'hidden' },
 		] );
+		expect(
+			inputVariations.map( ( variation ) => variation.isDefault )
+		).toEqual( [ true, false, false, false, false, false, false, false ] );
 		inputVariations.forEach( ( variation ) => {
 			expect( variation.scope ).toEqual( [ 'inserter', 'transform' ] );
 			expect( variation.isActive( variation.attributes ) ).toBe( true );
@@ -225,7 +228,7 @@ describe( 'standalone block registration contracts', () => {
 		expect( success.isActive() ).toBe( true );
 		expect( success.isActive( { type: 'success' } ) ).toBe( true );
 		expect( success.isActive( { type: 'error' } ) ).toBe( false );
-		expect( error.isActive() ).toBe( true );
+		expect( error.isActive() ).toBe( false );
 		expect( error.isActive( { type: 'error' } ) ).toBe( true );
 		expect( error.isActive( { type: 'success' } ) ).toBe( false );
 	} );

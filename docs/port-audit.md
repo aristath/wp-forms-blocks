@@ -39,6 +39,7 @@ The maintained differences from Gutenberg are limited to:
 19. Repository-only quality infrastructure adds Gutenberg-aligned Prettier, ESLint, Stylelint, Markdownlint, PHPCS/WPCS, PHPCompatibilityWP, PHPStan, PHPUnit, Plugin Check, a complete Lefthook commit gate, dependency updates, and CI. It is excluded from the production archive and does not alter runtime behavior.
 20. Email submission failures return HTTP 500, and the browser requires both an HTTP success response and a JSON `success: true` result before showing the success notification. This corrects the upstream experiment's false-success response handling.
 21. Rendered privacy forms receive a unique instance UUID and purpose-specific nonce. Privacy confirmation-mail failures are reported as errors and moved to an auditable `request-failed` state with the unusable confirmation key cleared, allowing a later retry to create a fresh request.
+22. Text Input is the sole default input variation, checkbox/radio editor previews do not mutate text-placeholder state, and the error-notification variation requires an explicit error type. These narrowly correct inherited editor and variation inconsistencies without adding grouped-field features.
 
 The saved block markup, input and notification variation labels, KSES allowlist, and view-module data shape otherwise remain unchanged.
 

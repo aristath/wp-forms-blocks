@@ -265,6 +265,14 @@ describe( 'block editor components', () => {
 			);
 			expect( field.style.color ).toBe( 'red' );
 			expect( field.style.borderRadius ).toBe( '2px' );
+			if ( 'checkbox' === type || 'radio' === type ) {
+				expect( field.hasAttribute( 'placeholder' ) ).toBe( false );
+				expect( field.value ).toBe( 'on' );
+				expect( field.tabIndex ).toBe( -1 );
+				expect( field.getAttribute( 'aria-hidden' ) ).toBe( 'true' );
+				act( () => field.click() );
+				expect( field.checked ).toBe( false );
+			}
 			expect( getControl( 'textControls', 'Name' ).value ).toBe(
 				'field'
 			);
@@ -325,6 +333,12 @@ describe( 'block editor components', () => {
 				expect( setAttributes ).toHaveBeenCalledWith( {
 					placeholder: 'Changed placeholder',
 				} );
+			} else {
+				expect(
+					setAttributes.mock.calls.some( ( [ attributes ] ) =>
+						Object.hasOwn( attributes, 'placeholder' )
+					)
+				).toBe( false );
 			}
 		}
 	);

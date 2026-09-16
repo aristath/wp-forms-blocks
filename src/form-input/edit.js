@@ -158,6 +158,27 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 			</div>
 		);
 	}
+	const editorInputProps = isCheckboxOrRadio
+		? {
+				'aria-hidden': true,
+				tabIndex: -1,
+				onClick: ( event ) => event.preventDefault(),
+		  }
+		: {
+				'aria-label': __(
+					'Optional placeholder text',
+					'wp-forms-blocks'
+				),
+				// We hide the placeholder field's placeholder when there is a value. This
+				// stops screen readers from reading the placeholder field's placeholder
+				// which is confusing.
+				placeholder: placeholder
+					? undefined
+					: __( 'Optional placeholder…', 'wp-forms-blocks' ),
+				value: placeholder,
+				onChange: ( event ) =>
+					setAttributes( { placeholder: event.target.value } ),
+		  };
 
 	return (
 		<div { ...blockProps }>
@@ -176,22 +197,7 @@ function InputFieldBlock( { attributes, setAttributes, className } ) {
 						colorProps.className,
 						borderProps.className
 					) }
-					aria-label={ __(
-						'Optional placeholder text',
-						'wp-forms-blocks'
-					) }
-					// We hide the placeholder field's placeholder when there is a value. This
-					// stops screen readers from reading the placeholder field's placeholder
-					// which is confusing.
-					placeholder={
-						placeholder
-							? undefined
-							: __( 'Optional placeholder…', 'wp-forms-blocks' )
-					}
-					value={ placeholder }
-					onChange={ ( event ) =>
-						setAttributes( { placeholder: event.target.value } )
-					}
+					{ ...editorInputProps }
 					aria-required={ required }
 					style={ {
 						...borderProps.style,

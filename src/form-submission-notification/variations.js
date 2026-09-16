@@ -60,8 +60,7 @@ const variations = [
 			],
 		],
 		scope: [ 'inserter', 'transform' ],
-		isActive: ( blockAttributes ) =>
-			! blockAttributes?.type || blockAttributes?.type === 'error',
+		isActive: ( blockAttributes ) => blockAttributes?.type === 'error',
 	},
 ];
 

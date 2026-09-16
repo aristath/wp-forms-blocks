@@ -8,15 +8,15 @@ Upstream comparison baseline: Gutenberg `v23.9.1` (`c29617a19a0197efdf3f53a82083
 
 The standalone port is substantially faithful to the final Gutenberg experiment, but it is not ready to be treated as a production forms product without further changes.
 
-The audit found 14 confirmed issues. Subsequent administrator-recipient, response-contract, privacy-request, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, and 14, leaving 8 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
+The audit found 14 issues. Subsequent verification narrowed finding 10 to three low-severity inconsistencies, and administrator-recipient, response-contract, privacy-request, field-behavior, localization, and documentation changes resolve findings 1, 2, 5, 7, 8, 10, and 14, leaving 7 open findings. The quality-tooling portion of finding 9 is also resolved, but that finding remains open until its enumerated behavioral coverage gaps are closed:
 
 | Severity | Original | Resolved | Open |
 | --- | ---: | ---: | ---: |
 | Critical | 1 | 1 | 0 |
 | High | 8 | 4 | 4 |
-| Medium | 4 | 0 | 4 |
-| Low | 1 | 1 | 0 |
-| Total | 14 | 6 | 8 |
+| Medium | 3 | 0 | 3 |
+| Low | 2 | 2 | 0 |
+| Total | 14 | 7 | 7 |
 
 Most runtime defects are inherited from the rejected Gutenberg experiment. That provenance explains why they exist, but it does not make them appropriate for a standalone product. The plugin-boundary work should remain as small and auditable as possible while correcting security, correctness, localization, testing, and release-readiness problems.
 
@@ -243,7 +243,7 @@ Evidence:
 - JavaScript has enforced coverage thresholds, and a PHPUnit suite now covers isolated PHP callbacks and hook registration. PHP line coverage is not yet collected.
 - The WordPress integration suite still uses WP-CLI evaluation scripts and does not yet convert every warning or notice into a hard test failure.
 - The browser and WordPress integration suites now exercise the real PHP mail-failure contract.
-- There are no tests for malformed/nested email-form input, resource limits, KSES contexts, multiple-form notification correlation, notification forgery, accessibility announcements, repeated field names, or archive activation.
+- There are no tests for malformed/nested email-form input, resource limits, KSES contexts, multiple-form notification correlation, notification forgery, accessibility announcements, or archive activation.
 - PHPCS with WPCS and PHPCompatibilityWP, PHPStan level 6, official Plugin Check, Prettier, ESLint, Stylelint, Markdownlint, translation validation, and Lefthook are now configured and passing. Lefthook gates every commit on all checks, a reproducible build, and every test suite.
 - GitHub Actions now runs JavaScript coverage, PHP 7.4/8.5 lint/static-analysis/unit matrices, isolated WordPress 7.0/current integration and Playwright suites, build reproducibility, and Plugin Check against the release archive.
 
@@ -255,26 +255,29 @@ Required change:
 
 Provenance: standalone productization gap.
 
-### 10. Medium: field behavior is incomplete or internally inconsistent
+### 10. Low, resolved: field defaults and editor behavior were internally inconsistent
 
-Evidence:
+Original evidence:
 
 - Every entry in `src/form-input/variations.js` declares `isDefault: true`; only the canonical text variation should be the default.
-- `src/form-input/edit.js:33-34` and `src/form-input/save.js:51-52` mention radio inputs while explicitly stating that they are not implemented. There is no radio variation.
-- `src/form-input/save.js:54-79` serializes the configurable `value` only for hidden fields, leaving checkbox/radio values unavailable.
 - The editor renders checkbox/radio elements using the placeholder value and placeholder-change handler at `src/form-input/edit.js:155-174`, which is not a meaningful editor model for those controls.
-- `src/form/view.js:30-33` converts `FormData` with `Object.fromEntries()`, discarding all but one value for repeated field names. That prevents checkbox groups, radio groups, and other repeated-value submissions from being represented faithfully.
 - The notification error variation at `src/form-submission-notification/variations.js:51-52` treats a missing type as active even though the success variation does the same.
 
-Required change:
+Verified scope:
 
 - Keep only the text input variation as the default.
-- Either implement radio and repeated-value behavior completely or remove unsupported/dead surface area.
-- Add explicit checkbox/radio value controls and a suitable editor preview model.
-- Serialize form data without losing repeated names.
+- Do not bind checkbox/radio editor previews to the text-placeholder attribute or change handler.
 - Make variation activation mutually exclusive and test the default/missing-attribute case.
+- Radio groups, custom checkbox values, and repeated-value submissions are unadvertised product capabilities, not defects in the currently supported forms. Preserving dormant radio serialization is useful compatibility; implementing complete grouped-field behavior is separate feature work.
 
-Provenance: inherited from Gutenberg.
+Resolution:
+
+- Text Input is now the sole default input variation; the other input variations remain independently available from the inserter and transforms.
+- Checkbox and dormant radio editor previews no longer receive or mutate text-placeholder state.
+- The error notification variation activates only for an explicit `type: 'error'`; the canonical missing-type default remains success.
+- Unit tests enforce the exact default flags, mutually exclusive activation, and the absence of placeholder behavior on checkbox/radio previews.
+
+Provenance: inherited from Gutenberg, then narrowly corrected without expanding the supported field feature set.
 
 ### 11. Medium: the submit-button style is ineffective and the shared stylesheet is printed twice
 
