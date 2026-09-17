@@ -115,6 +115,21 @@ function block_formblox_form_extra_fields_comment_form( $extra_fields, $attribut
 add_filter( 'render_block_formblox_form_extra_fields', __NAMESPACE__ . '\\block_formblox_form_extra_fields_comment_form', 10, 2 );
 
 /**
+ * Formats a submitted value for the plain-text notification email.
+ *
+ * @param mixed $value Submitted value.
+ *
+ * @return string Sanitized plain-text value.
+ */
+function block_formblox_form_format_email_value( $value ) {
+	if ( is_array( $value ) ) {
+		return implode( ', ', array_map( __NAMESPACE__ . '\\block_formblox_form_format_email_value', $value ) );
+	}
+
+	return sanitize_textarea_field( (string) $value );
+}
+
+/**
  * Sends an email if the form is a contact form.
  *
  * @return void
@@ -141,10 +156,10 @@ function block_formblox_form_send_email() {
 		if ( in_array( $key, $skip_fields, true ) ) {
 			continue;
 		}
-		if ( ! is_scalar( $value ) ) {
+		if ( ! is_scalar( $value ) && ! is_array( $value ) ) {
 			continue;
 		}
-		$content .= sanitize_key( $key ) . ': ' . sanitize_textarea_field( (string) $value ) . "\n";
+		$content .= sanitize_text_field( (string) $key ) . ': ' . block_formblox_form_format_email_value( $value ) . "\n";
 	}
 
 	// Filter the email content.

@@ -57,13 +57,28 @@ document
 			submittingStatus.textContent = formSettings.submittingText;
 			form.after( submittingStatus );
 
-			// Get the form data and merge it with the form action and nonce.
-			const formData = Object.fromEntries(
-				new FormData( form ).entries()
-			);
-			formData._ajax_nonce = formSettings.nonce;
-			formData.action = formSettings.action;
-			formData._wp_http_referer = window.location.href;
+			// Preserve repeated controls and use array-style names when needed so
+			// PHP does not discard all but the final value.
+			const submittedData = new FormData( form );
+			const formData = new URLSearchParams();
+			const valuesByName = new Map();
+			[ ...submittedData.entries() ].forEach( ( [ name, value ] ) => {
+				const values = valuesByName.get( name ) || [];
+				values.push( value );
+				valuesByName.set( name, values );
+			} );
+			valuesByName.forEach( ( values, name ) => {
+				const submittedName =
+					values.length > 1 && ! name.endsWith( '[]' )
+						? `${ name }[]`
+						: name;
+				values.forEach( ( value ) => {
+					formData.append( submittedName, value );
+				} );
+			} );
+			formData.set( '_ajax_nonce', formSettings.nonce );
+			formData.set( 'action', formSettings.action );
+			formData.set( '_wp_http_referer', window.location.href );
 
 			try {
 				const response = await fetch( formSettings.ajaxUrl, {
@@ -71,7 +86,7 @@ document
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
 					},
-					body: new URLSearchParams( formData ).toString(),
+					body: formData.toString(),
 				} );
 				const responseData = await response.json();
 				if ( response.ok && true === responseData.success ) {

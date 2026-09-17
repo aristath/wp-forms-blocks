@@ -11,6 +11,8 @@ $_POST    = array(
 	'_wp_http_referer' => home_url( '/contact/' ),
 	'formAction'       => 'mailto:attacker-controlled@example.net',
 	'name'             => 'Ada Lovelace',
+	'Όνομα'            => 'Αριστάθης',
+	'topics'           => array( 'music', 'art' ),
 	'message'          => "<b>Hello</b>\nSecond line",
 );
 $_REQUEST = $_POST;
@@ -19,7 +21,7 @@ add_filter(
 	'pre_wp_mail',
 	static function ( $preempt, $attributes ) {
 		$expected_message = sprintf(
-			"Form submission from %s\nSource: %s\n\nname: Ada Lovelace\nmessage: Hello\nSecond line\n",
+			"Form submission from %s\nSource: %s\n\nname: Ada Lovelace\nΌνομα: Αριστάθης\ntopics: music, art\nmessage: Hello\nSecond line\n",
 			sanitize_text_field( get_bloginfo( 'name' ) ),
 			esc_url_raw( home_url( '/contact/' ) )
 		);

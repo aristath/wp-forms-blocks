@@ -355,11 +355,20 @@ test.describe( 'WP Forms Blocks', () => {
 		await form.locator( '[name="consent"]' ).check();
 		const sourceUrl = page.url();
 		await form.evaluate( ( element ) => {
-			const forgedRecipient = document.createElement( 'input' );
-			forgedRecipient.type = 'hidden';
-			forgedRecipient.name = 'formAction';
-			forgedRecipient.value = 'mailto:attacker-controlled@example.net';
-			element.appendChild( forgedRecipient );
+			for ( const [ name, value ] of [
+				[ 'formAction', 'mailto:attacker-controlled@example.net' ],
+				[ 'topic', 'music' ],
+				[ 'topic', 'art' ],
+				[ 'language[]', 'Greek' ],
+				[ 'language[]', 'English' ],
+				[ 'Όνομα', 'Αριστάθης' ],
+			] ) {
+				const input = document.createElement( 'input' );
+				input.type = 'hidden';
+				input.name = name;
+				input.value = value;
+				element.appendChild( input );
+			}
 		} );
 
 		let releaseSubmission;
@@ -444,6 +453,9 @@ message: Hello from
 Playwright
 consent: on
 source: e2e
+topic: music, art
+language: Greek, English
+Όνομα: Αριστάθης
 `
 		);
 	} );

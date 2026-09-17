@@ -81,6 +81,30 @@ describe( 'Gutenberg form view module', () => {
 		expect( body.get( 'message' ) ).toBe( 'Hello' );
 	} );
 
+	test( 'preserves repeated field values for PHP', async () => {
+		renderDocument( 'email' );
+		const form = document.querySelector( 'form' );
+		form.insertAdjacentHTML(
+			'afterbegin',
+			`<input name="topic" value="music">
+			<input name="topic" value="art">
+			<input name="language[]" value="Greek">
+			<input name="language[]" value="English">`
+		);
+		loadViewModule();
+
+		submit();
+		await Promise.resolve();
+
+		const body = new URLSearchParams(
+			global.fetch.mock.calls[ 0 ][ 1 ].body
+		);
+		expect( body.has( 'topic' ) ).toBe( false );
+		expect( body.getAll( 'topic[]' ) ).toEqual( [ 'music', 'art' ] );
+		expect( body.getAll( 'language[]' ) ).toEqual( [ 'Greek', 'English' ] );
+		expect( body.get( 'message' ) ).toBe( 'Hello' );
+	} );
+
 	test.each( [
 		[ 'custom actions', 'custom', true, 'https://example.com/custom' ],
 		[ 'missing module data', 'email', false, '' ],

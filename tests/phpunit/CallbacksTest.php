@@ -113,9 +113,10 @@ final class CallbacksTest extends TestCase {
 		$_POST            = array(
 			'_wp_http_referer' => '/contact/',
 			'message'          => 'Expected failure',
-			'unsupported'      => array( 'ignored' ),
+			'Όνομα'            => 'Αριστάθης',
+			'topics'           => array( 'music', 'art' ),
 		);
-		$expected_content = "Form submission from Example\nSource: /contact/\n\nmessage: Expected failure\n";
+		$expected_content = "Form submission from Example\nSource: /contact/\n\nmessage: Expected failure\nΌνομα: Αριστάθης\ntopics: music, art\n";
 
 		Functions\expect( 'check_ajax_referer' )->once()->with( 'formblox-form' );
 		Functions\when( 'wp_unslash' )->returnArg();
@@ -127,7 +128,6 @@ final class CallbacksTest extends TestCase {
 			}
 		);
 		Functions\when( 'sanitize_text_field' )->returnArg();
-		Functions\when( 'sanitize_key' )->returnArg();
 		Functions\when( 'sanitize_textarea_field' )->returnArg();
 		Functions\expect( 'apply_filters' )
 			->once()
@@ -247,15 +247,34 @@ final class CallbacksTest extends TestCase {
 	 * KSES receives the complete set of form elements and attributes.
 	 */
 	public function test_kses_form_elements(): void {
-		$allowed = gutenberg_kses_allowed_html( array( 'p' => array() ) );
+		$allowed = gutenberg_kses_allowed_html(
+			array(
+				'p'     => array(),
+				'input' => array( 'existing' => true ),
+			),
+			'post'
+		);
 
 		$this->assertArrayHasKey( 'p', $allowed );
-		$this->assertSame(
-			array( 'type', 'name', 'value', 'checked', 'required', 'aria-required', 'class' ),
-			array_keys( $allowed['input'] )
-		);
-		$this->assertSame( array( 'for', 'class' ), array_keys( $allowed['label'] ) );
-		$this->assertSame( array( 'name', 'required', 'aria-required', 'class' ), array_keys( $allowed['textarea'] ) );
+		$this->assertTrue( $allowed['input']['existing'] );
+		$this->assertArrayHasKey( 'class', $allowed['form'] );
+		$this->assertArrayHasKey( 'id', $allowed['form'] );
+		$this->assertArrayHasKey( 'style', $allowed['form'] );
+		$this->assertArrayHasKey( 'data-*', $allowed['form'] );
+		$this->assertArrayHasKey( 'placeholder', $allowed['input'] );
+		$this->assertArrayHasKey( 'style', $allowed['input'] );
+		$this->assertArrayHasKey( 'style', $allowed['label'] );
+		$this->assertArrayHasKey( 'placeholder', $allowed['textarea'] );
+		$this->assertArrayHasKey( 'style', $allowed['textarea'] );
+	}
+
+	/**
+	 * KSES rules do not leak into unrelated contexts.
+	 */
+	public function test_kses_form_elements_only_apply_to_post_context(): void {
+		$allowed = array( 'p' => array( 'class' => true ) );
+
+		$this->assertSame( $allowed, gutenberg_kses_allowed_html( $allowed, 'data' ) );
 	}
 
 	/**

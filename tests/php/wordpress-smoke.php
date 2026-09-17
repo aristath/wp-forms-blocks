@@ -375,23 +375,41 @@ wp_forms_blocks_integration_assert(
 remove_filter( 'formblox_show_form_submission_notification_block', $notification_override, 99 );
 
 $allowed_html = \WPFormsBlocks\gutenberg_kses_allowed_html(
-	array( 'existing' => array( 'attribute' => array() ) )
+	array( 'existing' => array( 'attribute' => array() ) ),
+	'post'
 );
 wp_forms_blocks_integration_assert(
 	isset( $allowed_html['existing']['attribute'] ),
 	'KSES extension discarded existing allowed HTML.'
 );
 wp_forms_blocks_integration_assert(
-	array( 'type', 'name', 'value', 'checked', 'required', 'aria-required', 'class' ) === array_keys( $allowed_html['input'] ),
-	'Input KSES rules differ from Gutenberg.'
+	isset( $allowed_html['form']['class'], $allowed_html['form']['id'], $allowed_html['form']['style'], $allowed_html['form']['data-*'] ),
+	'Form KSES rules do not preserve block attributes.'
 );
 wp_forms_blocks_integration_assert(
-	array( 'for', 'class' ) === array_keys( $allowed_html['label'] ),
-	'Label KSES rules differ from Gutenberg.'
+	isset( $allowed_html['input']['placeholder'], $allowed_html['input']['style'] ),
+	'Input KSES rules do not preserve block attributes.'
 );
 wp_forms_blocks_integration_assert(
-	array( 'name', 'required', 'aria-required', 'class' ) === array_keys( $allowed_html['textarea'] ),
-	'Textarea KSES rules differ from Gutenberg.'
+	isset( $allowed_html['label']['style'] ),
+	'Label KSES rules do not preserve block attributes.'
+);
+wp_forms_blocks_integration_assert(
+	isset( $allowed_html['textarea']['placeholder'], $allowed_html['textarea']['style'] ),
+	'Textarea KSES rules do not preserve block attributes.'
+);
+wp_forms_blocks_integration_assert(
+	array( 'existing' => array( 'attribute' => array() ) ) === \WPFormsBlocks\gutenberg_kses_allowed_html(
+		array( 'existing' => array( 'attribute' => array() ) ),
+		'data'
+	),
+	'KSES extension changed a non-post context.'
+);
+
+$kses_markup = '<form class="wp-block-formblox-form" id="contact-form" style="margin-top:1px" data-formblox-submission-method="email" enctype="text/plain"><label class="wp-block-formblox-form-input__label" style="color:red"><input class="wp-block-formblox-form-input__input" id="name" type="text" name="name" placeholder="Your name" autocomplete="name" disabled required aria-required="true" tabindex="2" style="color:red"></label><textarea class="wp-block-formblox-form-input__input" id="message" name="message" placeholder="Your message" required aria-required="true" style="color:blue"></textarea></form>';
+wp_forms_blocks_integration_assert(
+	wp_kses_post( $kses_markup ) === $kses_markup,
+	'Post KSES removed markup required by the form blocks.'
 );
 
 echo "WordPress integration tests passed for the faithful port.\n";
