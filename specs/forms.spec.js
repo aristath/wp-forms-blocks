@@ -1,4 +1,11 @@
-const { test, expect } = require( '@wordpress/e2e-test-utils-playwright' );
+const {
+	Admin,
+	Editor,
+	PageUtils,
+	RequestUtils,
+	test,
+	expect,
+} = require( '@wordpress/e2e-test-utils-playwright' );
 
 const successNotification = `<!-- wp:formblox/form-submission-notification -->
 <div class="wp-block-formblox-form-submission-notification formblox-form-notification-type-success"><!-- wp:paragraph -->
@@ -98,6 +105,160 @@ ${ errorNotification }
 <!-- /wp:formblox/form-submit-button -->
 </form>
 <!-- /wp:formblox/form -->`;
+
+const authorFormBlock = {
+	name: 'formblox/form',
+	attributes: {
+		anchor: 'author-contract-form',
+		className: 'author-contract-form',
+		style: {
+			spacing: {
+				padding: {
+					top: '12px',
+					right: '14px',
+					bottom: '16px',
+					left: '18px',
+				},
+			},
+		},
+	},
+	innerBlocks: [
+		{
+			name: 'formblox/form-submission-notification',
+			innerBlocks: [
+				{
+					name: 'core/paragraph',
+					attributes: { content: 'Author submission succeeded' },
+				},
+			],
+		},
+		{
+			name: 'formblox/form-submission-notification',
+			attributes: { type: 'error' },
+			innerBlocks: [
+				{
+					name: 'core/paragraph',
+					attributes: { content: 'Author submission failed' },
+				},
+			],
+		},
+		{
+			name: 'formblox/form-input',
+			attributes: {
+				type: 'text',
+				name: 'full-name',
+				label: 'Full name',
+				placeholder: 'Your full name',
+				required: true,
+				style: { border: { radius: '7px' } },
+			},
+		},
+		{
+			name: 'formblox/form-input',
+			attributes: {
+				type: 'email',
+				name: 'email',
+				label: 'Email address',
+				placeholder: 'you@example.com',
+				required: true,
+			},
+		},
+		{
+			name: 'formblox/form-input',
+			attributes: {
+				type: 'textarea',
+				name: 'message',
+				label: 'Message',
+				placeholder: 'Tell us something',
+				required: true,
+				style: { border: { radius: '9px' } },
+			},
+		},
+		{
+			name: 'formblox/form-input',
+			attributes: {
+				type: 'checkbox',
+				name: 'consent',
+				label: 'I consent',
+				inlineLabel: true,
+				required: true,
+			},
+		},
+		{
+			name: 'formblox/form-input',
+			attributes: {
+				type: 'hidden',
+				name: 'source',
+				value: 'author-e2e',
+			},
+		},
+		{
+			name: 'formblox/form-submit-button',
+			innerBlocks: [
+				{
+					name: 'core/buttons',
+					innerBlocks: [
+						{
+							name: 'core/button',
+							attributes: {
+								tagName: 'button',
+								type: 'submit',
+								text: 'Send author form',
+							},
+						},
+					],
+				},
+			],
+		},
+	],
+};
+
+const getPersistedFormContract = ( content ) => {
+	const document = new window.DOMParser().parseFromString(
+		content,
+		'text/html'
+	);
+	const form = document.querySelector( 'form' );
+	const attributes = ( element ) =>
+		element
+			? Object.fromEntries(
+					element
+						.getAttributeNames()
+						.map( ( name ) => [
+							name,
+							element.getAttribute( name ),
+						] )
+			  )
+			: null;
+
+	return {
+		form: attributes( form ),
+		labels: [ ...document.querySelectorAll( 'label' ) ].map(
+			( label ) => ( {
+				attributes: attributes( label ),
+				text: label.textContent.trim(),
+			} )
+		),
+		fields: [ ...document.querySelectorAll( 'input, textarea' ) ].map(
+			( field ) => ( {
+				tagName: field.tagName.toLowerCase(),
+				attributes: attributes( field ),
+			} )
+		),
+		notifications: [
+			...document.querySelectorAll(
+				'.wp-block-formblox-form-submission-notification'
+			),
+		].map( ( notification ) => ( {
+			attributes: attributes( notification ),
+			text: notification.textContent.trim(),
+		} ) ),
+		submitButton: attributes( document.querySelector( 'button' ) ),
+		submitButtonText: document
+			.querySelector( 'button' )
+			?.textContent.trim(),
+	};
+};
 
 test.describe( 'WP Forms Blocks', () => {
 	test.beforeEach( async ( { requestUtils } ) => {
@@ -275,6 +436,363 @@ test.describe( 'WP Forms Blocks', () => {
 		expect( await editor.getEditedPostContent() ).toContain(
 			'<!-- wp:formblox/form-input {"type":"hidden"'
 		);
+	} );
+
+	test( 'preserves and submits the form created by an Author through the complete WordPress lifecycle', async ( {
+		baseURL,
+		browser,
+		browserName,
+		requestUtils,
+	} ) => {
+		const unique = `${ Date.now() }-${ Math.random()
+			.toString( 36 )
+			.slice( 2 ) }`;
+		const username = `form_author_${ unique }`;
+		const password = 'author-password';
+		const author = await requestUtils.rest( {
+			path: '/wp/v2/users',
+			method: 'POST',
+			data: {
+				username,
+				name: 'Form Author',
+				email: `${ username }@example.com`,
+				password,
+				roles: [ 'author' ],
+			},
+		} );
+		const authorRequestUtils = await RequestUtils.setup( {
+			baseURL,
+			user: { username, password },
+		} );
+		let authorContext;
+		let visitorContext;
+
+		try {
+			const authorState = await authorRequestUtils.setupRest();
+			const currentUser = await authorRequestUtils.rest( {
+				path: '/wp/v2/users/me',
+				params: { context: 'edit' },
+			} );
+			expect( currentUser.roles ).toEqual( [ 'author' ] );
+			expect( currentUser.capabilities?.unfiltered_html ).not.toBe(
+				true
+			);
+
+			authorContext = await browser.newContext( {
+				baseURL,
+				storageState: {
+					cookies: authorState.cookies,
+					origins: [],
+				},
+			} );
+			const authorPage = await authorContext.newPage();
+			const authorEditor = new Editor( { page: authorPage } );
+			const authorAdmin = new Admin( {
+				page: authorPage,
+				pageUtils: new PageUtils( {
+					page: authorPage,
+					browserName,
+				} ),
+				editor: authorEditor,
+			} );
+
+			await authorAdmin.createNewPost( {
+				title: 'Author-created KSES contract form',
+			} );
+			await authorPage
+				.getByRole( 'button', { name: 'Block Inserter' } )
+				.click();
+			await authorPage.getByPlaceholder( 'Search' ).fill( 'Form' );
+			await authorPage
+				.getByRole( 'option', { name: 'Contact Form', exact: true } )
+				.click();
+			await expect(
+				authorEditor.canvas.locator( 'form.wp-block-formblox-form' )
+			).toBeVisible();
+			expect( ( await authorEditor.getBlocks() )[ 0 ].name ).toBe(
+				'formblox/form'
+			);
+
+			await authorPage.evaluate( ( formBlock ) => {
+				const createBlock = ( representation ) =>
+					window.wp.blocks.createBlock(
+						representation.name,
+						representation.attributes || {},
+						( representation.innerBlocks || [] ).map( createBlock )
+					);
+				const form = window.wp.data
+					.select( 'core/block-editor' )
+					.getBlocks()[ 0 ];
+				const dispatcher =
+					window.wp.data.dispatch( 'core/block-editor' );
+
+				dispatcher.updateBlockAttributes(
+					form.clientId,
+					formBlock.attributes
+				);
+				dispatcher.replaceInnerBlocks(
+					form.clientId,
+					formBlock.innerBlocks.map( createBlock )
+				);
+			}, authorFormBlock );
+
+			const createdForm = ( await authorEditor.getBlocks() )[ 0 ];
+			expect( createdForm ).toMatchObject( {
+				name: 'formblox/form',
+				attributes: {
+					anchor: 'author-contract-form',
+					className: 'author-contract-form',
+				},
+			} );
+			expect(
+				createdForm.innerBlocks.map( ( block ) => block.name )
+			).toEqual( [
+				'formblox/form-submission-notification',
+				'formblox/form-submission-notification',
+				'formblox/form-input',
+				'formblox/form-input',
+				'formblox/form-input',
+				'formblox/form-input',
+				'formblox/form-input',
+				'formblox/form-submit-button',
+			] );
+
+			const postId = await authorEditor.publishPost();
+			expect( postId ).toEqual( expect.any( Number ) );
+			const savedPost = await requestUtils.rest( {
+				path: `/wp/v2/posts/${ postId }`,
+				params: { context: 'edit' },
+			} );
+			const persisted = await authorPage.evaluate(
+				getPersistedFormContract,
+				savedPost.content.raw
+			);
+
+			expect( persisted.form ).toMatchObject( {
+				id: 'author-contract-form',
+				enctype: 'text/plain',
+			} );
+			expect( persisted.form.class ).toEqual( expect.any( String ) );
+			expect( persisted.form.class.split( /\s+/ ) ).toEqual(
+				expect.arrayContaining( [
+					'wp-block-formblox-form',
+					'author-contract-form',
+				] )
+			);
+			expect( persisted.form.style ).toContain( 'padding-top:12px' );
+			expect( persisted.form.style ).toContain( 'padding-right:14px' );
+			expect( persisted.form.style ).toContain( 'padding-bottom:16px' );
+			expect( persisted.form.style ).toContain( 'padding-left:18px' );
+			expect( persisted.labels ).toHaveLength( 4 );
+			expect( persisted.labels.map( ( label ) => label.text ) ).toEqual( [
+				'Full name',
+				'Email address',
+				'Message',
+				'I consent',
+			] );
+			expect(
+				persisted.labels[ 3 ].attributes.class.split( /\s+/ )
+			).toEqual(
+				expect.arrayContaining( [
+					'wp-block-formblox-form-input__label',
+					'is-label-inline',
+				] )
+			);
+
+			const fieldsByName = Object.fromEntries(
+				persisted.fields.map( ( field ) => [
+					field.attributes.name,
+					field,
+				] )
+			);
+			expect( Object.keys( fieldsByName ) ).toEqual( [
+				'full-name',
+				'email',
+				'message',
+				'consent',
+				'source',
+			] );
+			expect( fieldsByName[ 'full-name' ] ).toMatchObject( {
+				tagName: 'input',
+				attributes: {
+					type: 'text',
+					name: 'full-name',
+					placeholder: 'Your full name',
+					required: '',
+					'aria-required': 'true',
+				},
+			} );
+			expect( fieldsByName[ 'full-name' ].attributes.class ).toContain(
+				'wp-block-formblox-form-input__input'
+			);
+			expect( fieldsByName[ 'full-name' ].attributes.style ).toContain(
+				'border-radius:7px'
+			);
+			expect( fieldsByName.email ).toMatchObject( {
+				tagName: 'input',
+				attributes: {
+					type: 'email',
+					name: 'email',
+					placeholder: 'you@example.com',
+					required: '',
+					'aria-required': 'true',
+				},
+			} );
+			expect( fieldsByName.message ).toMatchObject( {
+				tagName: 'textarea',
+				attributes: {
+					name: 'message',
+					placeholder: 'Tell us something',
+					required: '',
+					'aria-required': 'true',
+				},
+			} );
+			expect( fieldsByName.message.attributes.style ).toContain(
+				'border-radius:9px'
+			);
+			expect( fieldsByName.consent ).toMatchObject( {
+				tagName: 'input',
+				attributes: {
+					type: 'checkbox',
+					name: 'consent',
+					required: '',
+					'aria-required': 'true',
+				},
+			} );
+			expect( fieldsByName.source ).toEqual( {
+				tagName: 'input',
+				attributes: {
+					type: 'hidden',
+					name: 'source',
+					value: 'author-e2e',
+				},
+			} );
+			expect( persisted.notifications ).toEqual( [
+				expect.objectContaining( {
+					attributes: expect.objectContaining( {
+						class: expect.stringContaining(
+							'formblox-form-notification-type-success'
+						),
+					} ),
+					text: 'Author submission succeeded',
+				} ),
+				expect.objectContaining( {
+					attributes: expect.objectContaining( {
+						class: expect.stringContaining(
+							'formblox-form-notification-type-error'
+						),
+					} ),
+					text: 'Author submission failed',
+				} ),
+			] );
+			expect( persisted.submitButton ).toMatchObject( {
+				type: 'submit',
+				class: expect.stringContaining( 'wp-block-button__link' ),
+			} );
+			expect( persisted.submitButtonText ).toBe( 'Send author form' );
+
+			await authorPage.reload();
+			await expect(
+				authorPage.getByText(
+					'This block contains unexpected or invalid content.'
+				)
+			).toHaveCount( 0 );
+			const reloadedForm = ( await authorEditor.getBlocks() )[ 0 ];
+			expect( reloadedForm ).toMatchObject( {
+				name: 'formblox/form',
+				attributes: {
+					anchor: 'author-contract-form',
+					className: 'author-contract-form',
+				},
+			} );
+			expect( reloadedForm.innerBlocks ).toHaveLength( 8 );
+
+			visitorContext = await browser.newContext( {
+				baseURL,
+				storageState: { cookies: [], origins: [] },
+			} );
+			const visitorPage = await visitorContext.newPage();
+			await visitorPage.goto( savedPost.link );
+			const form = visitorPage.locator( '#author-contract-form' );
+			await expect( form ).toBeVisible();
+			await expect( form ).toHaveClass( /\bwp-block-formblox-form\b/ );
+			await expect( form ).toHaveClass( /\bauthor-contract-form\b/ );
+			await expect( form ).toHaveAttribute( 'enctype', 'text/plain' );
+			await expect( form ).toHaveAttribute( 'method', 'post' );
+			await expect( form ).toHaveAttribute( 'action', '' );
+			await expect( form ).toHaveAttribute(
+				'data-formblox-submission-method',
+				'email'
+			);
+			await expect( form ).toHaveCSS( 'padding-top', '12px' );
+			await expect( form ).toHaveCSS( 'padding-right', '14px' );
+			await expect( form ).toHaveCSS( 'padding-bottom', '16px' );
+			await expect( form ).toHaveCSS( 'padding-left', '18px' );
+			await expect( form.locator( 'label' ) ).toHaveCount( 4 );
+			await expect(
+				form.locator( '[name="full-name"]' )
+			).toHaveAttribute( 'placeholder', 'Your full name' );
+			await expect( form.locator( '[name="full-name"]' ) ).toHaveCSS(
+				'border-radius',
+				'7px'
+			);
+			await expect(
+				form.locator( 'textarea[name="message"]' )
+			).toHaveCSS( 'border-radius', '9px' );
+			await expect( form.locator( '[name="source"]' ) ).toHaveValue(
+				'author-e2e'
+			);
+
+			await form.locator( '[name="full-name"]' ).fill( 'Author User' );
+			await form.locator( '[name="email"]' ).fill( 'author@example.com' );
+			await form
+				.locator( '[name="message"]' )
+				.fill( 'Saved, rendered, and submitted' );
+			await form.locator( '[name="consent"]' ).check();
+			const sourceUrl = visitorPage.url();
+			await form
+				.getByRole( 'button', { name: 'Send author form' } )
+				.click();
+
+			await expect( visitorPage ).toHaveURL(
+				/[?&]formblox-form-result=success/
+			);
+			const successNotice = visitorPage
+				.getByText( 'Author submission succeeded' )
+				.locator( '..' );
+			await expect( successNotice ).toBeVisible();
+			await expect( successNotice ).toHaveAttribute( 'role', 'status' );
+			await expect( successNotice ).toBeFocused();
+			await expect(
+				visitorPage.getByText( 'Author submission failed' )
+			).toHaveCount( 0 );
+
+			const mail = await requestUtils.rest( {
+				path: '/wp-forms-blocks-test/v1/mail',
+			} );
+			expect( mail.to ).toBe( 'admin@example.com' );
+			expect( mail.subject ).toBe( 'Form submission' );
+			expect( mail.message ).toBe(
+				`Form submission from WP Forms Blocks E2E
+Source: ${ sourceUrl }
+
+full-name: Author User
+email: author@example.com
+message: Saved, rendered, and submitted
+consent: on
+source: author-e2e
+`
+			);
+		} finally {
+			await visitorContext?.close();
+			await authorContext?.close();
+			await authorRequestUtils.request.dispose();
+			await requestUtils.rest( {
+				path: `/wp/v2/users/${ author.id }`,
+				method: 'DELETE',
+				params: { force: true, reassign: 1 },
+			} );
+		}
 	} );
 
 	test( 'renders every field type and submits email successfully', async ( {
