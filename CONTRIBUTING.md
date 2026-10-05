@@ -64,9 +64,10 @@ npm run test:coverage
 npm run test:php
 npm run test:wordpress
 npm run test:e2e
+npm run test:mcp
 ```
 
-`npm test` runs the complete test sequence. The WordPress and browser suites use disposable SQLite databases and do not touch the development database.
+`npm test` runs the core test sequence. `npm run test:mcp` separately downloads the pinned official MCP Adapter 0.7.0 release and verifies discovery and execution in a disposable installation. The ability tests compare PHP-generated markup with Gutenberg serialization, exercise permissions, revisions, rollback, shared owners, and concurrent retries, and reopen agent-created forms in the real editor before testing submission. The WordPress and browser suites use disposable SQLite databases and do not touch the development database.
 
 ## Plugin Check
 

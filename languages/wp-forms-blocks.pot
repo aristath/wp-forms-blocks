@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-17T09:34:37+00:00\n"
+"POT-Creation-Date: 2026-10-05T11:07:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wp-forms-blocks\n"
@@ -37,6 +37,182 @@ msgstr ""
 #. Author URI of the plugin
 #: wp-forms-blocks.php
 msgid "https://aristath.github.io/"
+msgstr ""
+
+#: includes/class-form-abilities.php:25
+msgid "Forms"
+msgstr ""
+
+#: includes/class-form-abilities.php:26
+msgid "Build and manage native Gutenberg forms in WordPress content."
+msgstr ""
+
+#: includes/class-form-abilities.php:38
+msgid "Describe form capabilities"
+msgstr ""
+
+#: includes/class-form-abilities.php:38
+msgid "Discover supported field types, templates, block definitions and editing conventions. These abilities manage form configuration; they do not submit forms, send email, or retrieve submission entries."
+msgstr ""
+
+#: includes/class-form-abilities.php:39
+msgid "List forms"
+msgstr ""
+
+#: includes/class-form-abilities.php:39
+msgid "Discover forms in content you can edit. Pagination scans owning posts, including posts without forms; continue until next_page is null. A post_id restricts the scan to one owner. Synced-pattern references identify their separate owner and are not automatically followed. Returned paths count named blocks only, excluding freeform HTML."
+msgstr ""
+
+#: includes/class-form-abilities.php:40
+msgid "Get form"
+msgstr ""
+
+#: includes/class-form-abilities.php:40
+msgid "Read a complete form definition with HTML-sourced field properties, relative child paths, and the SHA-256 content_version of its owning post. Use the owner post_id and absolute form path returned by discovery. Editing a shared pattern or template affects all its uses."
+msgstr ""
+
+#: includes/class-form-abilities.php:41
+msgid "Create form"
+msgstr ""
+
+#: includes/class-form-abilities.php:41
+msgid "Insert a structured form into an existing content owner. Create a draft post/page with WordPress content tools first when needed. Supply its current SHA-256 content_version and a unique request_id. parent_path selects a Group/Column, or [] selects the content root; index is a named-block sibling index, omitted to append. Publication status is preserved: edits to published content are immediately live. Contact forms email the site administrator; custom forms submit to the configured URL."
+msgstr ""
+
+#: includes/class-form-abilities.php:42
+msgid "Update form"
+msgstr ""
+
+#: includes/class-form-abilities.php:42
+msgid "Apply ordered update/insert/remove/move operations to one form. Operation paths and parent_path are relative to the form root ([]); paths refer to the result of preceding operations. Move index refers to the destination list after removing the source. Style changes replace the style object; include existing properties to retain them. Unknown existing blocks are retained but cannot be rebuilt. Supply the owner content_version; stale edits fail. Published content changes immediately."
+msgstr ""
+
+#: includes/class-form-abilities.php:43
+msgid "Duplicate form"
+msgstr ""
+
+#: includes/class-form-abilities.php:43
+msgid "Copy a form into an explicit target owner. Supply source and target content versions, target_post_id, and a unique request_id. Both owners require edit permission. Anchored blocks receive fresh anchors. Target parent_path/index use the same placement conventions as create-form. Publication status is preserved."
+msgstr ""
+
+#: includes/class-form-abilities.php:44
+msgid "Delete form"
+msgstr ""
+
+#: includes/class-form-abilities.php:44
+msgid "Remove exactly one form subtree from its owning content while preserving surrounding content. Does not delete the post, comments, privacy requests, or other forms. Requires the owner content_version. Removing a form from published content takes effect immediately."
+msgstr ""
+
+#: includes/class-form-abilities.php:45
+msgid "Validate form"
+msgstr ""
+
+#: includes/class-form-abilities.php:45
+msgid "Validate a proposed structured form definition and return Gutenberg saved markup and its parsed definition without saving, frontend rendering, submission, email, or privacy-request processing. Unsupported fields, duplicate names, invalid placement, and broken native submission contracts are rejected."
+msgstr ""
+
+#: includes/class-form-abilities.php:108
+msgid "You cannot manage forms in this content."
+msgstr ""
+
+#: includes/class-form-codec.php:219
+#: src/form/utils.js:14
+msgid "Your form has been submitted successfully"
+msgstr ""
+
+#: includes/class-form-codec.php:220
+#: src/form-submission-notification/variations.js:50
+#: src/form/utils.js:34
+msgid "There was an error submitting your form."
+msgstr ""
+
+#: includes/class-form-codec.php:234
+#: src/form/index.js:33
+#: src/form/variations.js:34
+#: src/form/variations.js:83
+msgid "Email"
+msgstr ""
+
+#: includes/class-form-codec.php:234
+#: src/form/variations.js:146
+msgid "Request data export"
+msgstr ""
+
+#: includes/class-form-codec.php:234
+#: src/form/variations.js:156
+msgid "Request data deletion"
+msgstr ""
+
+#: includes/class-form-codec.php:234
+#: src/form-input/edit.js:101
+#: src/form/index.js:25
+#: src/form/variations.js:26
+#: src/form/variations.js:73
+msgid "Name"
+msgstr ""
+
+#: includes/class-form-codec.php:234
+#: src/form/index.js:41
+#: src/form/variations.js:42
+#: src/form/variations.js:93
+msgid "Comment"
+msgstr ""
+
+#: includes/class-form-codec.php:339
+#: includes/class-form-codec.php:396
+#: src/form-submit-button/index.js:19
+msgid "Submit"
+msgstr ""
+
+#: includes/class-form-codec.php:369
+#: includes/class-form-codec.php:379
+#: src/form-input/edit.js:139
+msgid "Label"
+msgstr ""
+
+#: includes/class-form-service.php:59
+msgid "The requested content cannot contain editable forms."
+msgstr ""
+
+#: includes/class-form-service.php:62
+msgid "You cannot access forms in this content."
+msgstr ""
+
+#: includes/class-form-service.php:146
+msgid "Unsupported content type."
+msgstr ""
+
+#: includes/class-form-service.php:265
+msgid "Form editing requires transactional WordPress database tables."
+msgstr ""
+
+#: includes/class-form-service.php:270
+#: includes/class-form-service.php:279
+msgid "Could not lock the content for editing."
+msgstr ""
+
+#: includes/class-form-service.php:297
+msgid "This request ID was already used with different input."
+msgstr ""
+
+#: includes/class-form-service.php:305
+msgid "The content changed. Read it again before editing."
+msgstr ""
+
+#: includes/class-form-service.php:327
+msgid "Form edits cannot change publication status. The edit was rolled back."
+msgstr ""
+
+#: includes/class-form-service.php:352
+msgid "WordPress filters changed the proposed content or publication status. The edit was rolled back."
+msgstr ""
+
+#: includes/class-form-service.php:371
+msgid "Could not record the operation. The edit was rolled back."
+msgstr ""
+
+#: includes/class-form-service.php:377
+msgid "Could not save the form edit."
 msgstr ""
 
 #: src/form-input/index.php:41
@@ -79,13 +255,6 @@ msgstr ""
 msgid "Required"
 msgstr ""
 
-#: src/form-input/edit.js:101
-#: src/form/index.js:25
-#: src/form/variations.js:26
-#: src/form/variations.js:73
-msgid "Name"
-msgstr ""
-
 #: src/form-input/edit.js:108
 msgid "Affects the \"name\" attribute of the input element, and is used as a name for the form submission results."
 msgstr ""
@@ -96,10 +265,6 @@ msgstr ""
 
 #: src/form-input/edit.js:121
 msgid "Sets the stored value for this hidden field."
-msgstr ""
-
-#: src/form-input/edit.js:139
-msgid "Label"
 msgstr ""
 
 #: src/form-input/edit.js:140
@@ -218,15 +383,6 @@ msgstr ""
 msgid "Error/failure message for form submissions."
 msgstr ""
 
-#: src/form-submission-notification/variations.js:50
-#: src/form/utils.js:34
-msgid "There was an error submitting your form."
-msgstr ""
-
-#: src/form-submit-button/index.js:19
-msgid "Submit"
-msgstr ""
-
 #: src/form/edit.js:61
 #: src/form/edit.js:70
 msgid "Submissions method"
@@ -261,22 +417,6 @@ msgstr ""
 msgid "The URL where the form should be submitted."
 msgstr ""
 
-#: src/form/index.js:33
-#: src/form/variations.js:34
-#: src/form/variations.js:83
-msgid "Email"
-msgstr ""
-
-#: src/form/index.js:41
-#: src/form/variations.js:42
-#: src/form/variations.js:93
-msgid "Comment"
-msgstr ""
-
-#: src/form/utils.js:14
-msgid "Your form has been submitted successfully"
-msgstr ""
-
 #: src/form/variations.js:10
 msgid "Contact Form"
 msgstr ""
@@ -307,14 +447,6 @@ msgstr ""
 
 #: src/form/variations.js:136
 msgid "Enter your email address."
-msgstr ""
-
-#: src/form/variations.js:146
-msgid "Request data export"
-msgstr ""
-
-#: src/form/variations.js:156
-msgid "Request data deletion"
 msgstr ""
 
 #: src/form-input/block.json

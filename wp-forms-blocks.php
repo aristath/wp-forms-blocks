@@ -23,6 +23,9 @@ define( 'FORMBLOX_DIR', plugin_dir_path( __FILE__ ) );
 define( 'FORMBLOX_URL', plugin_dir_url( __FILE__ ) );
 
 require_once FORMBLOX_DIR . 'includes/assets.php';
+require_once FORMBLOX_DIR . 'includes/class-form-codec.php';
+require_once FORMBLOX_DIR . 'includes/class-form-service.php';
+require_once FORMBLOX_DIR . 'includes/class-form-abilities.php';
 require_once FORMBLOX_DIR . 'build/script-module-data.php';
 require_once FORMBLOX_DIR . 'build/kses-allowed-html.php';
 require_once FORMBLOX_DIR . 'build/form/index.php';

@@ -29,6 +29,7 @@ wp_test=(
 "${wp_test[@]}" plugin activate wp-forms-blocks --quiet
 "${wp_test[@]}" eval-file "$test_dir/php/wordpress-smoke.php"
 "${wp_test[@]}" eval-file "$test_dir/php/wordpress-privacy-smoke.php"
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-smoke.php"
 
 ajax_success=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-smoke.php")
 [[ "$ajax_success" == *'"success":true'* ]]
@@ -38,5 +39,23 @@ ajax_failure=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-failure.p
 
 invalid_nonce=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-ajax-invalid-nonce.php")
 [[ "$invalid_nonce" == '-1' ]]
+
+concurrent_post_id=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" setup)
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" run "$concurrent_post_id" > "$database_dir/first.json" &
+first_worker=$!
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" run "$concurrent_post_id" > "$database_dir/second.json" &
+second_worker=$!
+wait "$first_worker"
+wait "$second_worker"
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" verify "$concurrent_post_id" "$database_dir/first.json" "$database_dir/second.json"
+
+concurrent_post_id=$("${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" setup)
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" run "$concurrent_post_id" first > "$database_dir/first.json" &
+first_worker=$!
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" run "$concurrent_post_id" second > "$database_dir/second.json" &
+second_worker=$!
+wait "$first_worker"
+wait "$second_worker"
+"${wp_test[@]}" eval-file "$test_dir/php/wordpress-abilities-concurrency.php" verify-stale "$concurrent_post_id" "$database_dir/first.json" "$database_dir/second.json"
 
 echo "All isolated WordPress integration tests passed."

@@ -75,6 +75,7 @@
 		"test": "npm run test:coverage && npm run test:php && npm run test:wordpress && npm run test:e2e",
 		"test:e2e": "tests/run-e2e-tests.sh",
 		"test:fixtures": "wp-scripts test-unit-js tests/js/serialization.test.js --runInBand",
+		"test:mcp": "tests/run-mcp-tests.sh",
 		"test:php": "composer test",
 		"test:unit": "wp-scripts test-unit-js --runInBand",
 		"test:coverage": "wp-scripts test-unit-js --runInBand --coverage",

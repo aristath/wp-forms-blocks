@@ -22,6 +22,7 @@
 /prettier.config.cjs
 /src
 /tests
+/specs
 /vendor
 /webpack.config.js
 /README.md

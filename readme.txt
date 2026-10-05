@@ -18,6 +18,8 @@ Email forms send submissions to the Administration Email Address configured in W
 
 Its four blocks use the plugin-owned formblox namespace.
 
+Authenticated AI agents can discover, validate, create, read, edit, duplicate, and delete forms through eight native WordPress abilities. Connect through the WordPress Abilities REST API or the separately installed official WordPress MCP Adapter. Agents use the editing permissions of their WordPress user; content-version checks protect against stale edits. Forms remain editable in Gutenberg. See the repository README for connection details and examples.
+
 == Installation ==
 
 1. Upload the plugin directory to /wp-content/plugins/.
@@ -27,4 +29,5 @@ Its four blocks use the plugin-owned formblox namespace.
 == Changelog ==
 
 = 0.1.0 =
+* Native WordPress abilities for agent-driven form management, with optional MCP Adapter discovery.
 * Initial release with contact, comment, privacy-request, and custom-action forms.
